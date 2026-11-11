@@ -5351,7 +5351,63 @@ Results have been saved to:
       <source>No images to process with the selected skip statuses.</source>
       <translation>選択した状態をスキップすると処理する画像はありません。</translation>
     </message>
-  </context>
+      <message>
+      <source>No Images</source>
+      <translation>画像なし</translation>
+    </message>
+    <message>
+      <source>Please open a folder or images first.</source>
+      <translation>先にフォルダまたは画像を開いてください。</translation>
+    </message>
+    <message>
+      <source>Labels modified successfully!</source>
+      <translation>ラベルの更新に成功しました！</translation>
+    </message>
+    <message>
+      <source>An error occurred while updating the labels.</source>
+      <translation>ラベルの更新中にエラーが発生しました。</translation>
+    </message>
+    <message>
+      <source>Delete Label</source>
+      <translation>ラベルを削除</translation>
+    </message>
+    <message>
+      <source>Delete label '{label}' and remove all matching annotations from the entire dataset?\n\nThis cannot be undone.</source>
+      <translation>ラベル '{label}' を削除し、データセット全体の一致する注釈を削除しますか？\n\nこの操作は元に戻せません。</translation>
+    </message>
+    <message>
+      <source>Merge Label</source>
+      <translation>ラベルを統合</translation>
+    </message>
+    <message>
+      <source>No other labels available to merge into.</source>
+      <translation>統合先にできる他のラベルがありません。</translation>
+    </message>
+    <message>
+      <source>Merge '{label}' into which existing label?\nAll matching annotations in the dataset will be updated.</source>
+      <translation>'{label}' をどの既存ラベルに統合しますか？\nデータセット内の一致する注釈がすべて更新されます。</translation>
+    </message>
+    <message>
+      <source>Merge label '{source}' into '{target}' across the entire dataset?\n\nThe source label will be removed from the Labels panel.</source>
+      <translation>ラベル '{source}' を '{target}' にデータセット全体で統合しますか？\n\n元のラベルは Labels パネルから削除されます。</translation>
+    </message>
+    <message>
+      <source>Rename Label</source>
+      <translation>ラベル名を変更</translation>
+    </message>
+    <message>
+      <source>Enter a new name for '{label}'.\nAll matching annotations in the dataset will be updated.</source>
+      <translation>'{label}' の新しい名前を入力してください。\nデータセット内の一致する注釈がすべて更新されます。</translation>
+    </message>
+    <message>
+      <source>Label name cannot be empty.</source>
+      <translation>ラベル名は空にできません。</translation>
+    </message>
+    <message>
+      <source>Label '{target}' already exists.\n\nMerge '{source}' into '{target}' instead?</source>
+      <translation>ラベル '{target}' は既に存在します。\n\n代わりに '{source}' を '{target}' に統合しますか？</translation>
+    </message>
+</context>
   <context>
     <name>Model</name>
     <message>
@@ -11202,6 +11258,25 @@ Failed: %d</source>
     <message>
       <source>Don't show again</source>
       <translation>今後表示しない</translation>
+    </message>
+  </context>
+  <context>
+    <name>UniqueLabelQListWidget</name>
+    <message>
+      <source>Delete Label…</source>
+      <translation>ラベルを削除…</translation>
+    </message>
+    <message>
+      <source>Merge into Existing Label…</source>
+      <translation>既存ラベルに統合…</translation>
+    </message>
+    <message>
+      <source>Rename Label…</source>
+      <translation>ラベル名を変更…</translation>
+    </message>
+    <message>
+      <source>Toggle Lock</source>
+      <translation>ロック切替</translation>
     </message>
   </context>
 </TS>

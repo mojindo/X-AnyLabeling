@@ -5124,7 +5124,63 @@ Results have been saved to:
       <source>No images to process with the selected skip statuses.</source>
       <translation>No images to process with the selected skip statuses.</translation>
     </message>
-  </context>
+      <message>
+      <source>No Images</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Please open a folder or images first.</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Labels modified successfully!</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>An error occurred while updating the labels.</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Delete Label</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Delete label '{label}' and remove all matching annotations from the entire dataset?\n\nThis cannot be undone.</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Merge Label</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>No other labels available to merge into.</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Merge '{label}' into which existing label?\nAll matching annotations in the dataset will be updated.</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Merge label '{source}' into '{target}' across the entire dataset?\n\nThe source label will be removed from the Labels panel.</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Rename Label</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Enter a new name for '{label}'.\nAll matching annotations in the dataset will be updated.</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Label name cannot be empty.</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Label '{target}' already exists.\n\nMerge '{source}' into '{target}' instead?</source>
+      <translation type="unfinished"></translation>
+    </message>
+</context>
   <context>
     <name>Model</name>
     <message>
@@ -10582,6 +10638,25 @@ Response preview:
     <message>
       <source>Search options...</source>
       <translation>Search options...</translation>
+    </message>
+  </context>
+  <context>
+    <name>UniqueLabelQListWidget</name>
+    <message>
+      <source>Delete Label…</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Merge into Existing Label…</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Rename Label…</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <source>Toggle Lock</source>
+      <translation type="unfinished"></translation>
     </message>
   </context>
 </TS>

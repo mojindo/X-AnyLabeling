@@ -5318,7 +5318,63 @@ Results have been saved to:
       <source>No images to process with the selected skip statuses.</source>
       <translation>按所选状态跳过后，没有可处理的图片。</translation>
     </message>
-  </context>
+      <message>
+      <source>No Images</source>
+      <translation>无图像</translation>
+    </message>
+    <message>
+      <source>Please open a folder or images first.</source>
+      <translation>请先打开文件夹或图像。</translation>
+    </message>
+    <message>
+      <source>Labels modified successfully!</source>
+      <translation>标签修改成功！</translation>
+    </message>
+    <message>
+      <source>An error occurred while updating the labels.</source>
+      <translation>更新标签时发生错误。</translation>
+    </message>
+    <message>
+      <source>Delete Label</source>
+      <translation>删除标签</translation>
+    </message>
+    <message>
+      <source>Delete label '{label}' and remove all matching annotations from the entire dataset?\n\nThis cannot be undone.</source>
+      <translation>删除标签 '{label}'，并从整个数据集中移除所有匹配的标注？\n\n此操作无法撤销。</translation>
+    </message>
+    <message>
+      <source>Merge Label</source>
+      <translation>合并标签</translation>
+    </message>
+    <message>
+      <source>No other labels available to merge into.</source>
+      <translation>没有可合并到的其他标签。</translation>
+    </message>
+    <message>
+      <source>Merge '{label}' into which existing label?\nAll matching annotations in the dataset will be updated.</source>
+      <translation>将 '{label}' 合并到哪个已有标签？\n数据集中所有匹配的标注都会被更新。</translation>
+    </message>
+    <message>
+      <source>Merge label '{source}' into '{target}' across the entire dataset?\n\nThe source label will be removed from the Labels panel.</source>
+      <translation>将标签 '{source}' 合并到 '{target}'（作用于整个数据集）？\n\n源标签将从 Labels 面板中移除。</translation>
+    </message>
+    <message>
+      <source>Rename Label</source>
+      <translation>重命名标签</translation>
+    </message>
+    <message>
+      <source>Enter a new name for '{label}'.\nAll matching annotations in the dataset will be updated.</source>
+      <translation>为 '{label}' 输入新名称。\n数据集中所有匹配的标注都会被更新。</translation>
+    </message>
+    <message>
+      <source>Label name cannot be empty.</source>
+      <translation>标签名称不能为空。</translation>
+    </message>
+    <message>
+      <source>Label '{target}' already exists.\n\nMerge '{source}' into '{target}' instead?</source>
+      <translation>标签 '{target}' 已存在。\n\n是否改为将 '{source}' 合并到 '{target}'？</translation>
+    </message>
+</context>
   <context>
     <name>Model</name>
     <message>
@@ -11169,6 +11225,25 @@ Failed: %d</source>
     <message>
       <source>Processing cancelled.</source>
       <translation>处理已取消。</translation>
+    </message>
+  </context>
+  <context>
+    <name>UniqueLabelQListWidget</name>
+    <message>
+      <source>Delete Label…</source>
+      <translation>删除标签…</translation>
+    </message>
+    <message>
+      <source>Merge into Existing Label…</source>
+      <translation>合并到已有标签…</translation>
+    </message>
+    <message>
+      <source>Rename Label…</source>
+      <translation>重命名标签…</translation>
+    </message>
+    <message>
+      <source>Toggle Lock</source>
+      <translation>切换锁定</translation>
     </message>
   </context>
 </TS>

@@ -5353,7 +5353,63 @@ Results have been saved to:
       <source>No images to process with the selected skip statuses.</source>
       <translation>선택한 상태를 건너뛰면 처리할 이미지가 없습니다.</translation>
     </message>
-  </context>
+      <message>
+      <source>No Images</source>
+      <translation>이미지 없음</translation>
+    </message>
+    <message>
+      <source>Please open a folder or images first.</source>
+      <translation>먼저 폴더나 이미지를 열어주세요.</translation>
+    </message>
+    <message>
+      <source>Labels modified successfully!</source>
+      <translation>라벨이 성공적으로 수정되었습니다!</translation>
+    </message>
+    <message>
+      <source>An error occurred while updating the labels.</source>
+      <translation>라벨을 업데이트하는 중 오류가 발생했습니다.</translation>
+    </message>
+    <message>
+      <source>Delete Label</source>
+      <translation>라벨 삭제</translation>
+    </message>
+    <message>
+      <source>Delete label '{label}' and remove all matching annotations from the entire dataset?\n\nThis cannot be undone.</source>
+      <translation>라벨 '{label}'을(를) 삭제하고 전체 데이터셋에서 일치하는 주석을 제거할까요?\n\n이 작업은 되돌릴 수 없습니다.</translation>
+    </message>
+    <message>
+      <source>Merge Label</source>
+      <translation>라벨 병합</translation>
+    </message>
+    <message>
+      <source>No other labels available to merge into.</source>
+      <translation>병합할 다른 라벨이 없습니다.</translation>
+    </message>
+    <message>
+      <source>Merge '{label}' into which existing label?\nAll matching annotations in the dataset will be updated.</source>
+      <translation>'{label}'을(를) 어떤 기존 라벨로 병합할까요?\n데이터셋의 일치하는 주석이 모두 업데이트됩니다.</translation>
+    </message>
+    <message>
+      <source>Merge label '{source}' into '{target}' across the entire dataset?\n\nThe source label will be removed from the Labels panel.</source>
+      <translation>라벨 '{source}'을(를) '{target}'(으)로 전체 데이터셋에서 병합할까요?\n\n원본 라벨은 Labels 패널에서 제거됩니다.</translation>
+    </message>
+    <message>
+      <source>Rename Label</source>
+      <translation>라벨 이름 변경</translation>
+    </message>
+    <message>
+      <source>Enter a new name for '{label}'.\nAll matching annotations in the dataset will be updated.</source>
+      <translation>'{label}'의 새 이름을 입력하세요.\n데이터셋의 일치하는 주석이 모두 업데이트됩니다.</translation>
+    </message>
+    <message>
+      <source>Label name cannot be empty.</source>
+      <translation>라벨 이름은 비워둘 수 없습니다.</translation>
+    </message>
+    <message>
+      <source>Label '{target}' already exists.\n\nMerge '{source}' into '{target}' instead?</source>
+      <translation>라벨 '{target}'이(가) 이미 있습니다.\n\n대신 '{source}'을(를) '{target}'(으)로 병합할까요?</translation>
+    </message>
+</context>
   <context>
     <name>Model</name>
     <message>
@@ -11204,6 +11260,25 @@ Failed: %d</source>
     <message>
       <source>Don't show again</source>
       <translation>다시 표시하지 않음</translation>
+    </message>
+  </context>
+  <context>
+    <name>UniqueLabelQListWidget</name>
+    <message>
+      <source>Delete Label…</source>
+      <translation>라벨 삭제…</translation>
+    </message>
+    <message>
+      <source>Merge into Existing Label…</source>
+      <translation>기존 라벨로 병합…</translation>
+    </message>
+    <message>
+      <source>Rename Label…</source>
+      <translation>라벨 이름 변경…</translation>
+    </message>
+    <message>
+      <source>Toggle Lock</source>
+      <translation>잠금 전환</translation>
     </message>
   </context>
 </TS>

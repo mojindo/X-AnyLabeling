@@ -1,0 +1,37 @@
+---
+description: All new UI text and windows must follow the app language setting
+alwaysApply: true
+---
+
+# UI Language Follows App Setting
+
+All new features, dialogs, menus, tooltips, message boxes, and panels must follow the application language (`en_US` / `zh_CN` / `ja_JP` / `ko_KR`). Never hardcode Chinese-only or English-only user-visible strings in feature code.
+
+## Required Pattern
+
+1. Write **English** source strings in code.
+2. Wrap every user-visible string with `self.tr("...")` on QObject subclasses, or `QCoreApplication.translate("ContextName", "...")` when no `self.tr` is available.
+3. Keep placeholders stable and format **after** translate:
+
+```python
+# ✅ GOOD
+self.tr("Delete label '{label}'?").format(label=label)
+
+# ❌ BAD
+f"删除标签 {label}？"
+self.tr(f"Delete label '{label}'?")
+```
+
+4. After adding or changing UI strings, refresh translations:
+
+```bash
+python scripts/generate_languages.py
+# or, if .ts was edited manually:
+python scripts/compile_languages.py
+```
+
+5. Fill translations in `anylabeling/resources/translations/{zh_CN,ja_JP,ko_KR}.ts` for new sources. `en_US` may stay unfinished (source English is shown).
+
+## Scope
+
+Applies to Labels panel, Label Manager, new docks/windows, confirm dialogs, status popups, and any secondary UI added in this fork.

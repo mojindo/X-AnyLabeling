@@ -885,6 +885,16 @@ X-AnyLabeling 支持一键导入基于 [MM-Grounding-DINO](https://github.com/op
 
 用户可通过点击 **工具** -> **标签管理器** 选项（快捷键：**Alt+L**），在弹出的标签管理窗口中进行相应操作。
 
+**右侧 Labels 面板右键操作**：
+
+在右侧 **Labels** 面板的标签项上右键，可直接对整个数据集执行三种模式：
+
+1. **Delete Label…**：删除该标签，并遍历当前打开的全部图片标注，移除对应标签对象。
+2. **Merge into Existing Label…**：将该标签合并到一个已有标签上，源标签会从 Labels 面板中移除。
+3. **Rename Label…**：将该标签改名为新名称；若新名称已存在，可选择改为合并。
+
+菜单中仍保留 **Toggle Lock**，用于切换该类别的会话级锁定状态。
+
 **显隐与锁定快捷操作**：
 
 - 在 `Visible` 或 `Lock` 列上右键，选择 **Select All** 或 **Deselect All**，可批量勾选或取消该列的复选框。

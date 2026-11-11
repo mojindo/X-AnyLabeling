@@ -353,6 +353,15 @@ class LabelingWidget(LabelDialog):
         self.unique_label_list.label_visibility_changed.connect(
             self.set_label_visibility
         )
+        self.unique_label_list.label_delete_requested.connect(
+            self.delete_unique_label
+        )
+        self.unique_label_list.label_merge_requested.connect(
+            self.merge_unique_label
+        )
+        self.unique_label_list.label_rename_requested.connect(
+            self.rename_unique_label
+        )
         self.load_labels(self._config["labels"])
         self.label_dock = QtWidgets.QDockWidget(self.tr("Labels"), self)
         self.label_dock.setObjectName("Labels")
@@ -4597,6 +4606,239 @@ class LabelingWidget(LabelDialog):
         if shapes:
             self._update_shapes_lock(shapes)
         self.refresh_panel_controls()
+
+    def _ensure_label_info_entry(self, label):
+        if label in self.label_info:
+            return
+        self.label_info[label] = dict(
+            delete=False,
+            value=None,
+            color=list(self._get_rgb_by_label(label)),
+            opacity=LABEL_OPACITY,
+            visible=True,
+            locked=self.unique_label_list.lock_states.get(label, False),
+        )
+
+    def _image_file_list(self):
+        return [
+            self.file_list_widget.item(i).text()
+            for i in range(self.file_list_widget.count())
+        ]
+
+    def _reset_label_info_ops(self):
+        for label in list(self.unique_label_list.all_labels()):
+            self._ensure_label_info_entry(label)
+            self.label_info[label]["delete"] = False
+            self.label_info[label]["value"] = None
+
+    def apply_unique_label_dataset_op(
+        self, source_label, *, delete=False, new_value=None
+    ):
+        """Apply delete / merge / rename across the whole opened dataset."""
+        image_files = self._image_file_list()
+        if not image_files:
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("No Images"),
+                self.tr("Please open a folder or images first."),
+            )
+            return False
+
+        self._reset_label_info_ops()
+        self._ensure_label_info_entry(source_label)
+        self.label_info[source_label]["delete"] = bool(delete)
+        self.label_info[source_label]["value"] = new_value
+
+        ok = LabelModifyDialog.rewrite_annotation_labels(
+            image_files,
+            self.output_dir,
+            self.label_info,
+            self.unique_label_list.lock_states,
+        )
+        if not ok:
+            popup = Popup(
+                self.tr("An error occurred while updating the labels."),
+                self,
+                icon=new_icon_path("error", "svg"),
+            )
+            popup.show_popup(self)
+            return False
+
+        updated_label_info = {}
+        states = self.unique_label_list.lock_states
+        for label, info in list(self.label_info.items()):
+            if info.get("delete"):
+                self.unique_label_list.remove_items_by_label(label)
+                self.label_dialog.remove_label_history(label)
+                states.pop(label, None)
+                continue
+            target = info.get("value")
+            if target:
+                self.unique_label_list.remove_items_by_label(label)
+                self.label_dialog.remove_label_history(label)
+                self.label_dialog.add_label_history(target)
+                if label in states:
+                    states[target] = states.pop(label)
+                if target not in updated_label_info:
+                    target_info = self.label_info.get(target)
+                    if (
+                        target_info is not None
+                        and target != label
+                        and not target_info.get("delete")
+                        and not target_info.get("value")
+                    ):
+                        updated_label_info[target] = dict(target_info)
+                    else:
+                        updated_label_info[target] = dict(info)
+                    updated_label_info[target]["delete"] = False
+                    updated_label_info[target]["value"] = None
+                if not self.unique_label_list.find_items_by_label(target):
+                    unique_label_item = (
+                        self.unique_label_list.create_item_from_label(target)
+                    )
+                    self.unique_label_list.addItem(unique_label_item)
+                    rgb = updated_label_info[target].get(
+                        "color", list(self._get_rgb_by_label(target))
+                    )
+                    opacity = updated_label_info[target].get(
+                        "opacity", LABEL_OPACITY
+                    )
+                    self.unique_label_list.set_item_label(
+                        unique_label_item, target, rgb, opacity
+                    )
+                for item in self.unique_label_list.find_items_by_label(target):
+                    self.unique_label_list.set_item_locked(
+                        item, states.get(target, False)
+                    )
+            else:
+                updated_label_info[label] = info
+                info["delete"] = False
+                info["value"] = None
+
+        self.label_info = updated_label_info
+        if hasattr(self, "apply_label_visibility"):
+            self.apply_label_visibility()
+        self.refresh_panel_controls()
+        if self.filename:
+            self.load_file(self.filename)
+        popup = Popup(
+            self.tr("Labels modified successfully!"),
+            self,
+            icon=new_icon_path("copy-green", "svg"),
+        )
+        popup.show_popup(self)
+        return True
+
+    def delete_unique_label(self, label):
+        box = QtWidgets.QMessageBox(self)
+        box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        box.setWindowTitle(self.tr("Delete Label"))
+        box.setText(
+            self.tr(
+                "Delete label '{label}' and remove all matching annotations "
+                "from the entire dataset?\n\n"
+                "This cannot be undone."
+            ).format(label=label)
+        )
+        box.setStandardButtons(
+            QtWidgets.QMessageBox.StandardButton.Yes
+            | QtWidgets.QMessageBox.StandardButton.No
+        )
+        box.setDefaultButton(QtWidgets.QMessageBox.StandardButton.No)
+        if box.exec() != QtWidgets.QMessageBox.StandardButton.Yes:
+            return
+        self.apply_unique_label_dataset_op(label, delete=True)
+
+    def merge_unique_label(self, label):
+        targets = [
+            name
+            for name in self.unique_label_list.all_labels()
+            if name != label
+        ]
+        if not targets:
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Merge Label"),
+                self.tr("No other labels available to merge into."),
+            )
+            return
+
+        target, ok = QtWidgets.QInputDialog.getItem(
+            self,
+            self.tr("Merge Label"),
+            self.tr(
+                "Merge '{label}' into which existing label?\n"
+                "All matching annotations in the dataset will be updated."
+            ).format(label=label),
+            targets,
+            0,
+            False,
+        )
+        if not ok or not target:
+            return
+
+        box = QtWidgets.QMessageBox(self)
+        box.setIcon(QtWidgets.QMessageBox.Icon.Question)
+        box.setWindowTitle(self.tr("Merge Label"))
+        box.setText(
+            self.tr(
+                "Merge label '{source}' into '{target}' across the entire "
+                "dataset?\n\n"
+                "The source label will be removed from the Labels panel."
+            ).format(source=label, target=target)
+        )
+        box.setStandardButtons(
+            QtWidgets.QMessageBox.StandardButton.Yes
+            | QtWidgets.QMessageBox.StandardButton.No
+        )
+        box.setDefaultButton(QtWidgets.QMessageBox.StandardButton.No)
+        if box.exec() != QtWidgets.QMessageBox.StandardButton.Yes:
+            return
+        self.apply_unique_label_dataset_op(label, new_value=target)
+
+    def rename_unique_label(self, label):
+        new_value, ok = QtWidgets.QInputDialog.getText(
+            self,
+            self.tr("Rename Label"),
+            self.tr(
+                "Enter a new name for '{label}'.\n"
+                "All matching annotations in the dataset will be updated."
+            ).format(label=label),
+            QtWidgets.QLineEdit.EchoMode.Normal,
+            label,
+        )
+        if not ok:
+            return
+        new_value = new_value.strip()
+        if not new_value:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Rename Label"),
+                self.tr("Label name cannot be empty."),
+            )
+            return
+        if new_value == label:
+            return
+
+        existing = set(self.unique_label_list.all_labels()) - {label}
+        if new_value in existing:
+            box = QtWidgets.QMessageBox(self)
+            box.setIcon(QtWidgets.QMessageBox.Icon.Question)
+            box.setWindowTitle(self.tr("Rename Label"))
+            box.setText(
+                self.tr(
+                    "Label '{target}' already exists.\n\n"
+                    "Merge '{source}' into '{target}' instead?"
+                ).format(source=label, target=new_value)
+            )
+            box.setStandardButtons(
+                QtWidgets.QMessageBox.StandardButton.Yes
+                | QtWidgets.QMessageBox.StandardButton.No
+            )
+            box.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Yes)
+            if box.exec() != QtWidgets.QMessageBox.StandardButton.Yes:
+                return
+        self.apply_unique_label_dataset_op(label, new_value=new_value)
 
     def toggle_selected_shapes_lock(self, locked):
         items = self.label_list.selected_items()

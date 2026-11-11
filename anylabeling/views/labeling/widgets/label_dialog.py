@@ -1151,7 +1151,40 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 self.parent.unique_label_list.remove_items_by_label(label)
                 self.parent.label_dialog.remove_label_history(label)
                 self.parent.label_dialog.add_label_history(new_value)
-                updated_label_info[new_value] = self.parent.label_info[label]
+                # Prefer keeping the target label's metadata when merging.
+                if new_value not in updated_label_info:
+                    target_info = self.parent.label_info.get(new_value)
+                    if (
+                        target_info is not None
+                        and new_value != label
+                        and not target_info.get("delete")
+                        and not target_info.get("value")
+                    ):
+                        updated_label_info[new_value] = dict(target_info)
+                    else:
+                        updated_label_info[new_value] = dict(
+                            self.parent.label_info[label]
+                        )
+                    updated_label_info[new_value]["delete"] = False
+                    updated_label_info[new_value]["value"] = None
+                if not self.parent.unique_label_list.find_items_by_label(
+                    new_value
+                ):
+                    unique_label_item = (
+                        self.parent.unique_label_list.create_item_from_label(
+                            new_value
+                        )
+                    )
+                    self.parent.unique_label_list.addItem(unique_label_item)
+                    rgb = updated_label_info[new_value].get(
+                        "color", self.parent._get_rgb_by_label(new_value)
+                    )
+                    opacity = updated_label_info[new_value].get(
+                        "opacity", self.opacity
+                    )
+                    self.parent.unique_label_list.set_item_label(
+                        unique_label_item, new_value, rgb, opacity
+                    )
             else:
                 updated_label_info[label] = self.parent.label_info[label]
 
@@ -1203,23 +1236,30 @@ class LabelModifyDialog(QtWidgets.QDialog):
             )
             popup.show_popup(self.parent)
 
-    def modify_label(self, start_index: int = -1, end_index: int = -1):
+    @staticmethod
+    def rewrite_annotation_labels(
+        image_file_list,
+        output_dir,
+        label_info,
+        lock_states,
+        start_index=1,
+        end_index=None,
+    ):
+        """Rewrite annotation JSON files for delete / rename / merge ops."""
+        if end_index is None:
+            end_index = len(image_file_list)
+        if not any(
+            info.get("delete") or info.get("value")
+            for info in label_info.values()
+        ):
+            return True
         try:
-            if not any(
-                info["delete"] or info["value"]
-                for info in self.parent.label_info.values()
-            ):
-                return True
-            if start_index == -1:
-                start_index = self.start_index
-            if end_index == -1:
-                end_index = self.end_index
-            for i, image_file in enumerate(self.image_file_list):
+            for i, image_file in enumerate(image_file_list):
                 if i < start_index - 1 or i > end_index - 1:
                     continue
                 label_dir, filename = os.path.split(image_file)
-                if self.parent.output_dir:
-                    label_dir = self.parent.output_dir
+                if output_dir:
+                    label_dir = output_dir
                 label_file = os.path.join(
                     label_dir, os.path.splitext(filename)[0] + ".json"
                 )
@@ -1227,17 +1267,19 @@ class LabelModifyDialog(QtWidgets.QDialog):
                     continue
                 with open(label_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                src_shapes, dst_shapes = data["shapes"], []
+                src_shapes, dst_shapes = data.get("shapes", []), []
                 for shape in src_shapes:
-                    label = shape["label"]
-                    if self.parent.label_info[label][
-                        "delete"
-                    ] and not self.parent.unique_label_list.lock_states.get(
+                    label = shape.get("label")
+                    info = label_info.get(label)
+                    if info is None:
+                        dst_shapes.append(shape)
+                        continue
+                    if info.get("delete") and not lock_states.get(
                         label, False
                     ):
                         continue
-                    if self.parent.label_info[label]["value"]:
-                        shape["label"] = self.parent.label_info[label]["value"]
+                    if info.get("value"):
+                        shape["label"] = info["value"]
                     dst_shapes.append(shape)
                 data["shapes"] = dst_shapes
                 with open(label_file, "w", encoding="utf-8") as f:
@@ -1246,6 +1288,20 @@ class LabelModifyDialog(QtWidgets.QDialog):
         except Exception as e:
             logger.error(f"Error occurred while updating labels: {e}")
             return False
+
+    def modify_label(self, start_index: int = -1, end_index: int = -1):
+        if start_index == -1:
+            start_index = self.start_index
+        if end_index == -1:
+            end_index = self.end_index
+        return self.rewrite_annotation_labels(
+            self.image_file_list,
+            self.parent.output_dir,
+            self.parent.label_info,
+            self.parent.unique_label_list.lock_states,
+            start_index=start_index,
+            end_index=end_index,
+        )
 
     def init_label_info(self):
         classes = set()

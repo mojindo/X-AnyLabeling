@@ -812,6 +812,16 @@ You can also use **Tools** > **Save Visualization Image** or **Save Visualizatio
 - **Lock Categories**: Use the `Lock` column checkboxes to lock or unlock an entire category, sharing the current session state with the Labels panel.
 - **Change Label Colors**: Modify the display color for specific label classes *for the current session only*. (For persistent changes, see [7.2 Custom Label Colors](#72-custom-label-colors)).
 
+**Labels Panel Right-click Actions:**
+
+Right-click a label in the right-side **Labels** panel to apply one of three modes across the entire opened dataset:
+
+1. **Delete Label…**: Delete the label and remove matching annotation objects from all opened images.
+2. **Merge into Existing Label…**: Merge the label into another existing label and remove the source label from the Labels panel.
+3. **Rename Label…**: Rename the label; if the new name already exists, you can merge instead.
+
+The menu still includes **Toggle Lock** for the session-level category lock.
+
 **Visibility and Lock Quick Actions**:
 
 - Right-click the `Visible` or `Lock` column and choose **Select All** or **Deselect All** to check or uncheck the entire column.

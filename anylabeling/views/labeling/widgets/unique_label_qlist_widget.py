@@ -12,6 +12,9 @@ from .label_list_widget import HTMLDelegate, LOCKED_ROLE
 class UniqueLabelQListWidget(EscapableQListWidget):
     items_lock_requested = QtCore.pyqtSignal(list)
     label_visibility_changed = QtCore.pyqtSignal(str, bool)
+    label_delete_requested = QtCore.pyqtSignal(str)
+    label_merge_requested = QtCore.pyqtSignal(str)
+    label_rename_requested = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -20,6 +23,8 @@ class UniqueLabelQListWidget(EscapableQListWidget):
             HTMLDelegate(self, highlight_selected_check=False)
         )
         self.setMouseTracking(True)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._show_context_menu)
         self.model().dataChanged.connect(self._on_data_changed)
 
     def _on_data_changed(self, top_left, bottom_right, roles):
@@ -32,17 +37,33 @@ class UniqueLabelQListWidget(EscapableQListWidget):
                 item.checkState() == Qt.CheckState.Checked,
             )
 
+    def _show_context_menu(self, pos):
+        item = self.itemAt(pos)
+        if item is None:
+            return
+        if not item.isSelected():
+            self.clearSelection()
+            item.setSelected(True)
+
+        label = item.data(Qt.ItemDataRole.UserRole)
+        menu = QtWidgets.QMenu(self)
+        delete_action = menu.addAction(self.tr("Delete Label…"))
+        merge_action = menu.addAction(self.tr("Merge into Existing Label…"))
+        rename_action = menu.addAction(self.tr("Rename Label…"))
+        menu.addSeparator()
+        lock_action = menu.addAction(self.tr("Toggle Lock"))
+        action = menu.exec(self.viewport().mapToGlobal(pos))
+        if action == delete_action:
+            self.label_delete_requested.emit(label)
+        elif action == merge_action:
+            self.label_merge_requested.emit(label)
+        elif action == rename_action:
+            self.label_rename_requested.emit(label)
+        elif action == lock_action:
+            self.items_lock_requested.emit(self.selectedItems())
+
     # QT Overload
     def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.RightButton:
-            item = self.itemAt(event.position().toPoint())
-            if item is not None:
-                if not item.isSelected():
-                    self.clearSelection()
-                    item.setSelected(True)
-                self.items_lock_requested.emit(self.selectedItems())
-            event.accept()
-            return
         super().mousePressEvent(event)
         if not self.indexAt(event.position().toPoint()).isValid():
             self.clearSelection()
@@ -80,3 +101,11 @@ class UniqueLabelQListWidget(EscapableQListWidget):
         for item in items:
             row = self.row(item)
             self.takeItem(row)
+
+    def all_labels(self):
+        labels = []
+        for row in range(self.count()):
+            label = self.item(row).data(Qt.ItemDataRole.UserRole)
+            if label:
+                labels.append(label)
+        return labels

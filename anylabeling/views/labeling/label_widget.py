@@ -85,6 +85,7 @@ from .widgets.panel import (
     PanelHeader,
     RoundedPanel,
 )
+from .widgets.label_dialog import natural_sort_key
 from .widgets import (
     AboutDialog,
     AutoLabelingWidget,
@@ -5912,21 +5913,98 @@ class LabelingWidget(LabelDialog):
             labels (list): List of label names to load
             clear_existing (bool): Whether to clear existing labels before loading new ones
         """
+        if clear_existing:
+            self.unique_label_list.clear()
+            self.unique_label_list.lock_states.clear()
+
         if not labels:
             return
 
-        if clear_existing:
-            self.unique_label_list.clear()
-
         for label in labels:
-            # Check if label already exists to avoid duplicates
-            if not self.unique_label_list.find_items_by_label(label):
-                item = self.unique_label_list.create_item_from_label(label)
-                self.unique_label_list.addItem(item)
-                rgb = self._get_rgb_by_label(label)
-                self.unique_label_list.set_item_label(
-                    item, label, rgb, LABEL_OPACITY
+            self._register_session_label(label, add_history=False)
+
+    def reset_session_labels(self, reload_config_labels=True):
+        """Clear Labels panel / Label Manager state from the previous dataset."""
+        self.unique_label_list.clear()
+        self.unique_label_list.lock_states.clear()
+        self.label_info = {}
+        if hasattr(self, "label_dialog") and self.label_dialog is not None:
+            self.label_dialog.label_list.clear()
+            self.label_dialog._last_label = ""
+        if reload_config_labels:
+            config_labels = self._config.get("labels") or []
+            if config_labels:
+                self.load_labels(config_labels, clear_existing=False)
+
+    def collect_labels_from_annotations(self, image_files=None):
+        """Scan annotation JSON files and return sorted unique label names."""
+        if image_files is None:
+            image_files = self.image_list
+
+        special_labels = {
+            AutoLabelingMode.OBJECT,
+            AutoLabelingMode.ADD,
+            AutoLabelingMode.REMOVE,
+        }
+        classes = set()
+        for image_file in image_files:
+            label_dir, filename = osp.split(image_file)
+            if self.output_dir:
+                label_dir = self.output_dir
+            label_file = osp.join(
+                label_dir, osp.splitext(filename)[0] + ".json"
+            )
+            if not osp.exists(label_file):
+                continue
+            try:
+                with open(label_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except Exception as e:
+                logger.warning(
+                    f"Failed to read annotation for label scan: {label_file}: {e}"
                 )
+                continue
+            for shape in data.get("shapes", []):
+                label = shape.get("label")
+                if label and label not in special_labels:
+                    classes.add(label)
+        return sorted(classes, key=natural_sort_key)
+
+    def _register_session_label(self, label, add_history=True):
+        """Add one label to the Labels panel and Label Manager session state."""
+        if not label:
+            return
+        if not self.unique_label_list.find_items_by_label(label):
+            item = self.unique_label_list.create_item_from_label(label)
+            self.unique_label_list.addItem(item)
+            rgb = self._get_rgb_by_label(label)
+            self.unique_label_list.set_item_label(
+                item, label, rgb, LABEL_OPACITY
+            )
+        if label not in self.label_info:
+            rgb = self._get_rgb_by_label(label)
+            self.label_info[label] = dict(
+                delete=False,
+                value=None,
+                color=list(rgb),
+                opacity=LABEL_OPACITY,
+                visible=True,
+                locked=self.unique_label_list.lock_states.get(label, False),
+            )
+        if add_history and hasattr(self, "label_dialog"):
+            self.label_dialog.add_label_history(
+                label, update_last_label=False
+            )
+
+    def load_dataset_labels(self, image_files=None):
+        """Reset previous labels, then load all labels found in this dataset."""
+        self.reset_session_labels(reload_config_labels=True)
+        for label in self.collect_labels_from_annotations(image_files):
+            self._register_session_label(label, add_history=True)
+        if hasattr(self, "refresh_panel_controls"):
+            self.refresh_panel_controls()
+        if hasattr(self, "apply_label_visibility"):
+            self.apply_label_visibility()
 
     def _update_shape_color(self, shape):
         r, g, b = self._get_rgb_by_label(shape.label)
@@ -8094,6 +8172,9 @@ class LabelingWidget(LabelDialog):
             item = self._create_file_list_item(filename, label_file)
             self.file_list_widget.addItem(item)
             self.fn_to_index[filename] = self.file_list_widget.count() - 1
+
+        # Drop previous dataset labels, then preload all labels from annotations.
+        self.load_dataset_labels(image_files)
 
         self.actions.open_next_image.setEnabled(True)
         self.actions.open_prev_image.setEnabled(True)

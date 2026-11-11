@@ -1113,7 +1113,14 @@ Then upload it through the menu: `Upload` → `Upload Label Classes File`.
 
 ### 7.4 Auto-Switch to Edit Mode
 
-To streamline the annotation workflow, you can configure the application to automatically switch to **Edit Mode** immediately after a shape is created. This is useful if you frequently need to adjust a shape right after drawing it. You can change this in `Settings > General > Auto Switch To Edit Mode`, or through the `auto_switch_to_edit_mode` setting in the `.xanylabelingrc` file.
+To streamline the annotation workflow, you can configure whether the app automatically switches to **Edit Mode** after a shape is created. This setting applies uniformly to all create tools (polygon, rectangle, rotation, point, line, etc.). Change it in `Settings > General > Auto Switch To Edit Mode`, or via `auto_switch_to_edit_mode` in `.xanylabelingrc`:
+
+| Value | Behavior |
+| ----- | -------- |
+| `true` | Switch to Edit Mode after each created object. |
+| `false` | Stay in Create Mode for continuous drawing; press `Esc` to leave Create Mode and enter Edit Mode. |
+
+The package default and each-launch session default are both `false` (continuous drawing). Even if a historical user config saved `true`, restarting the app resets it to off first; you can still enable it temporarily for the current session in Settings.
 
 - Set to `true` to enable automatic switching to Edit Mode.
 - Set to `false` to remain in Drawing Mode, which allows continuous creation of multiple shapes. The default is `true`.

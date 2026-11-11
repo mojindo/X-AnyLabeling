@@ -13,7 +13,7 @@ keep_prev_contrast: false
 auto_use_last_label: false
 auto_use_last_gid: false
 auto_highlight_shape: true
-auto_switch_to_edit_mode: true
+auto_switch_to_edit_mode: false
 exif_scan_enabled: true
 show_groups: false
 show_masks: true

@@ -608,9 +608,10 @@ class LabelingWidget(LabelDialog):
         self.canvas.h_shape_is_hovered = self._config.get(
             "auto_highlight_shape", False
         )
-        self._settings_runtime_applier.set_auto_switch_to_edit_mode(
-            self._config["auto_switch_to_edit_mode"]
-        )
+        # Keep startup behavior aligned with app.py: continuous drawing by
+        # default, regardless of a historical true value in user config.
+        self._config["auto_switch_to_edit_mode"] = False
+        self._settings_runtime_applier.set_auto_switch_to_edit_mode(False)
 
         # Crosshair
         self.crosshair_settings = self._config["canvas"]["crosshair"]

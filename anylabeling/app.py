@@ -362,6 +362,12 @@ def main():
     anylabeling_config.current_config_file = config_file_or_yaml
     config = get_config(config_file_or_yaml, config_from_args, show_msg=True)
 
+    # Session default: always start with continuous drawing. Historical
+    # ~/.xanylabelingrc values of true would otherwise keep auto-switching
+    # into edit mode after every shape. Users can still enable it for the
+    # current session via Settings > General.
+    config["auto_switch_to_edit_mode"] = False
+
     if not config["labels"] and config["validate_label"]:
         logger.error(
             "--labels must be specified with --validatelabel or "

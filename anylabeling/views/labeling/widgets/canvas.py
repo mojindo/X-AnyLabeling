@@ -2920,24 +2920,6 @@ class Canvas(
                             == QtCore.Qt.KeyboardModifier.ControlModifier
                         ):
                             self.finalise()
-                    # [Feature] support for automatically switching to editing mode
-                    # when the cursor moves over an object
-                    if (
-                        self.create_mode
-                        in [
-                            "rectangle",
-                            "rotation",
-                            "quadrilateral",
-                            "cuboid",
-                            "circle",
-                            "line",
-                            "point",
-                        ]
-                        and not self.is_auto_labeling
-                        and not self.current
-                    ):
-                        self.prev_pan_point = ev.globalPosition()
-                        self.mode_changed.emit()
                 elif not self.out_off_pixmap(pos):
                     # Handle auto decode mode first click
                     if self.auto_decode_mode and self.is_auto_labeling:
@@ -5442,6 +5424,17 @@ class Canvas(
         self.update()
         if self.is_auto_labeling:
             self.update_auto_labeling_marks()
+            return
+
+        # All create modes share one rule driven by config (not by shape type).
+        # Read the live config value so behavior cannot drift from a stale
+        # mode_changed signal connection after config migration/reload.
+        config = getattr(self.parent, "_config", None) or {}
+        if config.get("auto_switch_to_edit_mode", False):
+            if hasattr(self.parent, "set_edit_mode"):
+                self.parent.set_edit_mode()
+            else:
+                self.mode_changed.emit()
 
     def update_auto_labeling_marks(self):
         """Update the auto labeling marks"""
@@ -5892,8 +5885,13 @@ class Canvas(
                     modifiers | QtCore.Qt.KeyboardModifier.ShiftModifier,
                 )
                 self.update()
-            if key == QtCore.Qt.Key.Key_Escape and self.current:
-                self.cancel_drawing()
+            if key == QtCore.Qt.Key.Key_Escape:
+                # Cancel the unfinished shape (if any), then leave create mode.
+                if self.current:
+                    self.cancel_drawing()
+                if hasattr(self.parent, "set_edit_mode"):
+                    self.parent.set_edit_mode()
+                return
             elif key == QtCore.Qt.Key.Key_Backspace and self.current:
                 if self.create_mode in ["polygon", "linestrip"]:
                     if len(self.current.points) > 1:

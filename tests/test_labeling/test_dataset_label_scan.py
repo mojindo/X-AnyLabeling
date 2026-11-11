@@ -87,21 +87,26 @@ class TestDatasetLabelScan(unittest.TestCase):
         self.temp.cleanup()
 
     def test_load_dataset_labels_resets_and_scans_all(self):
-        host = _Host(self.image_files, config_labels=["preset"])
-        # Pretend previous dataset labels still exist.
-        old = host.unique_label_list.create_item_from_label("old")
-        host.unique_label_list.addItem(old)
+        host = _Host(self.image_files, config_labels=["person", "preset"])
+        # Pretend previous dataset / config labels still exist.
+        for name in ("old", "person"):
+            item = host.unique_label_list.create_item_from_label(name)
+            host.unique_label_list.addItem(item)
         host.unique_label_list.lock_states["old"] = True
+        host.label_info["person"] = {"delete": False, "value": None}
 
         host.load_dataset_labels(self.image_files)
 
         labels = host.unique_label_list.all_labels()
-        # Config presets are restored first, then annotation labels in natural order.
-        self.assertEqual(labels, ["preset", "bird", "cat", "dog"])
+        # Only labels found in current annotations; config presets are ignored.
+        self.assertEqual(labels, ["bird", "cat", "dog"])
         self.assertNotIn("old", labels)
+        self.assertNotIn("person", labels)
+        self.assertNotIn("preset", labels)
         self.assertNotIn("old", host.label_info)
+        self.assertNotIn("person", host.label_info)
         self.assertEqual(host.unique_label_list.lock_states, {})
-        for name in ("bird", "cat", "dog", "preset"):
+        for name in ("bird", "cat", "dog"):
             self.assertIn(name, host.label_info)
         host.refresh_panel_controls.assert_called()
         host.apply_label_visibility.assert_called()

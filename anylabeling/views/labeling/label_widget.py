@@ -363,7 +363,8 @@ class LabelingWidget(LabelDialog):
         self.unique_label_list.label_rename_requested.connect(
             self.rename_unique_label
         )
-        self.load_labels(self._config["labels"])
+        # Keep Labels panel empty until a dataset is opened and scanned.
+        # Config "labels" remain available via LabelDialog history only.
         self.label_dock = QtWidgets.QDockWidget(self.tr("Labels"), self)
         self.label_dock.setObjectName("Labels")
         self.label_dock.setWidget(self.unique_label_list)
@@ -5997,8 +5998,13 @@ class LabelingWidget(LabelDialog):
             )
 
     def load_dataset_labels(self, image_files=None):
-        """Reset previous labels, then load all labels found in this dataset."""
-        self.reset_session_labels(reload_config_labels=True)
+        """Reset previous labels, then load all labels found in this dataset.
+
+        Config preset labels are intentionally NOT restored here; the Labels
+        panel and Label Manager only show classes present in the current
+        dataset annotations (plus labels created later in this session).
+        """
+        self.reset_session_labels(reload_config_labels=False)
         for label in self.collect_labels_from_annotations(image_files):
             self._register_session_label(label, add_history=True)
         if hasattr(self, "refresh_panel_controls"):

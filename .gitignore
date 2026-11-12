@@ -126,9 +126,12 @@ venv-*/
 .spyderproject
 .spyproject
 
-# VSCode project settings
+# VSCode / Cursor / local tooling
 .vscode/
+.cursor/
 .devcontainer/
+scripts/
+sample/
 
 # Rope project settings
 .ropeproject

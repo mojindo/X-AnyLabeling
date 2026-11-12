@@ -1,7 +1,8 @@
-__appname__ = "X-AnyLabeling"
-__appdescription__ = "A lightweight, efficient, and unified cross-platform desktop application for AI-assisted annotation of text, image, video, and multimodal data."
+__appname__ = "Mojindo-X-Anylabeling"
+__appdescription__ = "Mojindo fork of X-AnyLabeling: a lightweight, efficient, and unified cross-platform desktop application for AI-assisted annotation of text, image, video, and multimodal data."
 __version__ = "4.3.2"
-__url__ = "https://xanylabeling.com"
+__url__ = "https://github.com/mojindo/X-AnyLabeling"
+__appid__ = "Mojindo-X-Anylabeling"
 
 CLI_HELP_MSG = """
     Usage: xanylabeling [COMMAND] [OPTIONS]

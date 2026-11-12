@@ -413,6 +413,8 @@ def main():
     app.setStyleSheet(get_app_stylesheet())
     app.processEvents()
 
+    app.setOrganizationName("Mojindo")
+    app.setOrganizationDomain("mojindo")
     app.setApplicationName(__appname__)
     app.setApplicationVersion(__version__)
     app.setWindowIcon(new_icon("icon"))

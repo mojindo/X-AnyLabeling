@@ -10,6 +10,16 @@ bash scripts/build_executable.sh linux-cpu
 bash scripts/build_executable.sh macos-installer
 ```
 
+### Mojindo Windows portable (CPU)
+
+From the repo root with `.venv` active:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/build_mojindo_windows.ps1
+```
+
+Produces `dist/Mojindo-X-Anylabeling/Mojindo-X-Anylabeling.exe` (double-click) and a zip under `dist/`. App name/id and icons follow `anylabeling/app_info.py` and `anylabeling/resources/images/mojindo.ico` (source: `C:\WorkSpace\env\mojindo\mojindo.png`).
+
 Windows requires PowerShell and Inno Setup 6.7.3 or later. For Windows and Linux GPU builds, use `win-gpu-installer` or `linux-gpu` and set `X_ANYLABELING_VARIANT` to `CUDA11`, `CUDA12`, or `CUDA13`. Install the corresponding dependency extra: `gpu-cu11`, `gpu`, or `gpu-cu13`.
 
 Build outputs go to `dist/`. PyInstaller specifications are in `packaging/pyinstaller/specs`; platform installers are in `packaging/windows` and `packaging/linux`.

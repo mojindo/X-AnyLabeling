@@ -290,6 +290,20 @@ def register_advanced_menu(widget: Any) -> None:
         ),
         tip=widget.tr("Move images/JSON by bounding-box size thresholds"),
     )
+    dataset_filter = action(
+        widget.tr("Dataset Filter…"),
+        lambda: _guarded(
+            widget,
+            "Dataset Filter",
+            lambda w: __import__(
+                "anylabeling.views.labeling.advanced.ops.dataset_filter_dialog",
+                fromlist=["open_dataset_filter_dialog"],
+            ).open_dataset_filter_dialog(w),
+        ),
+        tip=widget.tr(
+            "Copy or move images/JSON by selected labels or empty annotations"
+        ),
+    )
     label_jump = action(
         widget.tr("Jump by Labels…"),
         lambda: _open_label_jump(widget),
@@ -315,6 +329,7 @@ def register_advanced_menu(widget: Any) -> None:
             model_eval,
             clear_compare,
             sticker,
+            dataset_filter,
             anno_filter,
             label_jump,
         ),

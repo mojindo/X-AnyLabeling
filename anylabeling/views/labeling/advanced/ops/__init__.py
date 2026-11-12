@@ -1,1 +1,1 @@
-"""Advanced ops: split / rename / dedup / filter / label jump."""
+"""Advanced ops: split / rename / dedup / filter / dataset filter / label jump."""

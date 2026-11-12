@@ -11289,6 +11289,14 @@ Failed: %d</source>
       <translation>标注过滤…</translation>
     </message>
     <message>
+      <source>Dataset Filter…</source>
+      <translation>数据筛选…</translation>
+    </message>
+    <message>
+      <source>Copy or move images/JSON by selected labels or empty annotations</source>
+      <translation>按所选标签或空图复制/移动图片与标注到输出目录</translation>
+    </message>
+    <message>
       <source>Jump by Labels…</source>
       <translation>按标签跳转…</translation>
     </message>
@@ -11421,6 +11429,153 @@ Failed: %d</source>
     <message>
       <source>Select materials folder</source>
       <translation>选择素材文件夹</translation>
+    </message>
+  </context>
+  <context>
+    <name>DatasetFilterDialog</name>
+    <message>
+      <source>Dataset Filter</source>
+      <translation>数据筛选</translation>
+    </message>
+    <message>
+      <source>Select labels and/or empty images. Matching images and their annotation JSON will be copied or moved to the output folder.</source>
+      <translation>勾选标签和/或空图。匹配的图像及其标注 JSON 将按所选模式复制或移动到输出目录。</translation>
+    </message>
+    <message>
+      <source>Search:</source>
+      <translation>搜索:</translation>
+    </message>
+    <message>
+      <source>Fuzzy filter labels…</source>
+      <translation>模糊筛选标签…</translation>
+    </message>
+    <message>
+      <source>Select All</source>
+      <translation>全选</translation>
+    </message>
+    <message>
+      <source>Clear</source>
+      <translation>清除</translation>
+    </message>
+    <message>
+      <source>Refresh Labels</source>
+      <translation>刷新标签</translation>
+    </message>
+    <message>
+      <source>Include empty images (no annotations)</source>
+      <translation>包含空图（无标注）</translation>
+    </message>
+    <message>
+      <source>Output folder:</source>
+      <translation>输出目录:</translation>
+    </message>
+    <message>
+      <source>Select a folder to copy/move files into</source>
+      <translation>选择复制/移动的目标文件夹</translation>
+    </message>
+    <message>
+      <source>Browse…</source>
+      <translation>浏览…</translation>
+    </message>
+    <message>
+      <source>Mode:</source>
+      <translation>操作模式:</translation>
+    </message>
+    <message>
+      <source>Copy</source>
+      <translation>复制</translation>
+    </message>
+    <message>
+      <source>Move</source>
+      <translation>移动</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>关闭</translation>
+    </message>
+    <message>
+      <source>Run</source>
+      <translation>运行</translation>
+    </message>
+    <message>
+      <source>No images loaded.</source>
+      <translation>未加载图像。</translation>
+    </message>
+    <message>
+      <source>Please select at least one label, or enable empty images.</source>
+      <translation>请至少选择一个标签，或勾选包含空图。</translation>
+    </message>
+    <message>
+      <source>Please select an output folder.</source>
+      <translation>请选择输出目录。</translation>
+    </message>
+    <message>
+      <source>Cannot create output folder: %s</source>
+      <translation>无法创建输出目录：%s</translation>
+    </message>
+    <message>
+      <source>No matching images found.</source>
+      <translation>未找到匹配的图像。</translation>
+    </message>
+    <message>
+      <source>Select output folder</source>
+      <translation>选择输出目录</translation>
+    </message>
+    <message>
+      <source>About to copy %d image(s) (with annotation files when present) to:
+%s
+
+Continue?</source>
+      <translation>即将复制 %d 张图像（若有标注一并复制）到：
+%s
+
+是否继续？</translation>
+    </message>
+    <message>
+      <source>About to move %d image(s) (with annotation files when present) to:
+%s
+
+Continue?</source>
+      <translation>即将移动 %d 张图像（若有标注一并移动）到：
+%s
+
+是否继续？</translation>
+    </message>
+    <message>
+      <source>Preparing…</source>
+      <translation>准备中…</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>取消</translation>
+    </message>
+    <message>
+      <source>Processing: %s</source>
+      <translation>正在处理：%s</translation>
+    </message>
+    <message>
+      <source>Failed: %s</source>
+      <translation>失败：%s</translation>
+    </message>
+    <message>
+      <source>Copied</source>
+      <translation>已复制</translation>
+    </message>
+    <message>
+      <source>Moved</source>
+      <translation>已移动</translation>
+    </message>
+    <message>
+      <source>%s %d image(s).</source>
+      <translation>%s %d 张图像。</translation>
+    </message>
+    <message>
+      <source>Failed: %d.</source>
+      <translation>失败：%d。</translation>
+    </message>
+    <message>
+      <source>Loaded %d label(s) from %d image(s).</source>
+      <translation>已加载 %d 个标签（来自 %d 张图像）。</translation>
     </message>
   </context>
 </TS>

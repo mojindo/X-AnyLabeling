@@ -28,8 +28,13 @@
 
 ## 🥳 What's New
 
+- `2026-11-12`: Add an **Advanced** menu (no license) with dataset statistics/split/rename, batch annotation check, annotation compare & model-eval review, sticker paste (HBB/OBB/polygon), annotation filter, and jump-by-label.
+- `2026-11-11`: Add Labels panel management: delete/merge/rename labels, and reset/preload labels from the opened dataset.
+- `2026-11-11`: Unify continuous drawing across annotation tools and keep the current create mode after finishing a shape by default.
+- `2026-11-08`: Add review-status filters for label export and batch auto-labeling skip options.
 - `2026-11-04`: Add support for [SAM 3.1 Video](./examples/interactive_video_object_segmentation/sam3/README.md) with text-prompted multi-object tracking and interactive point segmentation.
 - `2026-11-03`: Add an adjustable image grid with optional cell labels for inspecting annotations.
+- `2026-11-03`: Improve canvas attribute overlays and add a configurable attribute font size.
 - `2026-11-01`: Add support for the [RelateAnything](./examples/relation/relateanything/README.md) object relation prediction model.
 - `2026-10-31`: Add object-level multi-task attribute annotation with AI-assisted labeling and concurrent inference.
 - `2026-10-30`: Add support for the [Unlimited-OCR-2](./examples/document_parsing/unlimited_ocr_2/README.md) model with image and PDF document parsing with multi-page context.

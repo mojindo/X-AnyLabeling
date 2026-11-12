@@ -1,5 +1,15 @@
 # X-AnyLabeling Changelog
 
+## Fork notes (mojindo / `dev`, Nov 2026)
+
+Local major features layered on upstream `v4.3.2` (kept separately so upstream syncs retain both histories):
+
+### 🚀 New Features
+
+- Advanced menu (no license): dataset statistics/split/rename, batch annotation check, annotation compare & model-eval review, sticker paste (HBB/OBB/polygon), annotation filter, jump-by-label.
+- Labels panel management: delete/merge/rename; reset and preload labels from the opened dataset.
+- Continuous drawing unified across create tools; keep current create mode after finishing a shape by default.
+
 ## `v4.3.2` (Nov 9, 2026)
 
 X-AnyLabeling 4.3.2 adds review status filters for batch processing and exports, and improves attribute overlays.

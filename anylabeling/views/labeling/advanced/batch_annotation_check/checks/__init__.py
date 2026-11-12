@@ -1,0 +1,2 @@
+"""Annotation Inspector quality checks."""
+

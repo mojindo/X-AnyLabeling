@@ -87,6 +87,8 @@ class Canvas(
     # Emitted when brush-edit mode is toggled on/off (keeps the UI in sync).
     brush_mode_changed = QtCore.pyqtSignal(bool)
     brush_history_changed = QtCore.pyqtSignal(bool)
+    # Advanced: annotation-compare review chip clicked
+    compare_review_label_clicked = QtCore.pyqtSignal(object)
 
     CREATE, EDIT = 0, 1
 
@@ -2764,6 +2766,25 @@ class Canvas(
         if self.is_loading:
             return
         self.interaction_started.emit()
+        # Advanced: sticker / compare-review hit tests (installed by advanced.bootstrap)
+        if ev.button() == QtCore.Qt.MouseButton.LeftButton:
+            try:
+                pos = self.transform_pos(ev.position())
+                sticker_press = getattr(self, "_sticker_handle_mouse_press", None)
+                if (
+                    callable(sticker_press)
+                    and getattr(self, "_sticker_enabled", False)
+                    and sticker_press(ev, pos=pos)
+                ):
+                    return
+                hit_compare = getattr(self, "_hit_compare_review_label", None)
+                if callable(hit_compare):
+                    hit_shape = hit_compare(pos)
+                    if hit_shape is not None:
+                        self.compare_review_label_clicked.emit(hit_shape)
+                        return
+            except Exception:
+                pass
         if (
             ev.button() == QtCore.Qt.MouseButton.LeftButton
             and self._rotation_drag_shape is not None
@@ -5295,6 +5316,14 @@ class Canvas(
 
         # Brush-size preview circle follows the cursor in brush mode.
         self._paint_brush_cursor(p)
+
+        # Advanced overlays (sticker / batch-check / compare status)
+        paint_adv = getattr(self, "_advanced_paint_overlays", None)
+        if callable(paint_adv):
+            try:
+                paint_adv(p)
+            except Exception:
+                pass
 
         p.end()
 

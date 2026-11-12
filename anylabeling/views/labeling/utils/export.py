@@ -79,6 +79,21 @@ class ExportThread(QThread):
             self.finished.emit(False, str(e))
 
 
+def _check_export_ready(self):
+    if not _check_filename_exist(self):
+        return False
+    try:
+        from anylabeling.views.labeling.advanced.compare.export_guard import (
+            check_export_no_compare_marks,
+        )
+
+        if not check_export_no_compare_marks(self):
+            return False
+    except Exception:
+        pass
+    return True
+
+
 def _check_filename_exist(self):
     if not self.may_continue():
         return False
@@ -246,7 +261,7 @@ def _skip_export_status(label_file, skip_statuses):
 
 
 def export_yolo_annotation(self, mode):
-    if not _check_filename_exist(self):
+    if not _check_export_ready(self):
         return
 
     # Handle config/classes file selection based on mode
@@ -580,7 +595,7 @@ def export_yolo_annotation(self, mode):
 
 
 def export_voc_annotation(self, mode):
-    if not _check_filename_exist(self):
+    if not _check_export_ready(self):
         return
 
     dialog = QtWidgets.QDialog(self)
@@ -762,7 +777,7 @@ def export_voc_annotation(self, mode):
 
 
 def export_coco_annotation(self, mode):
-    if not _check_filename_exist(self):
+    if not _check_export_ready(self):
         return
 
     if mode == "pose":
@@ -948,7 +963,7 @@ def export_coco_annotation(self, mode):
 
 
 def export_dota_annotation(self):
-    if not _check_filename_exist(self):
+    if not _check_export_ready(self):
         return
 
     filter = "Classes Files (*.txt);;All Files (*)"
@@ -1161,7 +1176,7 @@ def _export_mask_files(
 
 
 def export_mask_annotation(self):
-    if not _check_filename_exist(self):
+    if not _check_export_ready(self):
         return
 
     filter = "JSON Files (*.json);;All Files (*)"
@@ -1345,7 +1360,7 @@ def export_mask_annotation(self):
 
 
 def export_mot_annotation(self, mode):
-    if not _check_filename_exist(self):
+    if not _check_export_ready(self):
         return
 
     converter = LabelConverter()
@@ -1513,7 +1528,7 @@ def export_odvg_annotation(self):
 
 
 def export_pporc_annotation(self, mode):
-    if not _check_filename_exist(self):
+    if not _check_export_ready(self):
         return
 
     dialog = QtWidgets.QDialog(self)
@@ -1699,7 +1714,7 @@ def export_pporc_annotation(self, mode):
 
 
 def export_vlm_r1_ovd_annotation(self):
-    if not _check_filename_exist(self):
+    if not _check_export_ready(self):
         return
 
     dialog = QtWidgets.QDialog(self)

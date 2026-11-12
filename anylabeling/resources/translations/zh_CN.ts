@@ -11246,4 +11246,181 @@ Failed: %d</source>
       <translation>切换锁定</translation>
     </message>
   </context>
+  <context>
+    <name>LabelingWidget</name>
+    <message>
+      <source>Advanced</source>
+      <translation>高级功能</translation>
+    </message>
+    <message>
+      <source>Dataset Split…</source>
+      <translation>数据集划分…</translation>
+    </message>
+    <message>
+      <source>Batch Annotation Check</source>
+      <translation>批量标注检查</translation>
+    </message>
+    <message>
+      <source>Label Deduplication…</source>
+      <translation>标注去重…</translation>
+    </message>
+    <message>
+      <source>Dataset Rename…</source>
+      <translation>数据集批量重命名…</translation>
+    </message>
+    <message>
+      <source>Annotation Compare…</source>
+      <translation>标注比对…</translation>
+    </message>
+    <message>
+      <source>Model Evaluation…</source>
+      <translation>模型评测…</translation>
+    </message>
+    <message>
+      <source>Clear Compare Results…</source>
+      <translation>清除比对/评测结果…</translation>
+    </message>
+    <message>
+      <source>Sticker</source>
+      <translation>素材自动贴图</translation>
+    </message>
+    <message>
+      <source>Annotation Filter…</source>
+      <translation>标注过滤…</translation>
+    </message>
+    <message>
+      <source>Jump by Labels…</source>
+      <translation>按标签跳转…</translation>
+    </message>
+  </context>
+  <context>
+    <name>LabelingWidget</name>
+    <message>
+      <source>Next Suspect Missed</source>
+      <translation>下一张疑是漏标</translation>
+    </message>
+    <message>
+      <source>Next Suspect False-Label</source>
+      <translation>下一张疑是误标</translation>
+    </message>
+    <message>
+      <source>Next False Alarm</source>
+      <translation>下一张误报</translation>
+    </message>
+    <message>
+      <source>Next Miss</source>
+      <translation>下一张漏报</translation>
+    </message>
+    <message>
+      <source>Browse Mode</source>
+      <translation>预览模式</translation>
+    </message>
+    <message>
+      <source>Accept All Compare Results</source>
+      <translation>接受本图全部比对结果</translation>
+    </message>
+    <message>
+      <source>Annotation Compare Review</source>
+      <translation>标注比对复核</translation>
+    </message>
+    <message>
+      <source>Model Evaluation Review</source>
+      <translation>模型评测复核</translation>
+    </message>
+    <message>
+      <source>Browse mode on</source>
+      <translation>预览模式开</translation>
+    </message>
+    <message>
+      <source>Browse mode off</source>
+      <translation>预览模式关</translation>
+    </message>
+    <message>
+      <source>Next missed</source>
+      <translation>下一张漏标</translation>
+    </message>
+    <message>
+      <source>Next false-label</source>
+      <translation>下一张误标</translation>
+    </message>
+    <message>
+      <source>Next false alarm</source>
+      <translation>下一张误报</translation>
+    </message>
+    <message>
+      <source>Next miss</source>
+      <translation>下一张漏报</translation>
+    </message>
+  </context>
+  <context>
+    <name>StickerLibraryDock</name>
+    <message>
+      <source>Sticker</source>
+      <translation>素材自动贴图</translation>
+    </message>
+    <message>
+      <source>Import materials folder</source>
+      <translation>导入素材文件夹</translation>
+    </message>
+    <message>
+      <source>Warp:</source>
+      <translation>变形:</translation>
+    </message>
+    <message>
+      <source>4-point (Perspective)</source>
+      <translation>四点（透视）</translation>
+    </message>
+    <message>
+      <source>8-point (Warp)</source>
+      <translation>八点（网格变形）</translation>
+    </message>
+    <message>
+      <source>Blend:</source>
+      <translation>融合:</translation>
+    </message>
+    <message>
+      <source>Annotation:</source>
+      <translation>标注:</translation>
+    </message>
+    <message>
+      <source>Detection (HBB)</source>
+      <translation>检测（水平框 HBB）</translation>
+    </message>
+    <message>
+      <source>Detection (OBB)</source>
+      <translation>检测（旋转框 OBB）</translation>
+    </message>
+    <message>
+      <source>Segmentation (Polygon)</source>
+      <translation>分割（多边形）</translation>
+    </message>
+    <message>
+      <source>Quick apply</source>
+      <translation>快速贴图</translation>
+    </message>
+    <message>
+      <source>Click on image to apply sticker at that position</source>
+      <translation>点击图像指定位置应用贴图</translation>
+    </message>
+    <message>
+      <source>Rotate:</source>
+      <translation>旋转:</translation>
+    </message>
+    <message>
+      <source>Move:</source>
+      <translation>移动:</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>取消</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>应用</translation>
+    </message>
+    <message>
+      <source>Select materials folder</source>
+      <translation>选择素材文件夹</translation>
+    </message>
+  </context>
 </TS>

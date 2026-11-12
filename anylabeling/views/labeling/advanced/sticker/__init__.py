@@ -1,0 +1,1 @@
+"""Material sticker overlay."""

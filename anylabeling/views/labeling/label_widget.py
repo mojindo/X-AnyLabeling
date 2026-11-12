@@ -2256,6 +2256,7 @@ class LabelingWidget(LabelDialog):
             tool=self.menu(self.tr("Tool")),
             workflow=self.menu(self.tr("Workflow")),
             train=self.menu(self.tr("Train")),
+            advanced=self.menu(self.tr("Advanced")),
             help=self.menu(self.tr("Help")),
             recent_files=QtWidgets.QMenu(self.tr("Open Recent")),
         )
@@ -2975,6 +2976,17 @@ class LabelingWidget(LabelDialog):
             [central_widget.sizeHint().width(), sidebar_width]
         )
         self.setLayout(layout)
+
+        # Advanced features must register AFTER the main layout exists; otherwise
+        # compare UI fallback can attach a layout too early and wipe the toolbar.
+        try:
+            from anylabeling.views.labeling.advanced.bootstrap import (
+                register_advanced_menu,
+            )
+
+            register_advanced_menu(self)
+        except Exception as _advanced_exc:
+            logger.warning("Failed to register Advanced menu: %s", _advanced_exc)
 
         if output_file is not None and self._config["auto_save"]:
             logger.warning(
@@ -7370,6 +7382,30 @@ class LabelingWidget(LabelDialog):
 
         if self.compare_view_manager.is_active():
             self.compare_view_manager.load_compare_for_file(self.filename)
+
+        # Advanced: batch-check refresh + compare-review resume
+        if getattr(self, "_inspector_enabled", False):
+            try:
+                if getattr(self, "_inspector_suppress_list_refresh_on_load", False):
+                    self._inspector_suppress_list_refresh_on_load = False
+                else:
+                    self._refresh_inspector_for_current_image()
+            except Exception:
+                pass
+        if getattr(self, "_annotation_compare_active", False):
+            try:
+                self.apply_compare_review_colors()
+            except Exception:
+                pass
+            try:
+                self._sync_compare_issue_nav_enabled()
+            except Exception:
+                pass
+        else:
+            try:
+                self._maybe_resume_compare_review_on_load()
+            except Exception:
+                pass
 
         return True
 

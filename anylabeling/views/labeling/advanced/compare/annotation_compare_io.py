@@ -124,6 +124,34 @@ def label_json_has_pending_compare(
     return False
 
 
+def _find_pending_compare_image(
+    image_paths: List[str],
+    *,
+    current_path: Optional[str],
+    output_dir: Optional[str],
+    statuses: Optional[Tuple[str, ...]] = None,
+    step: int = 1,
+) -> Optional[str]:
+    """Walk image list wrapping; *step* +1 = next, -1 = previous."""
+    if not image_paths:
+        return None
+    direction = 1 if int(step) >= 0 else -1
+    n = len(image_paths)
+    start = 0
+    if current_path:
+        cur = osp.normpath(str(current_path))
+        for i, path in enumerate(image_paths):
+            if osp.normpath(str(path)) == cur:
+                start = i
+                break
+    for offset in range(1, n + 1):
+        idx = (start + direction * offset) % n
+        label_path = get_label_file_path(image_paths[idx], output_dir)
+        if label_json_has_pending_compare(label_path, statuses=statuses):
+            return image_paths[idx]
+    return None
+
+
 def find_next_pending_compare_image(
     image_paths: List[str],
     *,
@@ -136,22 +164,30 @@ def find_next_pending_compare_image(
     *statuses* filters by compare status (e.g. only ``suspect_fn`` or
     ``suspect_fp``). Default is both.
     """
-    if not image_paths:
-        return None
-    n = len(image_paths)
-    start = 0
-    if current_path:
-        cur = osp.normpath(str(current_path))
-        for i, path in enumerate(image_paths):
-            if osp.normpath(str(path)) == cur:
-                start = i
-                break
-    for offset in range(1, n + 1):
-        idx = (start + offset) % n
-        label_path = get_label_file_path(image_paths[idx], output_dir)
-        if label_json_has_pending_compare(label_path, statuses=statuses):
-            return image_paths[idx]
-    return None
+    return _find_pending_compare_image(
+        image_paths,
+        current_path=current_path,
+        output_dir=output_dir,
+        statuses=statuses,
+        step=1,
+    )
+
+
+def find_prev_pending_compare_image(
+    image_paths: List[str],
+    *,
+    current_path: Optional[str],
+    output_dir: Optional[str],
+    statuses: Optional[Tuple[str, ...]] = None,
+) -> Optional[str]:
+    """Previous image before *current_path* (wrap) with matching suspect boxes."""
+    return _find_pending_compare_image(
+        image_paths,
+        current_path=current_path,
+        output_dir=output_dir,
+        statuses=statuses,
+        step=-1,
+    )
 
 
 def collect_gt_labels_from_images(

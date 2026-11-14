@@ -11,10 +11,19 @@ from anylabeling.views.labeling.utils.style import (
 )
 
 
+def _nav_btn(widget, text: str, tip: str, slot) -> QPushButton:
+    btn = QPushButton(widget.tr(text))
+    btn.setToolTip(widget.tr(tip))
+    btn.setStyleSheet(get_cancel_btn_style())
+    btn.clicked.connect(slot)
+    btn.hide()
+    return btn
+
+
 def install_compare_ui_bar(widget) -> None:
     """
-    Insert browse-mode / accept / next-FN / next-FP controls above the canvas.
-    Idempotent. Shows `label_instruction` while compare review is active.
+    Insert browse / accept / clear / prev-next FN/FP / clear-dataset controls
+    above the canvas. Idempotent.
     """
     if getattr(widget, "_compare_ui_bar_installed", False):
         return
@@ -23,28 +32,6 @@ def install_compare_ui_bar(widget) -> None:
     if not hasattr(widget, "label_instruction") or widget.label_instruction is None:
         widget.label_instruction = QLabel(widget.get_labeling_instruction(), widget)
         widget.label_instruction.setContentsMargins(0, 0, 0, 0)
-
-    widget._compare_fn_nav_btn = QPushButton(widget.tr("Next Suspect Missed"))
-    widget._compare_fn_nav_btn.setToolTip(
-        widget.tr(
-            "Open next image with suspect missed labels (annotation compare)"
-        )
-    )
-    widget._compare_fn_nav_btn.setStyleSheet(get_cancel_btn_style())
-    widget._compare_fn_nav_btn.clicked.connect(widget.open_next_compare_fn_image)
-    widget._compare_fn_nav_btn.hide()
-
-    widget._compare_fp_nav_btn = QPushButton(
-        widget.tr("Next Suspect False-Label")
-    )
-    widget._compare_fp_nav_btn.setToolTip(
-        widget.tr(
-            "Open next image with suspect false labels (annotation compare)"
-        )
-    )
-    widget._compare_fp_nav_btn.setStyleSheet(get_cancel_btn_style())
-    widget._compare_fp_nav_btn.clicked.connect(widget.open_next_compare_fp_image)
-    widget._compare_fp_nav_btn.hide()
 
     widget._compare_browse_mode_cb = QCheckBox(widget.tr("Browse Mode"))
     widget._compare_browse_mode_cb.setToolTip(
@@ -67,13 +54,11 @@ def install_compare_ui_bar(widget) -> None:
     )
     widget._compare_browse_mode_cb.hide()
 
-    widget._compare_accept_all_btn = QPushButton(
-        widget.tr("Accept All Compare Results")
-    )
+    widget._compare_accept_all_btn = QPushButton(widget.tr("Accept This Check"))
     widget._compare_accept_all_btn.setToolTip(
         widget.tr(
-            "Accept all suspect missed labels as annotations on this image; "
-            "keep suspect false-label boxes and clear their compare flags."
+            "Accept all suspect marks on this image: keep missed-label boxes "
+            "as annotations; keep false-label boxes and clear their flags."
         )
     )
     widget._compare_accept_all_btn.setStyleSheet(get_ok_btn_style())
@@ -82,14 +67,71 @@ def install_compare_ui_bar(widget) -> None:
     )
     widget._compare_accept_all_btn.hide()
 
+    widget._compare_clear_image_btn = QPushButton(widget.tr("Clear This Check"))
+    widget._compare_clear_image_btn.setToolTip(
+        widget.tr(
+            "Clear all suspect marks on this image: delete missed-label / "
+            "false-alarm boxes; keep false-label / miss boxes and remove flags."
+        )
+    )
+    widget._compare_clear_image_btn.setStyleSheet(get_cancel_btn_style())
+    widget._compare_clear_image_btn.clicked.connect(
+        widget.clear_compare_results_current_image
+    )
+    widget._compare_clear_image_btn.hide()
+
+    widget._compare_fn_prev_btn = _nav_btn(
+        widget,
+        "Prev Missed",
+        "Open previous image with suspect missed labels (annotation compare)",
+        widget.open_prev_compare_fn_image,
+    )
+    widget._compare_fn_nav_btn = _nav_btn(
+        widget,
+        "Next Missed",
+        "Open next image with suspect missed labels (annotation compare)",
+        widget.open_next_compare_fn_image,
+    )
+    widget._compare_fp_prev_btn = _nav_btn(
+        widget,
+        "Prev False-Label",
+        "Open previous image with suspect false labels (annotation compare)",
+        widget.open_prev_compare_fp_image,
+    )
+    widget._compare_fp_nav_btn = _nav_btn(
+        widget,
+        "Next False-Label",
+        "Open next image with suspect false labels (annotation compare)",
+        widget.open_next_compare_fp_image,
+    )
+
+    widget._compare_clear_dataset_btn = QPushButton(
+        widget.tr("Clear Dataset Checks")
+    )
+    widget._compare_clear_dataset_btn.setToolTip(
+        widget.tr(
+            "Clear compare / model-eval marks on the whole dataset "
+            "(same as Advanced → Clear Compare Results)."
+        )
+    )
+    widget._compare_clear_dataset_btn.setStyleSheet(get_cancel_btn_style())
+    widget._compare_clear_dataset_btn.clicked.connect(
+        widget.clear_compare_results_dataset
+    )
+    widget._compare_clear_dataset_btn.hide()
+
     row = QHBoxLayout()
     row.setContentsMargins(8, 2, 8, 2)
-    row.setSpacing(8)
+    row.setSpacing(6)
     row.addWidget(widget.label_instruction, 1)
     row.addWidget(widget._compare_browse_mode_cb)
     row.addWidget(widget._compare_accept_all_btn)
+    row.addWidget(widget._compare_clear_image_btn)
+    row.addWidget(widget._compare_fn_prev_btn)
     row.addWidget(widget._compare_fn_nav_btn)
+    row.addWidget(widget._compare_fp_prev_btn)
     row.addWidget(widget._compare_fp_nav_btn)
+    row.addWidget(widget._compare_clear_dataset_btn)
 
     bar = QWidget()
     bar.setObjectName("AdvancedCompareReviewBar")

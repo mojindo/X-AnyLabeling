@@ -11304,28 +11304,126 @@ Failed: %d</source>
   <context>
     <name>LabelingWidget</name>
     <message>
-      <source>Next Suspect Missed</source>
-      <translation>下一张疑是漏标</translation>
+      <source>Next Missed</source>
+      <translation>下一张疑漏</translation>
     </message>
     <message>
-      <source>Next Suspect False-Label</source>
-      <translation>下一张疑是误标</translation>
+      <source>Prev Missed</source>
+      <translation>上一张疑漏</translation>
+    </message>
+    <message>
+      <source>Next False-Label</source>
+      <translation>下一张疑误</translation>
+    </message>
+    <message>
+      <source>Prev False-Label</source>
+      <translation>上一张疑误</translation>
     </message>
     <message>
       <source>Next False Alarm</source>
       <translation>下一张误报</translation>
     </message>
     <message>
+      <source>Prev False Alarm</source>
+      <translation>上一张误报</translation>
+    </message>
+    <message>
       <source>Next Miss</source>
       <translation>下一张漏报</translation>
+    </message>
+    <message>
+      <source>Prev Miss</source>
+      <translation>上一张漏报</translation>
     </message>
     <message>
       <source>Browse Mode</source>
       <translation>预览模式</translation>
     </message>
     <message>
-      <source>Accept All Compare Results</source>
-      <translation>接受本图全部比对结果</translation>
+      <source>Accept This Check</source>
+      <translation>接受本图检查</translation>
+    </message>
+    <message>
+      <source>Clear This Check</source>
+      <translation>清除本图检查</translation>
+    </message>
+    <message>
+      <source>Clear Dataset Checks</source>
+      <translation>清空数据集检查</translation>
+    </message>
+    <message>
+      <source>Accept all suspect marks on this image: keep missed-label boxes as annotations; keep false-label boxes and clear their flags.</source>
+      <translation>接受本图全部疑是标记：漏标框保留为正式标注；误标框保留并清除比对标记。</translation>
+    </message>
+    <message>
+      <source>Clear all suspect marks on this image: delete missed-label / false-alarm boxes; keep false-label / miss boxes and remove flags.</source>
+      <translation>清除本图全部疑是标记：删除漏标/误报框；误标/漏报框保留并去掉标记。</translation>
+    </message>
+    <message>
+      <source>Clear compare / model-eval marks on the whole dataset (same as Advanced → Clear Compare Results).</source>
+      <translation>清除整个数据集的比对/评测标记（与「高级功能 → 清除比对/评测结果」相同）。</translation>
+    </message>
+    <message>
+      <source>Open previous image with suspect missed labels</source>
+      <translation>打开上一张含疑是漏标的图片</translation>
+    </message>
+    <message>
+      <source>Open next image with suspect missed labels</source>
+      <translation>打开下一张含疑是漏标的图片</translation>
+    </message>
+    <message>
+      <source>Open previous image with suspect false labels</source>
+      <translation>打开上一张含疑是误标的图片</translation>
+    </message>
+    <message>
+      <source>Open next image with suspect false labels</source>
+      <translation>打开下一张含疑是误标的图片</translation>
+    </message>
+    <message>
+      <source>Open previous image with model false alarms (误报)</source>
+      <translation>打开上一张含误报的图片</translation>
+    </message>
+    <message>
+      <source>Open next image with model false alarms (误报)</source>
+      <translation>打开下一张含误报的图片</translation>
+    </message>
+    <message>
+      <source>Open previous image with model misses (漏报)</source>
+      <translation>打开上一张含漏报的图片</translation>
+    </message>
+    <message>
+      <source>Open next image with model misses (漏报)</source>
+      <translation>打开下一张含漏报的图片</translation>
+    </message>
+    <message>
+      <source>Clear all suspect marks on this image?
+
+• Delete pred-side marks (漏标/误报): %d
+• Clear GT-side flags (误标/漏报): %d</source>
+      <translation>清除本图全部疑是标记？
+
+• 删除预测侧标记（漏标/误报）：%d
+• 清除 GT 侧标记（误标/漏报）：%d</translation>
+    </message>
+    <message>
+      <source>Cleared this image: removed %d pred-side mark(s), cleared %d GT-side flag(s).</source>
+      <translation>已清除本图：删除预测侧标记 %d，清除 GT 侧标记 %d。</translation>
+    </message>
+    <message>
+      <source>Already on the first image with false alarms in this pass.</source>
+      <translation>已是本轮第一张含误报的图片。</translation>
+    </message>
+    <message>
+      <source>Already on the first image with misses in this pass.</source>
+      <translation>已是本轮第一张含漏报的图片。</translation>
+    </message>
+    <message>
+      <source>Already on the first image with suspect missed labels in this pass.</source>
+      <translation>已是本轮第一张含疑是漏标的图片。</translation>
+    </message>
+    <message>
+      <source>Already on the first image with suspect false labels in this pass.</source>
+      <translation>已是本轮第一张含疑是误标的图片。</translation>
     </message>
     <message>
       <source>Annotation Compare Review</source>

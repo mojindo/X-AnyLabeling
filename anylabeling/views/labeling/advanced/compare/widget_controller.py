@@ -85,44 +85,84 @@ class _CompareWidgetMethods:
             and getattr(self, "image_list", None)
         )
         model_mode = self._review_marks_mode_is_model_eval() if enabled else False
-        fn_btn = getattr(self, "_compare_fn_nav_btn", None)
-        fp_btn = getattr(self, "_compare_fp_nav_btn", None)
-        if fn_btn is not None:
-            fn_btn.setVisible(enabled)
-            fn_btn.setEnabled(enabled)
-            if enabled:
-                if model_mode:
-                    fn_btn.setText(self.tr("Next False Alarm"))
-                    fn_btn.setToolTip(
-                        self.tr(
-                            "Open next image with model false alarms (误报)"
-                        )
+        pending = 0
+        if enabled:
+            from anylabeling.views.labeling.advanced.compare.annotation_compare import (
+                count_pending_review,
+            )
+
+            try:
+                pending = count_pending_review(self.canvas.shapes)
+            except Exception:
+                pending = 0
+
+        def _set_fn_btn(btn, *, prev: bool) -> None:
+            if btn is None:
+                return
+            btn.setVisible(enabled)
+            btn.setEnabled(enabled)
+            if not enabled:
+                return
+            if model_mode:
+                btn.setText(
+                    self.tr("Prev False Alarm") if prev else self.tr("Next False Alarm")
+                )
+                btn.setToolTip(
+                    self.tr(
+                        "Open previous image with model false alarms (误报)"
+                        if prev
+                        else "Open next image with model false alarms (误报)"
                     )
-                else:
-                    fn_btn.setText(self.tr("Next Suspect Missed"))
-                    fn_btn.setToolTip(
-                        self.tr(
-                            "Open next image with suspect missed labels "
-                            "(annotation compare)"
-                        )
+                )
+            else:
+                btn.setText(
+                    self.tr("Prev Missed") if prev else self.tr("Next Missed")
+                )
+                btn.setToolTip(
+                    self.tr(
+                        "Open previous image with suspect missed labels"
+                        if prev
+                        else "Open next image with suspect missed labels"
                     )
-        if fp_btn is not None:
-            fp_btn.setVisible(enabled)
-            fp_btn.setEnabled(enabled)
-            if enabled:
-                if model_mode:
-                    fp_btn.setText(self.tr("Next Miss"))
-                    fp_btn.setToolTip(
-                        self.tr("Open next image with model misses (漏报)")
+                )
+
+        def _set_fp_btn(btn, *, prev: bool) -> None:
+            if btn is None:
+                return
+            btn.setVisible(enabled)
+            btn.setEnabled(enabled)
+            if not enabled:
+                return
+            if model_mode:
+                btn.setText(
+                    self.tr("Prev Miss") if prev else self.tr("Next Miss")
+                )
+                btn.setToolTip(
+                    self.tr(
+                        "Open previous image with model misses (漏报)"
+                        if prev
+                        else "Open next image with model misses (漏报)"
                     )
-                else:
-                    fp_btn.setText(self.tr("Next Suspect False-Label"))
-                    fp_btn.setToolTip(
-                        self.tr(
-                            "Open next image with suspect false labels "
-                            "(annotation compare)"
-                        )
+                )
+            else:
+                btn.setText(
+                    self.tr("Prev False-Label")
+                    if prev
+                    else self.tr("Next False-Label")
+                )
+                btn.setToolTip(
+                    self.tr(
+                        "Open previous image with suspect false labels"
+                        if prev
+                        else "Open next image with suspect false labels"
                     )
+                )
+
+        _set_fn_btn(getattr(self, "_compare_fn_prev_btn", None), prev=True)
+        _set_fn_btn(getattr(self, "_compare_fn_nav_btn", None), prev=False)
+        _set_fp_btn(getattr(self, "_compare_fp_prev_btn", None), prev=True)
+        _set_fp_btn(getattr(self, "_compare_fp_nav_btn", None), prev=False)
+
         browse_cb = getattr(self, "_compare_browse_mode_cb", None)
         if browse_cb is not None:
             browse_cb.setVisible(enabled)
@@ -133,20 +173,27 @@ class _CompareWidgetMethods:
                     bool(getattr(self, "_compare_browse_mode", False))
                 )
                 browse_cb.blockSignals(False)
-        accept_btn = getattr(self, "_compare_accept_all_btn", None)
-        if accept_btn is not None:
-            accept_btn.setVisible(enabled)
-            if enabled:
-                from anylabeling.views.labeling.advanced.compare.annotation_compare import (
-                    count_pending_review,
-                )
 
-                accept_btn.setEnabled(count_pending_review(self.canvas.shapes) > 0)
-            else:
-                accept_btn.setEnabled(False)
+        for btn_name in (
+            "_compare_accept_all_btn",
+            "_compare_clear_image_btn",
+        ):
+            btn = getattr(self, btn_name, None)
+            if btn is None:
+                continue
+            btn.setVisible(enabled)
+            btn.setEnabled(enabled and pending > 0)
+
+        clear_ds = getattr(self, "_compare_clear_dataset_btn", None)
+        if clear_ds is not None:
+            clear_ds.setVisible(enabled)
+            clear_ds.setEnabled(enabled)
+
         for action_name in (
             "open_next_compare_fn_image",
             "open_next_compare_fp_image",
+            "open_prev_compare_fn_image",
+            "open_prev_compare_fp_image",
         ):
             action = getattr(self.actions, action_name, None)
             if action is not None:
@@ -228,65 +275,178 @@ class _CompareWidgetMethods:
         return True
 
 
+    def clear_compare_results_current_image(self, _value=False) -> bool:
+        """Clear all pending compare marks on the current canvas and save."""
+        if not getattr(self, "_annotation_compare_active", False):
+            return False
+        if not self.filename:
+            QMessageBox.information(
+                self,
+                self.tr("Annotation Compare Review"),
+                self.tr("No image loaded."),
+            )
+            return False
+
+        from anylabeling.views.labeling.advanced.compare.annotation_compare import (
+            PENDING_GT_STATUSES,
+            PENDING_PRED_STATUSES,
+            count_pending_review,
+            get_compare_status,
+        )
+
+        if count_pending_review(self.canvas.shapes) <= 0:
+            self.status(
+                self.tr("No unreviewed compare marks on this image."),
+                3000,
+            )
+            return False
+
+        fn_count = 0
+        fp_count = 0
+        for shape in self.canvas.shapes:
+            status = get_compare_status(shape)
+            if status in PENDING_PRED_STATUSES:
+                fn_count += 1
+            elif status in PENDING_GT_STATUSES:
+                fp_count += 1
+
+        reply = QMessageBox.question(
+            self,
+            self.tr("Clear This Check"),
+            self.tr(
+                "Clear all suspect marks on this image?\n\n"
+                "• Delete pred-side marks (漏标/误报): %d\n"
+                "• Clear GT-side flags (误标/漏报): %d"
+            )
+            % (fn_count, fp_count),
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return False
+
+        self._clear_all_pending_compare_on_canvas()
+        self.set_dirty()
+        try:
+            self.save_file()
+        except Exception:
+            pass
+        self._sync_compare_issue_nav_enabled()
+        self.status(
+            self.tr(
+                "Cleared this image: removed %d pred-side mark(s), "
+                "cleared %d GT-side flag(s)."
+            )
+            % (fn_count, fp_count),
+            6000,
+        )
+        return True
+
+
+    def clear_compare_results_dataset(self, _value=False) -> None:
+        """Reuse Advanced → Clear Compare Results for the whole dataset."""
+        from anylabeling.views.labeling.advanced.compare.annotation_compare_dialog import (
+            run_clear_compare_results_ui,
+        )
+
+        run_clear_compare_results_ui(self)
+        try:
+            self._sync_compare_issue_nav_enabled()
+        except Exception:
+            pass
+
+
     def open_next_compare_fn_image(self, _value=False) -> bool:
         """Jump to next image with pred-side marks (漏标 or 误报)."""
+        return self._open_compare_fn_image(direction=1)
+
+
+    def open_prev_compare_fn_image(self, _value=False) -> bool:
+        """Jump to previous image with pred-side marks (漏标 or 误报)."""
+        return self._open_compare_fn_image(direction=-1)
+
+
+    def open_next_compare_fp_image(self, _value=False) -> bool:
+        """Jump to next image with GT-side marks (误标 or 漏报)."""
+        return self._open_compare_fp_image(direction=1)
+
+
+    def open_prev_compare_fp_image(self, _value=False) -> bool:
+        """Jump to previous image with GT-side marks (误标 or 漏报)."""
+        return self._open_compare_fp_image(direction=-1)
+
+
+    def _open_compare_fn_image(self, *, direction: int) -> bool:
         from anylabeling.views.labeling.advanced.compare.annotation_compare import (
             STATUS_MODEL_FALSE,
             STATUS_SUSPECT_FN,
         )
 
+        going_prev = int(direction) < 0
         if self._review_marks_mode_is_model_eval():
-            return self._open_next_compare_issue_image(
+            return self._open_compare_issue_image(
+                direction=direction,
                 statuses=(STATUS_MODEL_FALSE,),
                 empty_msg=self.tr(
                     "No more images with false alarms in this dataset."
                 ),
                 same_msg=self.tr(
-                    "Already on the last image with false alarms in this pass."
+                    "Already on the first image with false alarms in this pass."
+                    if going_prev
+                    else "Already on the last image with false alarms in this pass."
                 ),
             )
-        return self._open_next_compare_issue_image(
+        return self._open_compare_issue_image(
+            direction=direction,
             statuses=(STATUS_SUSPECT_FN,),
             empty_msg=self.tr(
                 "No more images with suspect missed labels in this dataset."
             ),
             same_msg=self.tr(
-                "Already on the last image with suspect missed labels in this pass."
+                "Already on the first image with suspect missed labels in this pass."
+                if going_prev
+                else "Already on the last image with suspect missed labels in this pass."
             ),
         )
 
 
-    def open_next_compare_fp_image(self, _value=False) -> bool:
-        """Jump to next image with GT-side marks (误标 or 漏报)."""
+    def _open_compare_fp_image(self, *, direction: int) -> bool:
         from anylabeling.views.labeling.advanced.compare.annotation_compare import (
             STATUS_MODEL_MISS,
             STATUS_SUSPECT_FP,
         )
 
+        going_prev = int(direction) < 0
         if self._review_marks_mode_is_model_eval():
-            return self._open_next_compare_issue_image(
+            return self._open_compare_issue_image(
+                direction=direction,
                 statuses=(STATUS_MODEL_MISS,),
                 empty_msg=self.tr(
                     "No more images with misses in this dataset."
                 ),
                 same_msg=self.tr(
-                    "Already on the last image with misses in this pass."
+                    "Already on the first image with misses in this pass."
+                    if going_prev
+                    else "Already on the last image with misses in this pass."
                 ),
             )
-        return self._open_next_compare_issue_image(
+        return self._open_compare_issue_image(
+            direction=direction,
             statuses=(STATUS_SUSPECT_FP,),
             empty_msg=self.tr(
                 "No more images with suspect false labels in this dataset."
             ),
             same_msg=self.tr(
-                "Already on the last image with suspect false labels in this pass."
+                "Already on the first image with suspect false labels in this pass."
+                if going_prev
+                else "Already on the last image with suspect false labels in this pass."
             ),
         )
 
 
     def open_next_compare_issue_image(self, _value=False) -> bool:
         """Backward-compatible: jump to next image with any suspect FN/FP."""
-        return self._open_next_compare_issue_image()
+        return self._open_compare_issue_image(direction=1)
 
 
     def _open_next_compare_issue_image(
@@ -296,7 +456,24 @@ class _CompareWidgetMethods:
         empty_msg: Optional[str] = None,
         same_msg: Optional[str] = None,
     ) -> bool:
-        """Jump to the next image (after current) with matching suspect marks."""
+        """Backward-compatible alias for next-direction navigation."""
+        return self._open_compare_issue_image(
+            direction=1,
+            statuses=statuses,
+            empty_msg=empty_msg,
+            same_msg=same_msg,
+        )
+
+
+    def _open_compare_issue_image(
+        self,
+        *,
+        direction: int = 1,
+        statuses=None,
+        empty_msg: Optional[str] = None,
+        same_msg: Optional[str] = None,
+    ) -> bool:
+        """Jump to next/previous image with matching suspect marks."""
         if not getattr(self, "_annotation_compare_active", False):
             return False
         image_list = list(getattr(self, "image_list", []) or [])
@@ -304,9 +481,15 @@ class _CompareWidgetMethods:
             return False
         from anylabeling.views.labeling.advanced.compare.annotation_compare_io import (
             find_next_pending_compare_image,
+            find_prev_pending_compare_image,
         )
 
-        next_path = find_next_pending_compare_image(
+        finder = (
+            find_prev_pending_compare_image
+            if int(direction) < 0
+            else find_next_pending_compare_image
+        )
+        next_path = finder(
             image_list,
             current_path=self.filename,
             output_dir=getattr(self, "output_dir", None),
@@ -414,11 +597,11 @@ class _CompareWidgetMethods:
         return None
 
 
-    def _accept_all_pending_compare_on_canvas(self) -> None:
+    def _apply_pending_compare_actions_on_canvas(
+        self, *, pred_action: str, gt_action: str
+    ) -> None:
         from anylabeling.views.labeling.shape import Shape
         from anylabeling.views.labeling.advanced.compare.annotation_compare import (
-            FN_ACCEPT_LABEL,
-            FP_KEEP,
             PENDING_GT_STATUSES,
             PENDING_PRED_STATUSES,
             apply_review_action,
@@ -429,9 +612,9 @@ class _CompareWidgetMethods:
             shape = self.canvas.shapes[idx]
             status = get_compare_status(shape)
             if status in PENDING_PRED_STATUSES:
-                action = FN_ACCEPT_LABEL
+                action = pred_action
             elif status in PENDING_GT_STATUSES:
-                action = FP_KEEP
+                action = gt_action
             else:
                 continue
             result = apply_review_action(shape, action)
@@ -460,6 +643,31 @@ class _CompareWidgetMethods:
         self.canvas.update()
         self._refresh_shape_filters()
         self._sync_compare_issue_nav_enabled()
+
+
+    def _accept_all_pending_compare_on_canvas(self) -> None:
+        from anylabeling.views.labeling.advanced.compare.annotation_compare import (
+            FN_ACCEPT_LABEL,
+            FP_KEEP,
+        )
+
+        self._apply_pending_compare_actions_on_canvas(
+            pred_action=FN_ACCEPT_LABEL,
+            gt_action=FP_KEEP,
+        )
+
+
+    def _clear_all_pending_compare_on_canvas(self) -> None:
+        from anylabeling.views.labeling.advanced.compare.annotation_compare import (
+            FN_REJECT,
+            FP_KEEP,
+        )
+
+        # Same semantics as batch clear: drop pred-side boxes, strip GT flags.
+        self._apply_pending_compare_actions_on_canvas(
+            pred_action=FN_REJECT,
+            gt_action=FP_KEEP,
+        )
 
 
     def _maybe_resume_compare_review_on_load(self) -> None:

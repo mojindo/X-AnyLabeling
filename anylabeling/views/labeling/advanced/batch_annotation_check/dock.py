@@ -10,13 +10,16 @@ from collections import OrderedDict
 
 
 class AnnotationInspectorDock(QtWidgets.QDockWidget):
-    inspectorItemClicked = QtCore.pyqtSignal(str, str, int)
+    # image_path, label_json_path, shape_index, shape_key
+    inspectorItemClicked = QtCore.pyqtSignal(str, str, int, str)
     dockAboutToClose = QtCore.pyqtSignal()
     runFalsePositiveClipRequested = QtCore.pyqtSignal(float)
+    editFpLabelPromptsRequested = QtCore.pyqtSignal()
     fnItemClicked = QtCore.pyqtSignal(str, str, object)  # (image_path, label, bbox01)
 
     _ROLE_FP_CLICK = Qt.ItemDataRole.UserRole
     _ROLE_FN_CLICK = Qt.ItemDataRole.UserRole + 1
+    _ROLE_FP_ORPHAN = Qt.ItemDataRole.UserRole + 2
 
     def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
         super().__init__(parent)
@@ -42,13 +45,43 @@ class AnnotationInspectorDock(QtWidgets.QDockWidget):
 
         tools = QtWidgets.QHBoxLayout()
         self._fp_thresh = QtWidgets.QDoubleSpinBox()
-        self._fp_thresh.setRange(-1.0, 1.0)
+        self._fp_thresh.setRange(0.0, 1.0)
         self._fp_thresh.setSingleStep(0.01)
-        self._fp_thresh.setValue(0.23)
-        self._fp_thresh.setToolTip(self.tr("CLIP cosine similarity threshold"))
+        self._fp_thresh.setDecimals(3)
+        self._fp_thresh.setValue(0.40)
+        self._fp_thresh.setToolTip(
+            self.tr(
+                "Minimum probability that the crop matches the positive phrase "
+                "versus distractors (cabinet/pipe/background…). "
+                "Lower = fewer suspects; higher = stricter."
+            )
+        )
         tools.addWidget(self._fp_thresh)
 
-        self._run_fp_clip_btn = QtWidgets.QPushButton(self.tr("Run FP check (CLIP)"))
+        self._fp_phrases_btn = QtWidgets.QPushButton(
+            self.tr("Label phrases…")
+        )
+        self._fp_phrases_btn.setToolTip(
+            self.tr(
+                "Map annotation labels to short Chinese phrases for Chinese-CLIP "
+                "(e.g. person → 人)."
+            )
+        )
+        self._fp_phrases_btn.clicked.connect(
+            self.editFpLabelPromptsRequested.emit
+        )
+        tools.addWidget(self._fp_phrases_btn)
+
+        self._run_fp_clip_btn = QtWidgets.QPushButton(
+            self.tr("Run FP check (Chinese-CLIP)")
+        )
+        self._run_fp_clip_btn.setToolTip(
+            self.tr(
+                "Contrastive Chinese-CLIP check (CPU): positive phrase vs "
+                "distractors. Suspect FP if another class wins or probability "
+                "is below the threshold. Confirm label phrases before running."
+            )
+        )
         self._run_fp_clip_btn.clicked.connect(
             lambda: self.runFalsePositiveClipRequested.emit(
                 float(self._fp_thresh.value())
@@ -57,6 +90,12 @@ class AnnotationInspectorDock(QtWidgets.QDockWidget):
         tools.addWidget(self._run_fp_clip_btn)
         tools.addStretch(1)
         root_layout.addLayout(tools)
+
+        # Chinese-CLIP FP check is temporarily offline (weak for generic QA).
+        # Keep widgets for a later VLM-based replacement.
+        self._fp_thresh.hide()
+        self._fp_phrases_btn.hide()
+        self._run_fp_clip_btn.hide()
 
         self._fp_section = QtWidgets.QLabel(self.tr("All crops (dataset)"))
         self._fp_section.setStyleSheet("font-weight: 600;")
@@ -244,11 +283,18 @@ class AnnotationInspectorDock(QtWidgets.QDockWidget):
 
     def _on_fp_item_clicked(self, item: QtWidgets.QListWidgetItem) -> None:
         data = item.data(self._ROLE_FP_CLICK)
-        if not isinstance(data, tuple) or len(data) != 3:
+        if not isinstance(data, tuple) or len(data) < 3:
             return
-        image_path, label_json_path, shape_index = data
-        self.focus_fp_crop(str(image_path), int(shape_index))
-        self.inspectorItemClicked.emit(str(image_path), str(label_json_path), int(shape_index))
+        if bool(item.data(self._ROLE_FP_ORPHAN)):
+            return
+        image_path = str(data[0])
+        label_json_path = str(data[1])
+        shape_index = int(data[2])
+        shape_key = str(data[3]) if len(data) >= 4 else ""
+        self.focus_fp_crop(image_path, shape_index, shape_key=shape_key)
+        self.inspectorItemClicked.emit(
+            image_path, label_json_path, shape_index, shape_key
+        )
 
     def _on_fn_item_clicked(self, item: QtWidgets.QListWidgetItem) -> None:
         data = item.data(self._ROLE_FN_CLICK)
@@ -292,26 +338,37 @@ class AnnotationInspectorDock(QtWidgets.QDockWidget):
         self._fp_highlight_item = None
         self._fp_highlight_saved_bg = None
 
-    def focus_fp_crop(self, image_path: str, shape_index: int) -> None:
+    def focus_fp_crop(
+        self, image_path: str, shape_index: int, *, shape_key: str = ""
+    ) -> None:
         """Scroll to the matching thumbnail and highlight it."""
 
-        if not image_path or int(shape_index) < 0:
+        if not image_path:
+            return
+        if not shape_key and int(shape_index) < 0:
             return
 
         def _do() -> None:
             target_si = int(shape_index)
+            target_key = str(shape_key or "")
             self.clear_fp_highlight()
             for row in range(self._fp_list.count()):
                 lw_item = self._fp_list.item(row)
                 if lw_item is None:
                     continue
+                if bool(lw_item.data(self._ROLE_FP_ORPHAN)):
+                    continue
                 data = lw_item.data(self._ROLE_FP_CLICK)
-                if not isinstance(data, tuple) or len(data) != 3:
+                if not isinstance(data, tuple) or len(data) < 3:
                     continue
                 ip, _lj, si = data[0], data[1], data[2]
-                if int(si) != target_si:
-                    continue
+                sk = str(data[3]) if len(data) >= 4 else ""
                 if not self._paths_same_file(str(ip), str(image_path)):
+                    continue
+                if target_key:
+                    if sk != target_key:
+                        continue
+                elif int(si) != target_si:
                     continue
                 self._fp_highlight_saved_bg = lw_item.background()
                 self._fp_highlight_item = lw_item
@@ -327,10 +384,40 @@ class AnnotationInspectorDock(QtWidgets.QDockWidget):
 
         QtCore.QTimer.singleShot(0, _do)
 
+    def mark_fp_orphans_by_keys(self, shape_keys: Iterable[str]) -> None:
+        """Gray out crop tiles whose shapes were deleted — no list rebuild."""
+        keys = {str(k) for k in (shape_keys or []) if str(k)}
+        if not keys:
+            return
+        for row in range(self._fp_list.count()):
+            lw_item = self._fp_list.item(row)
+            if lw_item is None:
+                continue
+            data = lw_item.data(self._ROLE_FP_CLICK)
+            if not isinstance(data, tuple) or len(data) < 4:
+                continue
+            sk = str(data[3] or "")
+            if sk not in keys:
+                continue
+            lw_item.setData(self._ROLE_FP_ORPHAN, True)
+            lw_item.setBackground(
+                QtGui.QBrush(QtGui.QColor(120, 120, 120, 90))
+            )
+            tip = lw_item.toolTip() or ""
+            if "deleted" not in tip.lower():
+                lw_item.setToolTip(
+                    (tip + "\n" if tip else "")
+                    + self.tr("Annotation deleted (crop kept for reference)")
+                )
+            if self._fp_highlight_item is lw_item:
+                self._fp_highlight_item = None
+                self._fp_highlight_saved_bg = None
+
     def set_items(self, items: Iterable[object]) -> None:
         """
         items should provide fields:
           - image_path, label_json_path, shape_index, crop_path, label (optional)
+          - shape_key (optional but preferred for stable binding)
         """
         self.clear_fp_highlight()
         fp_scroll_y = self._fp_list.verticalScrollBar().value()
@@ -339,19 +426,63 @@ class AnnotationInspectorDock(QtWidgets.QDockWidget):
         self._stop_icon_loader()
         token = self._icon_job_token
 
-        for it in items:
+        item_list = list(items)
+
+        def _fp_sort_key(it: object):
+            # Suspect FP first, then errors, then by ascending confidence.
+            is_match = getattr(it, "fp_is_match", None)
+            err = getattr(it, "fp_error", None)
+            conf = getattr(it, "fp_confidence", None)
+            try:
+                conf_v = float(conf) if conf is not None else 1.0
+            except Exception:
+                conf_v = 1.0
+            if err:
+                rank = 1
+            elif is_match is False:
+                rank = 0
+            elif is_match is True:
+                rank = 3
+            else:
+                rank = 2
+            return (rank, conf_v)
+
+        try:
+            item_list.sort(key=_fp_sort_key)
+        except Exception:
+            pass
+
+        for it in item_list:
             try:
                 image_path = getattr(it, "image_path")
                 label_json_path = getattr(it, "label_json_path")
                 shape_index = int(getattr(it, "shape_index"))
                 crop_path = getattr(it, "crop_path")
                 label = str(getattr(it, "label", ""))
+                shape_key = str(getattr(it, "shape_key", "") or "")
+                if not shape_key:
+                    from anylabeling.views.labeling.advanced.batch_annotation_check.cropper import (
+                        make_shape_key,
+                    )
+
+                    shape_key = make_shape_key(
+                        label=label,
+                        shape_type=getattr(it, "shape_type", ""),
+                        bbox=getattr(it, "bbox", None),
+                    )
             except Exception:
                 continue
 
             base = osp.basename(str(image_path))
             short = base if len(base) <= 18 else base[:15] + "…"
-            text = f"{label}\n{short}" if label else short
+            score_txt = ""
+            try:
+                conf = getattr(it, "fp_confidence", None)
+                if isinstance(conf, (int, float)):
+                    score_txt = f"\n{float(conf):.2f}"
+            except Exception:
+                score_txt = ""
+            text = f"{label}{score_txt}\n{short}" if label else f"{short}{score_txt}"
 
             lw_item = QtWidgets.QListWidgetItem(text)
             lw_item.setTextAlignment(
@@ -360,9 +491,25 @@ class AnnotationInspectorDock(QtWidgets.QDockWidget):
             lw_item.setSizeHint(QtCore.QSize(110, 124))
             lw_item.setData(
                 self._ROLE_FP_CLICK,
-                (str(image_path), str(label_json_path), int(shape_index)),
+                (
+                    str(image_path),
+                    str(label_json_path),
+                    int(shape_index),
+                    str(shape_key),
+                ),
             )
-            lw_item.setToolTip(f"{image_path}\n{crop_path}")
+            lw_item.setData(self._ROLE_FP_ORPHAN, False)
+            tip_lines = [str(image_path), str(crop_path)]
+            try:
+                reason = getattr(it, "fp_reason", None)
+                if reason:
+                    tip_lines.append(str(reason))
+                conf = getattr(it, "fp_confidence", None)
+                if isinstance(conf, (int, float)):
+                    tip_lines.append(f"pos_prob={float(conf):.3f}")
+            except Exception:
+                pass
+            lw_item.setToolTip("\n".join(tip_lines))
 
             try:
                 fp_is_match = getattr(it, "fp_is_match", None)

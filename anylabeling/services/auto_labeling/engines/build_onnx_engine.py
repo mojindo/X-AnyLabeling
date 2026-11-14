@@ -5,10 +5,19 @@ import onnxruntime as ort
 
 class OnnxBaseModel:
     def __init__(
-        self, model_path, device_type: str = "cpu", log_severity_level: int = 3
+        self,
+        model_path,
+        device_type: str = "cpu",
+        log_severity_level: int = 3,
+        graph_optimization_level=None,
+        disabled_optimizers=None,
     ):
         self.sess_opts = ort.SessionOptions()
         self.sess_opts.log_severity_level = log_severity_level
+        # Some fp16 ONNX exports (e.g. Chinese-CLIP) crash under ORT all-level
+        # fusions such as SimplifiedLayerNormFusion on newer runtimes.
+        if graph_optimization_level is not None:
+            self.sess_opts.graph_optimization_level = graph_optimization_level
         if "OMP_NUM_THREADS" in os.environ:
             self.sess_opts.inter_op_num_threads = int(
                 os.environ["OMP_NUM_THREADS"]
@@ -18,11 +27,14 @@ class OnnxBaseModel:
         if device_type.lower() == "gpu":
             self.providers = ["CUDAExecutionProvider"]
 
-        self.ort_session = ort.InferenceSession(
-            model_path,
-            providers=self.providers,
-            sess_options=self.sess_opts,
-        )
+        session_kwargs = {
+            "providers": self.providers,
+            "sess_options": self.sess_opts,
+        }
+        if disabled_optimizers:
+            session_kwargs["disabled_optimizers"] = list(disabled_optimizers)
+
+        self.ort_session = ort.InferenceSession(model_path, **session_kwargs)
         self.model_path = model_path
 
     def get_ort_inference(

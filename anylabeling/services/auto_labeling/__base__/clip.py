@@ -7,6 +7,8 @@ import numpy as np
 from typing import List
 from functools import lru_cache
 
+import onnxruntime as ort
+
 from ..engines import OnnxBaseModel
 from anylabeling.views.labeling.logger import logger
 
@@ -42,9 +44,22 @@ class ChineseClipONNX:
         device: str = "cpu",
         context_length: int = 52,
     ) -> None:
-        # Load models
-        self.txt_net = OnnxBaseModel(txt_model_path, device_type=device)
-        self.img_net = OnnxBaseModel(img_model_path, device_type=device)
+        # fp16 Chinese-CLIP + ORT 1.26 ALL-level opts can crash in
+        # SimplifiedLayerNormFusion; BASIC avoids that while staying valid.
+        _opt = ort.GraphOptimizationLevel.ORT_ENABLE_BASIC
+        _disabled = ["SimplifiedLayerNormFusion"]
+        self.txt_net = OnnxBaseModel(
+            txt_model_path,
+            device_type=device,
+            graph_optimization_level=_opt,
+            disabled_optimizers=_disabled,
+        )
+        self.img_net = OnnxBaseModel(
+            img_model_path,
+            device_type=device,
+            graph_optimization_level=_opt,
+            disabled_optimizers=_disabled,
+        )
         # Image settings
         self.image_size = _MODEL_INFO[model_arch]["input_resolution"]
         # Text settings

@@ -62,6 +62,93 @@ def shape_to_bbox(
     return BBox(xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax)
 
 
+def make_shape_key(
+    *,
+    label: object,
+    shape_type: object,
+    points: Optional[List] = None,
+    bbox: Optional[dict] = None,
+) -> str:
+    """
+    Stable identity for a shape ↔ crop binding.
+
+    Prefer rounded vertex coordinates so the key survives list-index shifts
+    after delete/reorder. Fall back to axis-aligned bbox when points are absent
+    (legacy cache rows).
+    """
+    lab = str(label or "").strip()
+    st = str(shape_type or "").strip()
+    coords: List[str] = []
+    for p in points or []:
+        try:
+            if hasattr(p, "x") and hasattr(p, "y"):
+                x, y = float(p.x()), float(p.y())
+            elif isinstance(p, (list, tuple)) and len(p) >= 2:
+                x, y = float(p[0]), float(p[1])
+            else:
+                continue
+            coords.append(f"{int(round(x))},{int(round(y))}")
+        except Exception:
+            continue
+    if coords:
+        return f"{lab}\x1f{st}\x1fp:{'|'.join(coords)}"
+    if isinstance(bbox, dict) and bbox:
+        try:
+            return (
+                f"{lab}\x1f{st}\x1fb:"
+                f"{int(bbox.get('xmin', 0))},"
+                f"{int(bbox.get('ymin', 0))},"
+                f"{int(bbox.get('xmax', 0))},"
+                f"{int(bbox.get('ymax', 0))}"
+            )
+        except Exception:
+            pass
+    return f"{lab}\x1f{st}\x1f"
+
+
+def shape_key_from_shape(shape) -> str:
+    """Build shape_key from a live canvas Shape (vertex-based)."""
+    pts = []
+    try:
+        pts = list(getattr(shape, "points", None) or [])
+    except Exception:
+        pts = []
+    return make_shape_key(
+        label=getattr(shape, "label", ""),
+        shape_type=getattr(shape, "shape_type", ""),
+        points=pts,
+    )
+
+
+def shape_bbox_key_from_shape(
+    shape,
+    image_w: int,
+    image_h: int,
+    *,
+    padding_px: int = 4,
+) -> str:
+    """Legacy/compat key from padded axis-aligned bbox (matches old cache rows)."""
+    pts = []
+    try:
+        for p in list(getattr(shape, "points", None) or []):
+            pts.append([float(p.x()), float(p.y())])
+    except Exception:
+        pts = []
+    bbox = shape_to_bbox(pts, int(image_w), int(image_h), padding_px=padding_px)
+    if bbox is None:
+        return ""
+    return make_shape_key(
+        label=getattr(shape, "label", ""),
+        shape_type=getattr(shape, "shape_type", ""),
+        bbox={
+            "xmin": bbox.xmin,
+            "ymin": bbox.ymin,
+            "xmax": bbox.xmax,
+            "ymax": bbox.ymax,
+        },
+    )
+
+
 def read_image_bgr(image_path: str) -> np.ndarray:
     """Read image supporting Unicode paths on Windows."""
     if not osp.isfile(image_path):

@@ -11430,6 +11430,96 @@ Failed: %d</source>
       <source>Select materials folder</source>
       <translation>选择素材文件夹</translation>
     </message>
+    <message>
+      <source>No crops available for FP check.</source>
+      <translation>没有可用于误标检查的裁剪图。</translation>
+    </message>
+    <message>
+      <source>Running Chinese-CLIP FP check (CPU)...</source>
+      <translation>正在运行 Chinese-CLIP 误标检查（CPU）...</translation>
+    </message>
+    <message>
+      <source>FP check failed: %s</source>
+      <translation>误标检查失败：%s</translation>
+    </message>
+    <message>
+      <source>Chinese-CLIP FP check finished.
+Match: {ok}
+Suspect FP: {fail}
+Errors: {err}
+Label files updated: {files}</source>
+      <translation>Chinese-CLIP 误标检查完成。
+匹配：{ok}
+疑似误标：{fail}
+错误：{err}
+已更新标注文件：{files}</translation>
+    </message>
+    <message>
+      <source>No labels available for phrase mapping.</source>
+      <translation>没有可用于短语映射的标签。</translation>
+    </message>
+  </context>
+  <context>
+    <name>FpLabelPromptDialog</name>
+    <message>
+      <source>Chinese-CLIP label phrases</source>
+      <translation>Chinese-CLIP 标签短语</translation>
+    </message>
+    <message>
+      <source>Map each annotation label to a short Chinese phrase for Chinese-CLIP. Example: person → 人. Leave blank to use the label text as-is.</source>
+      <translation>为每个标注标签填写供 Chinese-CLIP 使用的简短中文短语。例如：person → 人。留空则直接使用标签原文。</translation>
+    </message>
+    <message>
+      <source>Label</source>
+      <translation>标签</translation>
+    </message>
+    <message>
+      <source>Chinese phrase</source>
+      <translation>中文短语</translation>
+    </message>
+  </context>
+  <context>
+    <name>AnnotationInspectorDock</name>
+    <message>
+      <source>Batch Annotation Check</source>
+      <translation>批量标注检查</translation>
+    </message>
+    <message>
+      <source>Click a crop to open its image and highlight the annotation.</source>
+      <translation>点击裁剪图可打开对应图片并高亮标注。</translation>
+    </message>
+    <message>
+      <source>Minimum probability that the crop matches the positive phrase versus distractors (cabinet/pipe/background…). Lower = fewer suspects; higher = stricter.</source>
+      <translation>裁剪图相对负类（柜子/管道/背景等）属于正类短语的最小概率。越低越宽松，越高越严格。</translation>
+    </message>
+    <message>
+      <source>Label phrases…</source>
+      <translation>标签短语…</translation>
+    </message>
+    <message>
+      <source>Map annotation labels to short Chinese phrases for Chinese-CLIP (e.g. person → 人).</source>
+      <translation>将标注标签映射为 Chinese-CLIP 使用的简短中文短语（例如 person → 人）。</translation>
+    </message>
+    <message>
+      <source>Run FP check (Chinese-CLIP)</source>
+      <translation>运行误标检查（Chinese-CLIP）</translation>
+    </message>
+    <message>
+      <source>Contrastive Chinese-CLIP check (CPU): positive phrase vs distractors. Suspect FP if another class wins or probability is below the threshold. Confirm label phrases before running.</source>
+      <translation>对比式 Chinese-CLIP 检查（CPU）：正类短语对比负类。若负类胜出或正类概率低于阈值，则标为疑似误标。运行前会确认标签短语。</translation>
+    </message>
+    <message>
+      <source>All crops (dataset)</source>
+      <translation>全部裁剪图（数据集）</translation>
+    </message>
+    <message>
+      <source>FN candidates (yellow): click to show overlay on the image.</source>
+      <translation>漏标候选（黄色）：点击可在图像上显示叠加框。</translation>
+    </message>
+    <message>
+      <source>Annotation deleted (crop kept for reference)</source>
+      <translation>标注已删除（裁剪图保留供参考）</translation>
+    </message>
   </context>
   <context>
     <name>DatasetFilterDialog</name>

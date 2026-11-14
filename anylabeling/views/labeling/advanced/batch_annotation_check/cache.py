@@ -19,6 +19,7 @@ from anylabeling.views.labeling.advanced.batch_annotation_check.cropper import (
     BBox,
     crop_polygon_bgra,
     crop_image_bgr,
+    make_shape_key,
     read_image_bgr,
     shape_to_bbox,
 )
@@ -33,6 +34,7 @@ class CropItem:
     shape_type: str
     bbox: Dict[str, int]  # xmin,ymin,xmax,ymax
     crop_path: str
+    shape_key: str = ""
     fp_backend: Optional[str] = None
     fp_is_match: Optional[bool] = None
     fp_confidence: Optional[float] = None
@@ -43,6 +45,18 @@ class CropItem:
     fn_label: Optional[str] = None
     fn_bbox01: Optional[List[float]] = None
     fn_score: Optional[float] = None
+
+
+def _shape_key_for_item_dict(i: Dict[str, Any]) -> str:
+    key = str(i.get("shape_key") or "").strip()
+    if key:
+        return key
+    return make_shape_key(
+        label=i.get("label", ""),
+        shape_type=i.get("shape_type", ""),
+        points=i.get("points"),
+        bbox=i.get("bbox") if isinstance(i.get("bbox"), dict) else None,
+    )
 
 
 def new_session_cache_dir() -> str:
@@ -192,6 +206,32 @@ class InspectorCache:
                 out[k] = v.strip()
         return out
 
+    def get_fp_label_prompts(self) -> Dict[str, str]:
+        """label -> Chinese-CLIP text prompt mapping."""
+        self.load_index()
+        idx = self._index
+        if not isinstance(idx, dict):
+            return {}
+        raw = idx.get("fp_label_prompts")
+        if not isinstance(raw, dict):
+            return {}
+        out: Dict[str, str] = {}
+        for k, v in raw.items():
+            if isinstance(k, str) and k.strip() and isinstance(v, str) and v.strip():
+                out[k.strip()] = v.strip()
+        return out
+
+    def set_fp_label_prompts(self, mapping: Dict[str, str]) -> None:
+        self.load_index()
+        if not isinstance(self._index, dict):
+            return
+        safe: Dict[str, str] = {}
+        for k, v in (mapping or {}).items():
+            if isinstance(k, str) and k.strip() and isinstance(v, str) and v.strip():
+                safe[k.strip()] = v.strip()
+        self._index["fp_label_prompts"] = safe
+        self.save_index()
+
     def set_fp_result(
         self,
         *,
@@ -202,30 +242,69 @@ class InspectorCache:
         confidence: Optional[float],
         reason: Optional[str],
         error: Optional[str],
+        shape_key: str = "",
+        save: bool = True,
     ) -> None:
         """Persist false-positive check result onto the matching item."""
         self.load_index()
         items = self._index.get("items") or []
         if not isinstance(items, list):
             return
+        key = str(shape_key or "").strip()
         for it in items:
             if not isinstance(it, dict):
                 continue
-            ib = it.get("image_basename") or ""
-            if ib != image_basename:
-                continue
-            try:
-                si = int(it.get("shape_index"))
-            except Exception:
-                continue
-            if si != int(shape_index):
-                continue
+            if key:
+                if _shape_key_for_item_dict(it) != key:
+                    continue
+            else:
+                ib = it.get("image_basename") or osp.basename(
+                    str(it.get("image_path") or "")
+                )
+                if ib != image_basename:
+                    continue
+                try:
+                    si = int(it.get("shape_index"))
+                except Exception:
+                    continue
+                if si != int(shape_index):
+                    continue
             it["fp_backend"] = str(backend)
             it["fp_is_match"] = is_match
             it["fp_confidence"] = confidence
             it["fp_reason"] = reason
             it["fp_error"] = error
             break
+        if save:
+            self.save_index()
+
+    def apply_fp_results(self, results: Sequence[Dict[str, Any]]) -> None:
+        """Batch-write FP check results and save index once."""
+        if not results:
+            return
+        self.load_index()
+        for row in results:
+            if not isinstance(row, dict):
+                continue
+            image_path = str(row.get("image_path") or "")
+            basename = osp.basename(image_path) if image_path else ""
+            try:
+                shape_index = int(row.get("shape_index", -1))
+            except Exception:
+                shape_index = -1
+            sim = row.get("similarity")
+            conf = float(sim) if isinstance(sim, (int, float)) else None
+            self.set_fp_result(
+                image_basename=basename,
+                shape_index=shape_index,
+                shape_key=str(row.get("shape_key") or ""),
+                backend=str(row.get("backend") or ""),
+                is_match=row.get("passed"),
+                confidence=conf,
+                reason=row.get("reason"),
+                error=row.get("error"),
+                save=False,
+            )
         self.save_index()
 
     def set_fn_results_for_image(
@@ -309,6 +388,7 @@ class InspectorCache:
                         shape_type=str(i.get("shape_type", "")),
                         bbox=dict(i.get("bbox") or {}),
                         crop_path=i["crop_path"],
+                        shape_key=_shape_key_for_item_dict(i),
                         fp_backend=i.get("fp_backend"),
                         fp_is_match=i.get("fp_is_match"),
                         fp_confidence=i.get("fp_confidence"),
@@ -489,12 +569,18 @@ class InspectorCache:
                         crop,
                         [int(cv2.IMWRITE_JPEG_QUALITY), int(jpeg_quality)],
                     )
+                shape_key = make_shape_key(
+                    label=label,
+                    shape_type=shape_type,
+                    points=points,
+                )
                 items.append(
                     dict(
                         image_path=image_path,
                         image_basename=osp.basename(image_path),
                         label_json_path=label_json_path,
                         shape_index=idx,
+                        shape_key=shape_key,
                         label=str(label),
                         shape_type=shape_type,
                         bbox=dict(
@@ -623,12 +709,18 @@ class InspectorCache:
                         crop,
                         [int(cv2.IMWRITE_JPEG_QUALITY), int(jpeg_quality)],
                     )
+            shape_key = make_shape_key(
+                label=label,
+                shape_type=shape_type,
+                points=points,
+            )
             new_items.append(
                 dict(
                     image_path=image_path,
                     image_basename=osp.basename(image_path),
                     label_json_path=label_json_path,
                     shape_index=idx,
+                    shape_key=shape_key,
                     label=str(label),
                     shape_type=shape_type,
                     bbox=dict(
@@ -668,6 +760,7 @@ class InspectorCache:
                         shape_type=str(i.get("shape_type", "")),
                         bbox=dict(i.get("bbox") or {}),
                         crop_path=i["crop_path"],
+                        shape_key=_shape_key_for_item_dict(i),
                         fp_backend=i.get("fp_backend"),
                         fp_is_match=i.get("fp_is_match"),
                         fp_confidence=i.get("fp_confidence"),

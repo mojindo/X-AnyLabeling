@@ -296,14 +296,8 @@ class Model(QObject):
                 "Model", "Model path not found: {model_path}"
             ).format(model_path=model_path)
 
-        # Download model from url
-        self.on_message(
-            QCoreApplication.translate(
-                "Model", "Downloading model from registry..."
-            )
-        )
-
-        # Build download url
+        # Build download url / local cache path first; only announce download
+        # when the file is actually missing or fails validation.
         def get_filename_from_url(url):
             a = urlparse(url)
             return os.path.basename(a.path)
@@ -335,6 +329,11 @@ class Model(QObject):
 
             if is_known_type:
                 logger.info(f"Validating model integrity: {filename}")
+                self.on_message(
+                    QCoreApplication.translate(
+                        "Model", "Checking local model: {filename}..."
+                    ).format(filename=filename)
+                )
                 is_valid = safe_check_model(model_abs_path)
             elif os.path.getsize(model_abs_path) > 0:
                 logger.info(
@@ -363,6 +362,12 @@ class Model(QObject):
             model_abs_path, model_directory
         )
         pathlib.Path(model_abs_path).parent.mkdir(parents=True, exist_ok=True)
+
+        self.on_message(
+            QCoreApplication.translate(
+                "Model", "Downloading model from registry..."
+            )
+        )
 
         # Download url
         use_modelscope = False

@@ -5334,11 +5334,10 @@ class LabelingWidget(LabelDialog):
         if not self.may_continue():
             return
 
-        current_index = self.fn_to_index[str(item.text())]
-        if current_index < len(self.image_list):
-            filename = self.image_list[current_index]
-            if filename:
-                self.load_file(filename)
+        filename = str(item.text())
+        if not filename or not QtCore.QFile.exists(filename):
+            return
+        self.load_file(filename)
 
     def attribute_selection_changed(self, i, property, combo):
         selected_option = combo.currentText()

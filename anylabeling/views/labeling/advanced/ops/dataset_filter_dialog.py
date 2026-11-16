@@ -454,42 +454,59 @@ class DatasetFilterDialog(QDialog):
         )
 
         file_list = getattr(parent, "file_list_widget", None)
-        fn_to_index = getattr(parent, "fn_to_index", None)
         if file_list is None:
             return
 
-        # Remove from bottom to top so indices stay valid.
-        for i in range(file_list.count() - 1, -1, -1):
+        blocker = QtCore.QSignalBlocker(file_list)
+        try:
+            # Remove from bottom to top so indices stay valid.
+            for i in range(file_list.count() - 1, -1, -1):
+                item = file_list.item(i)
+                if item is None:
+                    continue
+                path = osp.normcase(osp.normpath(str(item.text())))
+                if path in moved:
+                    file_list.takeItem(i)
+            file_list.clearSelection()
+        finally:
+            del blocker
+
+        fn_to_index: dict = {}
+        for i in range(file_list.count()):
             item = file_list.item(i)
             if item is None:
                 continue
-            path = osp.normcase(osp.normpath(str(item.text())))
-            if path in moved:
-                file_list.takeItem(i)
+            text = str(item.text())
+            fn_to_index[text] = i
+        parent.fn_to_index = fn_to_index
+        new_image_list = list(getattr(parent, "image_list", None) or [])
 
-        if isinstance(fn_to_index, dict):
-            fn_to_index.clear()
-            for i in range(file_list.count()):
-                item = file_list.item(i)
-                if item is not None:
-                    fn_to_index[str(item.text())] = i
-
-        remaining = list(getattr(parent, "image_list", None) or [])
-        if not current_moved:
-            return
-        if remaining:
+        if new_image_list:
+            if not current_moved:
+                return
             try:
                 if hasattr(parent, "may_continue") and not parent.may_continue():
                     return
-                parent.load_file(remaining[0])
+                parent.load_file(new_image_list[0])
             except Exception:
                 pass
-        else:
-            try:
-                if hasattr(parent, "reset_state"):
-                    parent.reset_state()
-            except Exception:
-                pass
+            return
+
+        try:
+            if hasattr(parent, "reset_state"):
+                parent.reset_state()
+            parent.filename = None
+            settings = getattr(parent, "settings", None)
+            if settings is not None:
+                settings.setValue("filename", "")
+            if hasattr(parent, "update_browse_actions"):
+                parent.update_browse_actions()
+            if hasattr(parent, "status"):
+                parent.status(
+                    parent.tr("No images left in the opened folder.")
+                )
+        except Exception:
+            pass
 
 
 def open_dataset_filter_dialog(parent) -> DatasetFilterDialog:

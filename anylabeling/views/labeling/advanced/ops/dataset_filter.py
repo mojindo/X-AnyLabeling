@@ -77,18 +77,6 @@ def image_matches_filter(
     return bool(present & wanted)
 
 
-def _dedupe_path(path: str) -> str:
-    if not osp.exists(path):
-        return path
-    base, ext = osp.splitext(path)
-    k = 1
-    while True:
-        cand = f"{base}_{k}{ext}"
-        if not osp.exists(cand):
-            return cand
-        k += 1
-
-
 def transfer_image_and_label(
     image_path: str,
     *,
@@ -99,30 +87,37 @@ def transfer_image_and_label(
     """
     Copy or move image + label JSON into ``target_dir``.
 
+    Existing same-name files in ``target_dir`` are overwritten.
     Returns (ok, message). On success message is the destination image path.
     """
     if not image_path or not osp.isfile(image_path):
         return False, "missing image"
     os.makedirs(target_dir, exist_ok=True)
 
-    dst_img = _dedupe_path(osp.join(target_dir, osp.basename(image_path)))
+    dst_img = osp.join(target_dir, osp.basename(image_path))
     label_path = get_label_file_path(image_path, output_dir)
     has_label = bool(label_path and osp.isfile(label_path))
     dst_json = osp.splitext(dst_img)[0] + ".json"
 
-    op = shutil.move if str(mode).lower().strip() == "move" else shutil.copy2
+    is_move = str(mode).lower().strip() == "move"
+    op = shutil.move if is_move else shutil.copy2
     try:
+        # ``shutil.move`` may fail when replacing across devices; remove first.
+        if osp.exists(dst_img):
+            os.remove(dst_img)
         op(image_path, dst_img)
     except Exception as e:
         return False, str(e)
 
     if has_label:
         try:
+            if osp.exists(dst_json):
+                os.remove(dst_json)
             op(label_path, dst_json)
         except Exception as e:
             # Best-effort rollback for the image on failure.
             try:
-                if str(mode).lower().strip() == "move" and osp.isfile(dst_img):
+                if is_move and osp.isfile(dst_img):
                     shutil.move(dst_img, image_path)
                 elif osp.isfile(dst_img):
                     os.remove(dst_img)

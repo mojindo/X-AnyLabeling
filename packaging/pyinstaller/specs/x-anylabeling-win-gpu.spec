@@ -23,6 +23,12 @@ def _resolve_root_dir():
 
 ROOT_DIR = _resolve_root_dir()
 
+_mytrain_hi_path = os.path.join(ROOT_DIR, 'packaging', 'pyinstaller', 'mytrain_hiddenimports.py')
+_mytrain_spec = importlib.util.spec_from_file_location('_mytrain_hi', _mytrain_hi_path)
+_mytrain_mod = importlib.util.module_from_spec(_mytrain_spec)
+_mytrain_spec.loader.exec_module(_mytrain_mod)
+MYTRAIN_HIDDENIMPORTS = _mytrain_mod.MYTRAIN_HIDDENIMPORTS
+
 def _p(*parts):
     return os.path.join(ROOT_DIR, *parts)
 
@@ -185,7 +191,8 @@ a = Analysis(
         'matplotlib.backends.backend_agg',
         'matplotlib.font_manager',
         'matplotlib.mathtext',
-    ],
+    ]
+    + MYTRAIN_HIDDENIMPORTS,
     hookspath=[],
     runtime_hooks=[_p('packaging', 'pyinstaller', 'runtime_hooks', 'ort_dll_bootstrap.py')],
     excludes=[],

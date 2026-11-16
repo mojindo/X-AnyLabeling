@@ -4647,6 +4647,11 @@ Press Enter to search.</source>
       <translation>训练</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/label_widget.py" line="1377" />
+      <source>MyTrain</source>
+      <translation>我的训练</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="2166" />
       <source>Help</source>
       <translation>帮助</translation>

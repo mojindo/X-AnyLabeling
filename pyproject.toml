@@ -90,6 +90,7 @@ dependencies = [
     "termcolor",
     "tokenizers",
     "requests",
+    "paramiko>=3.4.0",
     "cryptography>=41",
     "darkdetect>=0.8.0",
     "matplotlib",

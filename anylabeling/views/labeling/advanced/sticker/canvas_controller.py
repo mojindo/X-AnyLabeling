@@ -1,4 +1,4 @@
-"""Sticker canvas controller extracted from B-AnyLabeling (modular hook)."""
+"""Sticker canvas controller (modular canvas hook)."""
 from __future__ import annotations
 
 import math

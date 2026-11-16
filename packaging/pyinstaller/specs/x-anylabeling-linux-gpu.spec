@@ -2,6 +2,7 @@
 # vim: ft=python
 
 import glob
+import importlib.util
 import os
 import re
 import sys
@@ -20,6 +21,12 @@ def _resolve_root_dir():
     return os.path.abspath(os.getcwd())
 
 ROOT_DIR = _resolve_root_dir()
+
+_mytrain_hi_path = os.path.join(ROOT_DIR, 'packaging', 'pyinstaller', 'mytrain_hiddenimports.py')
+_mytrain_spec = importlib.util.spec_from_file_location('_mytrain_hi', _mytrain_hi_path)
+_mytrain_mod = importlib.util.module_from_spec(_mytrain_spec)
+_mytrain_spec.loader.exec_module(_mytrain_mod)
+MYTRAIN_HIDDENIMPORTS = _mytrain_mod.MYTRAIN_HIDDENIMPORTS
 
 def _p(*parts):
     return os.path.join(ROOT_DIR, *parts)
@@ -66,7 +73,7 @@ a = Analysis(
         (_p('anylabeling', 'services', 'auto_labeling', 'configs', 'ram', '*'), 'anylabeling/services/auto_labeling/configs/ram'),
         *onnxruntime_libs
     ],
-    hiddenimports=[],
+    hiddenimports=list(MYTRAIN_HIDDENIMPORTS),
     hookspath=[],
     runtime_hooks=[],
     excludes=[],

@@ -34,7 +34,7 @@ from PyQt6.QtWidgets import (
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
 from anylabeling.services.auto_labeling import _THUMBNAIL_RENDER_MODELS
-from anylabeling.views.training import UltralyticsDialog
+from anylabeling.views.training import MyTrainDialog, UltralyticsDialog
 
 from ...app_info import (
     __appname__,
@@ -261,6 +261,7 @@ class LabelingWidget(LabelDialog):
         self._settings_controller = None
         self._settings_dialog = None
         self.training_dialog = None
+        self.mytrain_dialog = None
         self.pointcloud_window = None
         self._settings_runtime_applier = SettingsRuntimeApplier(self)
         self._auto_switch_signal_connected = False
@@ -1372,6 +1373,11 @@ class LabelingWidget(LabelDialog):
             lambda: self.start_training("ultralytics"),
             icon="cpu-ai",
         )
+        mytrain_action = action(
+            self.tr("MyTrain"),
+            lambda: self.start_training("mytrain"),
+            icon="cpu-ai",
+        )
 
         zoom = QtWidgets.QWidgetAction(self)
         zoom.setDefaultWidget(self.zoom_widget)
@@ -2291,7 +2297,7 @@ class LabelingWidget(LabelDialog):
                 open_settings,
             ),
         )
-        utils.add_actions(self.menus.train, (ultralytics_train,))
+        utils.add_actions(self.menus.train, (ultralytics_train, mytrain_action))
         utils.add_actions(
             self.menus.workflow,
             (
@@ -3931,18 +3937,29 @@ class LabelingWidget(LabelDialog):
 
     # Trainer
     def start_training(self, mode):
-        if mode != "ultralytics":
+        if mode not in ("ultralytics", "mytrain"):
             return
 
         try:
-            if self.training_dialog is None:
-                self.training_dialog = UltralyticsDialog(self)
-                self.training_dialog.destroyed.connect(
-                    self.on_training_dialog_destroyed
+            if mode == "ultralytics":
+                if self.training_dialog is None:
+                    self.training_dialog = UltralyticsDialog(self)
+                    self.training_dialog.destroyed.connect(
+                        self.on_training_dialog_destroyed
+                    )
+                self.training_dialog.showNormal()
+                self.training_dialog.raise_()
+                self.training_dialog.activateWindow()
+                return
+
+            if self.mytrain_dialog is None:
+                self.mytrain_dialog = MyTrainDialog(self)
+                self.mytrain_dialog.destroyed.connect(
+                    self.on_mytrain_dialog_destroyed
                 )
-            self.training_dialog.showNormal()
-            self.training_dialog.raise_()
-            self.training_dialog.activateWindow()
+            self.mytrain_dialog.showNormal()
+            self.mytrain_dialog.raise_()
+            self.mytrain_dialog.activateWindow()
         except Exception as e:
             self.error_message(
                 "Start Error", f"Failed to start training dialog: {str(e)}"
@@ -3950,6 +3967,9 @@ class LabelingWidget(LabelDialog):
 
     def on_training_dialog_destroyed(self, _dialog=None):
         self.training_dialog = None
+
+    def on_mytrain_dialog_destroyed(self, _dialog=None):
+        self.mytrain_dialog = None
 
     # Tools
     def overview(self):
@@ -7552,6 +7572,11 @@ class LabelingWidget(LabelDialog):
                 event.ignore()
                 return
             self.training_dialog.close()
+        if event.isAccepted() and self.mytrain_dialog is not None:
+            if not self.mytrain_dialog.prepare_for_application_close():
+                event.ignore()
+                return
+            self.mytrain_dialog.close()
         if event.isAccepted() and hasattr(self, "video_classifier_window"):
             if self.video_classifier_window is not None:
                 self.video_classifier_window.close()

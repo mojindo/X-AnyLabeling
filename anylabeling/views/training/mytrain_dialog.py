@@ -47,6 +47,7 @@ from anylabeling.services.auto_training.mytrain.export_naming import (
 from anylabeling.services.auto_training.mytrain.general import (
     create_yolo_dataset,
     format_classes_display,
+    parse_freeze_value,
     parse_string_to_digit_list,
 )
 from anylabeling.services.auto_training.mytrain.dataset_lists import (
@@ -113,7 +114,17 @@ from anylabeling.services.auto_training.mytrain.remote.remote_trainer import (
     remote_merge_lists,
     remote_predict_yolo,
     upload_dataset,
+    upload_model_if_local,
     count_local_images,
+)
+from anylabeling.services.auto_training.mytrain.custom_training import (
+    bind_command_to_python,
+    build_path_context,
+    format_train_log_terminal,
+    latest_log_session_text,
+    parse_epochs_from_cli,
+    posix_if_needed,
+    substitute_custom_command,
 )
 from anylabeling.services.auto_training.mytrain.remote.job_state import (
     clear_local_job,
@@ -174,6 +185,7 @@ class MyTrainDialog(QDialog):
 
         # Local / Interpreter / Remote dataset training
         self.train_mode = "local"  # local | interpreter | remote
+        self.training_backend = "ultralytics"  # ultralytics | custom
         self.dataset_root = ""
         self.remote_dataset_root = ""
         self.data_yaml_path = ""
@@ -239,6 +251,8 @@ class MyTrainDialog(QDialog):
         self.training_status = "idle"  # idle, training, completed, error
         self.current_epochs = 0
         self._application_closing = False
+        self._log_follow_tail = True
+        self._log_scroll_programmatic = False
 
         app_config = get_config()
         train_cfg = app_config.get("training", {})
@@ -1441,7 +1455,10 @@ class MyTrainDialog(QDialog):
 
         try:
             QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-            ok, msg, info = local_interp.probe_interpreter(py)
+            ok, msg, info = local_interp.probe_interpreter(
+                py,
+                require_ultralytics=self._custom_probe_require_ultralytics(),
+            )
             local_interp.mark_test_result(
                 self._interp_profiles, profile["id"], ok, msg
             )
@@ -1453,9 +1470,10 @@ class MyTrainDialog(QDialog):
                     % (local_interp.profile_display_name(profile), msg)
                 )
                 self._apply_interpreter_probe_devices(info)
-                QMessageBox.information(
-                    self, self.tr("Interpreter"), msg
-                )
+                box = QMessageBox.information
+                if not info.get("ultralytics") and not self._custom_probe_require_ultralytics():
+                    box = QMessageBox.warning
+                box(self, self.tr("Interpreter"), msg)
             else:
                 self.interpreter_probe_info = None
                 self.interp_status_label.setText(
@@ -1468,7 +1486,7 @@ class MyTrainDialog(QDialog):
                     self.tr(
                         "Environment check failed.\n\n%s\n\n"
                         "Install in that env:\n"
-                        "  pip install ultralytics torch"
+                        "  pip install torch (ultralytics optional for custom training)"
                     )
                     % msg,
                 )
@@ -1507,7 +1525,10 @@ class MyTrainDialog(QDialog):
 
         try:
             QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-            ok, msg, info = local_interp.probe_interpreter(py)
+            ok, msg, info = local_interp.probe_interpreter(
+                py,
+                require_ultralytics=self._custom_probe_require_ultralytics(),
+            )
             local_interp.mark_test_result(
                 self._interp_profiles, profile["id"], ok, msg
             )
@@ -2315,19 +2336,11 @@ class MyTrainDialog(QDialog):
                 with open(log_path, "r", encoding="utf-8", errors="replace") as f:
                     tail = f.read()[-120_000:]
                 if tail.strip():
-                    if hasattr(self, "log_display"):
-                        self.log_display.setPlainText(tail)
-            except OSError:
-                pass
-        csv_path = os.path.join(run_dir, "results.csv") if run_dir else ""
-        if csv_path and os.path.isfile(csv_path):
-            try:
-                with open(csv_path, "r", encoding="utf-8", errors="replace") as f:
-                    lines = [ln for ln in f.readlines() if ln.strip()]
-                if len(lines) > 1:
-                    self.append_training_log(
-                        self.tr("Last epoch metrics:\n") + lines[-1].strip()
+                    text = format_train_log_terminal(
+                        latest_log_session_text(tail)
                     )
+                    if text.strip() and hasattr(self, "log_display"):
+                        self._set_training_log_mirror(text)
             except OSError:
                 pass
         self.training_status = "completed"
@@ -3066,6 +3079,18 @@ class MyTrainDialog(QDialog):
                         selected_gpus.append(i)
 
         if selected_gpus:
+            if self.train_mode == "interpreter":
+                info = self.interpreter_probe_info or {}
+                if not info.get("cuda"):
+                    return "cpu"
+            elif self.train_mode == "local":
+                try:
+                    import torch
+
+                    if not torch.cuda.is_available():
+                        return "cpu"
+                except ImportError:
+                    return "cpu"
             return selected_gpus
 
         # Remote / Interpreter: prefer probed GPU, else default cuda:0
@@ -3080,6 +3105,109 @@ class MyTrainDialog(QDialog):
             return [0]
 
         return "cpu"
+
+    def _is_custom_training_backend(self) -> bool:
+        return getattr(self, "training_backend", "ultralytics") == "custom"
+
+    def _custom_probe_require_ultralytics(self) -> bool:
+        return not self._is_custom_training_backend()
+
+    def init_training_backend_selector(self, parent_layout):
+        row_widget = QWidget()
+        row = QHBoxLayout(row_widget)
+        row.setContentsMargins(0, 0, 0, 0)
+        label = QLabel(self.tr("Training backend:"))
+        label.setStyleSheet("font-weight: bold;")
+        row.addWidget(label)
+        self.training_backend_combo = CustomComboBox()
+        self.training_backend_combo.addItem(
+            self.tr("Ultralytics wizard"), "ultralytics"
+        )
+        self.training_backend_combo.addItem(
+            self.tr("Custom command"), "custom"
+        )
+        self.training_backend_combo.currentIndexChanged.connect(
+            self._on_training_backend_changed
+        )
+        row.addWidget(self.training_backend_combo, 1)
+        parent_layout.addWidget(row_widget)
+
+    def init_custom_training_panel(self, parent_layout):
+        self.custom_training_panel = QGroupBox(self.tr("Custom command"))
+        custom_layout = QVBoxLayout(self.custom_training_panel)
+
+        hint = QLabel(
+            self.tr(
+                "Basic Settings supply effective paths (after upload/mapping). "
+                "Use placeholders {model}, {data}, {project}, {name}, {run_dir}, "
+                "{device} in your command. Values in the command for those fields "
+                "are ignored. Multi-line commands with a trailing backslash (\\) "
+                "are merged into one line before execution (required on Windows)."
+            )
+        )
+        hint.setWordWrap(True)
+        custom_layout.addWidget(hint)
+
+        custom_layout.addWidget(QLabel(self.tr("Training command:")))
+        self.custom_command_edit = QTextEdit()
+        self.custom_command_edit.setPlaceholderText(
+            self.tr(
+                'e.g. python train.py --weights "{model}" --data "{data}"'
+            )
+        )
+        self.custom_command_edit.setMinimumHeight(100)
+        custom_layout.addWidget(self.custom_command_edit)
+
+        cwd_row = QHBoxLayout()
+        cwd_row.addWidget(QLabel(self.tr("Execution directory:")))
+        self.custom_exec_cwd_edit = CustomLineEdit()
+        self.custom_exec_cwd_edit.setPlaceholderText(
+            self.tr("Optional — leave empty for default (like Ultralytics)")
+        )
+        cwd_row.addWidget(self.custom_exec_cwd_edit, 1)
+        self.custom_exec_cwd_browse_btn = SecondaryButton(self.tr("Browse"))
+        self.custom_exec_cwd_browse_btn.clicked.connect(
+            self.browse_custom_exec_cwd
+        )
+        cwd_row.addWidget(self.custom_exec_cwd_browse_btn)
+        custom_layout.addLayout(cwd_row)
+
+        self.custom_training_panel.setVisible(False)
+        parent_layout.addWidget(self.custom_training_panel)
+
+    def _on_training_backend_changed(self, _index: int = 0) -> None:
+        data = self.training_backend_combo.currentData()
+        self.training_backend = data if data else "ultralytics"
+        custom = self._is_custom_training_backend()
+        self.custom_training_panel.setVisible(custom)
+        if hasattr(self, "train_settings_group"):
+            self.train_settings_group.setVisible(not custom)
+
+    def browse_custom_exec_cwd(self) -> None:
+        if self.train_mode == "remote":
+            if not self.ssh_client.connected:
+                QMessageBox.warning(
+                    self,
+                    self.tr("Remote"),
+                    self.tr("Connect to the remote server first."),
+                )
+                return
+            start = (self.custom_exec_cwd_edit.text() or "").strip()
+            if not start:
+                start = getattr(self.ssh_client, "home", "") or "/"
+            dlg = RemoteDirBrowserDialog(
+                self, ssh_client=self.ssh_client, start_path=start
+            )
+            if dlg.exec() == QDialog.DialogCode.Accepted:
+                self.custom_exec_cwd_edit.setText(dlg.selected_path())
+            return
+        path = QFileDialog.getExistingDirectory(
+            self,
+            self.tr("Execution directory"),
+            self.custom_exec_cwd_edit.text().strip() or "",
+        )
+        if path:
+            self.custom_exec_cwd_edit.setText(path)
 
     def init_basic_settings(self, parent_layout):
         group = QGroupBox(self.tr("Basic Settings"))
@@ -3184,6 +3312,7 @@ class MyTrainDialog(QDialog):
 
     def init_train_settings(self, parent_layout):
         group = QGroupBox(self.tr("Train Settings"))
+        self.train_settings_group = group
         layout = QVBoxLayout(group)
 
         # Basic settings
@@ -3302,13 +3431,73 @@ class MyTrainDialog(QDialog):
         self.config_widgets["amp"] = CustomCheckBox("AMP")
         self.config_widgets["amp"].setChecked(DEFAULT_TRAINING_CONFIG["amp"])
         strat_layout.addWidget(self.config_widgets["amp"])
-        self.config_widgets["multi_scale"] = CustomCheckBox("Multi Scale")
-        self.config_widgets["multi_scale"].setChecked(
-            DEFAULT_TRAINING_CONFIG["multi_scale"]
+        strat_layout.addWidget(QLabel(self.tr("Multi Scale:")))
+        self.config_widgets["multi_scale"] = CustomDoubleSpinBox()
+        self.config_widgets["multi_scale"].setDecimals(3)
+        self.config_widgets["multi_scale"].setRange(0.0, 1.0)
+        ms = DEFAULT_TRAINING_CONFIG["multi_scale"]
+        self.config_widgets["multi_scale"].setValue(
+            float(ms) if not isinstance(ms, bool) else (0.5 if ms else 0.0)
         )
         strat_layout.addWidget(self.config_widgets["multi_scale"])
         strat_layout.addStretch()
         advanced_layout.addWidget(strategy_group)
+
+        strategy_extra = QGroupBox(self.tr("Model init and runtime"))
+        strat2 = QHBoxLayout(strategy_extra)
+        strat2.addWidget(QLabel(self.tr("Freeze:")))
+        self.config_widgets["freeze"] = CustomLineEdit()
+        self.config_widgets["freeze"].setPlaceholderText(
+            self.tr("e.g. 10 or 0,1,2 — empty for none")
+        )
+        fv = DEFAULT_TRAINING_CONFIG.get("freeze", "")
+        self.config_widgets["freeze"].setText(
+            "" if fv is None else str(fv).strip()
+        )
+        strat2.addWidget(self.config_widgets["freeze"], 1)
+
+        strat2.addWidget(QLabel(self.tr("Seed:")))
+        self.config_widgets["seed"] = CustomSpinBox()
+        self.config_widgets["seed"].setRange(0, 2_147_483_647)
+        self.config_widgets["seed"].setValue(
+            int(DEFAULT_TRAINING_CONFIG.get("seed", 0) or 0)
+        )
+        strat2.addWidget(self.config_widgets["seed"])
+
+        strat2.addWidget(QLabel(self.tr("NBS:")))
+        self.config_widgets["nbs"] = CustomSpinBox()
+        self.config_widgets["nbs"].setRange(1, 8192)
+        self.config_widgets["nbs"].setValue(
+            int(DEFAULT_TRAINING_CONFIG.get("nbs", 64) or 64)
+        )
+        strat2.addWidget(self.config_widgets["nbs"])
+
+        self.config_widgets["pretrained"] = CustomCheckBox(
+            self.tr("Pretrained")
+        )
+        self.config_widgets["pretrained"].setChecked(
+            bool(DEFAULT_TRAINING_CONFIG.get("pretrained", True))
+        )
+        strat2.addWidget(self.config_widgets["pretrained"])
+        self.config_widgets["deterministic"] = CustomCheckBox(
+            self.tr("Deterministic")
+        )
+        self.config_widgets["deterministic"].setChecked(
+            bool(DEFAULT_TRAINING_CONFIG.get("deterministic", True))
+        )
+        strat2.addWidget(self.config_widgets["deterministic"])
+        self.config_widgets["profile"] = CustomCheckBox(self.tr("Profile"))
+        self.config_widgets["profile"].setChecked(
+            bool(DEFAULT_TRAINING_CONFIG.get("profile", False))
+        )
+        strat2.addWidget(self.config_widgets["profile"])
+        self.config_widgets["compile"] = CustomCheckBox(self.tr("Compile"))
+        self.config_widgets["compile"].setChecked(
+            bool(DEFAULT_TRAINING_CONFIG.get("compile", False))
+        )
+        strat2.addWidget(self.config_widgets["compile"])
+        strat2.addStretch()
+        advanced_layout.addWidget(strategy_extra)
 
         # 2. Learning Rate
         lr_group = QGroupBox("Learning Rate")
@@ -3432,6 +3621,62 @@ class MyTrainDialog(QDialog):
                 0.0,
                 0.001,
                 6,
+            ),
+            (
+                "flipud",
+                self.tr("Flip UD:"),
+                DEFAULT_TRAINING_CONFIG["flipud"],
+                0.0,
+                1.0,
+                3,
+            ),
+            (
+                "fliplr",
+                self.tr("Flip LR:"),
+                DEFAULT_TRAINING_CONFIG["fliplr"],
+                0.0,
+                1.0,
+                3,
+            ),
+            (
+                "mosaic",
+                "Mosaic:",
+                DEFAULT_TRAINING_CONFIG["mosaic"],
+                0.0,
+                1.0,
+                3,
+            ),
+            (
+                "mixup",
+                "MixUp:",
+                DEFAULT_TRAINING_CONFIG["mixup"],
+                0.0,
+                1.0,
+                3,
+            ),
+            (
+                "cutmix",
+                "CutMix:",
+                DEFAULT_TRAINING_CONFIG["cutmix"],
+                0.0,
+                1.0,
+                3,
+            ),
+            (
+                "copy_paste",
+                self.tr("Copy-Paste:"),
+                DEFAULT_TRAINING_CONFIG["copy_paste"],
+                0.0,
+                1.0,
+                3,
+            ),
+            (
+                "bgr",
+                "BGR:",
+                DEFAULT_TRAINING_CONFIG["bgr"],
+                0.0,
+                1.0,
+                3,
             ),
         ]
 
@@ -3638,12 +3883,37 @@ class MyTrainDialog(QDialog):
                             self.config_widgets[key].setText(value)
                     elif key == "skip_empty_files":
                         set_widget_value(key, value)
+                    elif key == "freeze":
+                        if value is None:
+                            self.config_widgets[key].setText("")
+                        elif isinstance(value, list):
+                            self.config_widgets[key].setText(
+                                ",".join(str(x) for x in value)
+                            )
+                        else:
+                            self.config_widgets[key].setText(str(value))
+                    elif key == "multi_scale" and isinstance(value, bool):
+                        set_widget_value(key, 0.5 if value else 0.0)
                     else:
                         set_widget_value(key, value)
 
         for key, value in config.items():
             if key not in sections_to_process and key in self.config_widgets:
                 set_widget_value(key, value)
+
+        backend = config.get("training_backend") or "ultralytics"
+        if hasattr(self, "training_backend_combo"):
+            idx = self.training_backend_combo.findData(backend)
+            if idx >= 0:
+                self.training_backend_combo.setCurrentIndex(idx)
+            self._on_training_backend_changed()
+        else:
+            self.training_backend = backend
+        custom = config.get("custom") or {}
+        if hasattr(self, "custom_command_edit"):
+            self.custom_command_edit.setPlainText(custom.get("command") or "")
+        if hasattr(self, "custom_exec_cwd_edit"):
+            self.custom_exec_cwd_edit.setText(custom.get("exec_cwd") or "")
 
     def import_config(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -3719,6 +3989,13 @@ class MyTrainDialog(QDialog):
                 "cos_lr": get_widget_value("cos_lr"),
                 "amp": get_widget_value("amp"),
                 "multi_scale": get_widget_value("multi_scale"),
+                "freeze": (get_widget_value("freeze") or "").strip(),
+                "pretrained": get_widget_value("pretrained"),
+                "seed": get_widget_value("seed"),
+                "deterministic": get_widget_value("deterministic"),
+                "nbs": get_widget_value("nbs"),
+                "profile": get_widget_value("profile"),
+                "compile": get_widget_value("compile"),
             },
             "learning_rate": {
                 "lr0": get_widget_value("lr0"),
@@ -3740,6 +4017,13 @@ class MyTrainDialog(QDialog):
                 "scale": get_widget_value("scale"),
                 "shear": get_widget_value("shear"),
                 "perspective": get_widget_value("perspective"),
+                "flipud": get_widget_value("flipud"),
+                "fliplr": get_widget_value("fliplr"),
+                "mosaic": get_widget_value("mosaic"),
+                "mixup": get_widget_value("mixup"),
+                "cutmix": get_widget_value("cutmix"),
+                "copy_paste": get_widget_value("copy_paste"),
+                "bgr": get_widget_value("bgr"),
             },
             "regularization": {
                 "dropout": get_widget_value("dropout"),
@@ -3761,6 +4045,23 @@ class MyTrainDialog(QDialog):
                 "resume": get_widget_value("resume"),
                 "cache": get_widget_value("cache"),
                 "skip_empty_files": get_widget_value("skip_empty_files"),
+            },
+            "training_backend": (
+                self.training_backend_combo.currentData()
+                if hasattr(self, "training_backend_combo")
+                else self.training_backend
+            ),
+            "custom": {
+                "command": (
+                    self.custom_command_edit.toPlainText()
+                    if hasattr(self, "custom_command_edit")
+                    else ""
+                ),
+                "exec_cwd": (
+                    self.custom_exec_cwd_edit.text()
+                    if hasattr(self, "custom_exec_cwd_edit")
+                    else ""
+                ),
             },
         }
 
@@ -3797,8 +4098,20 @@ class MyTrainDialog(QDialog):
             return
 
         config = self.get_current_config()
+        custom_backend = (config.get("training_backend") or "ultralytics") == "custom"
+        if custom_backend:
+            cmd = (config.get("custom") or {}).get("command", "").strip()
+            if not cmd:
+                QMessageBox.warning(
+                    self,
+                    self.tr("Custom training"),
+                    self.tr("Please enter a training command."),
+                )
+                return
         is_valid, error_message = validate_basic_config(
-            config, remote=(self.train_mode == "remote")
+            config,
+            remote=(self.train_mode == "remote"),
+            custom=custom_backend,
         )
         if is_valid == "directory_exists":
             project_dir = error_message
@@ -3873,7 +4186,10 @@ class MyTrainDialog(QDialog):
             )
             return
 
-        if self.selected_task_type.lower() == "pose":
+        if (
+            not custom_backend
+            and self.selected_task_type.lower() == "pose"
+        ):
             pose_config = config["basic"].get("pose_config", "")
             if not pose_config or not os.path.exists(pose_config):
                 QMessageBox.warning(
@@ -3937,7 +4253,9 @@ class MyTrainDialog(QDialog):
         scroll_widget = QWidget()
         scroll_layout = QVBoxLayout(scroll_widget)
 
+        self.init_training_backend_selector(scroll_layout)
         self.init_basic_settings(scroll_layout)
+        self.init_custom_training_panel(scroll_layout)
         self.init_train_settings(scroll_layout)
 
         scroll_layout.addStretch()
@@ -3966,18 +4284,71 @@ class MyTrainDialog(QDialog):
         if self.train_mode == "remote":
             return
 
+        if self.training_status == "training" and self.train_mode != "remote":
+            log_path = getattr(self.training_manager, "_local_log_path", None) or ""
+            if log_path and os.path.isfile(log_path):
+                try:
+                    with open(log_path, "r", encoding="utf-8", errors="replace") as f:
+                        body = latest_log_session_text(f.read())
+                    text = format_train_log_terminal(body)
+                    if text.strip():
+                        self._set_training_log_mirror(text)
+                except OSError:
+                    pass
+
         results_file = os.path.join(self.current_project_path, "results.csv")
         if os.path.exists(results_file):
-            try:
-                with open(results_file, "r", encoding="utf-8") as f:
-                    reader = csv.reader(f)
-                    rows = list(reader)
-                    if len(rows) > 1:  # Skip header
-                        self._apply_epoch_progress(
-                            len(rows) - 1, self.total_epochs
-                        )
-            except Exception as e:
-                logger.warning(f"Failed to read results.csv: {e}")
+            started = float(getattr(self, "_training_started_at", 0) or 0)
+            stale_csv = False
+            if self.training_status == "training" and started > 0:
+                try:
+                    stale_csv = os.path.getmtime(results_file) < started - 0.5
+                except OSError:
+                    stale_csv = True
+            if not stale_csv:
+                try:
+                    with open(results_file, "r", encoding="utf-8") as f:
+                        reader = csv.reader(f)
+                        rows = list(reader)
+                        if len(rows) > 1:  # Skip header
+                            self._apply_epoch_progress(
+                                len(rows) - 1, self.total_epochs
+                            )
+                except Exception as e:
+                    logger.warning(f"Failed to read results.csv: {e}")
+
+    def _on_training_log_scroll(self, value: int) -> None:
+        if getattr(self, "_log_scroll_programmatic", False):
+            return
+        if not hasattr(self, "log_display"):
+            return
+        bar = self.log_display.verticalScrollBar()
+        at_bottom = value >= bar.maximum() - 3
+        self._log_follow_tail = at_bottom
+
+    def _set_training_log_mirror(self, text: str) -> None:
+        if not hasattr(self, "log_display"):
+            return
+        text = (text or "").strip()
+        if not text:
+            return
+        follow = bool(getattr(self, "_log_follow_tail", True))
+        bar = self.log_display.verticalScrollBar()
+        scroll_frac = None
+        if not follow and bar.maximum() > 0:
+            scroll_frac = bar.value() / float(bar.maximum())
+        self.log_display.setPlainText(text)
+        self._log_scroll_programmatic = True
+        try:
+            bar = self.log_display.verticalScrollBar()
+            if follow or scroll_frac is None:
+                bar.setValue(bar.maximum())
+                self._log_follow_tail = True
+            else:
+                new_max = max(bar.maximum(), 1)
+                bar.setValue(int(round(scroll_frac * new_max)))
+        finally:
+            self._log_scroll_programmatic = False
 
     def _apply_epoch_progress(self, current_epochs: int, total_epochs: int):
         if total_epochs and total_epochs > 0:
@@ -4091,13 +4462,42 @@ class MyTrainDialog(QDialog):
             self.training_status = "training"
             self.total_epochs = data["total_epochs"]
             self.current_epochs = 0
+            self._training_started_at = float(
+                getattr(self.training_manager, "_local_run_started_at", 0) or 0
+            )
             self.progress_bar.setValue(0)
-            self.progress_bar.setFormat(f"0/{self.total_epochs}")
+            te = int(data.get("total_epochs") or self.total_epochs or 0)
+            if data.get("custom") or self._is_custom_training_backend():
+                if te > 0:
+                    self.total_epochs = te
+                    self.progress_bar.setRange(0, 100)
+                    self.progress_bar.setFormat(f"0/{te}")
+                else:
+                    self.progress_bar.setRange(0, 100)
+                    self.progress_bar.setValue(0)
+                    self.progress_bar.setFormat(self.tr("Training…"))
+            else:
+                self.progress_bar.setRange(0, max(1, self.total_epochs or 1))
+                self.progress_bar.setFormat(f"0/{self.total_epochs}")
             self._remote_preview_paths = []
-            if hasattr(self, "log_display") and not data.get("reattached"):
+            if hasattr(self, "log_display"):
                 self.log_display.clear()
-                self._log_progress_phase_key = None
-                self._log_last_train_epoch = None
+                self._log_follow_tail = True
+                if data.get("reattached"):
+                    log_path = getattr(
+                        self.training_manager, "_local_log_path", None
+                    ) or getattr(self.training_manager, "_remote_log_path", None)
+                    if log_path and os.path.isfile(str(log_path)):
+                        try:
+                            with open(
+                                log_path, "r", encoding="utf-8", errors="replace"
+                            ) as _lf:
+                                body = latest_log_session_text(_lf.read())
+                            text = format_train_log_terminal(body)
+                            if text.strip():
+                                self._set_training_log_mirror(text)
+                        except OSError:
+                            pass
             if hasattr(self, "image_labels") and not data.get("reattached"):
                 for i, image_label in enumerate(self.image_labels):
                     image_label.clear()
@@ -4111,13 +4511,11 @@ class MyTrainDialog(QDialog):
             self.previous_button.setVisible(False)
             self.progress_timer.start(1000)
             self.image_timer.start(5000)
-            self.append_training_log(self.tr("Training is about to start..."))
             tb = data.get("tensorboard_url") or getattr(
                 self.training_manager, "tensorboard_url", ""
             )
             if tb:
                 self.tensorboard_url = tb
-                self.append_training_log(f"TensorBoard: {tb}")
                 if hasattr(self, "open_tb_button"):
                     self.open_tb_button.setVisible(True)
         elif event_type == "training_completed":
@@ -4131,9 +4529,17 @@ class MyTrainDialog(QDialog):
             self.image_timer.stop()
             self.update_training_progress()
             self.update_training_images()
-            self.append_training_log(
-                self.tr("Training completed successfully!")
-            )
+            log_path = getattr(self.training_manager, "_local_log_path", None) or ""
+            if log_path and os.path.isfile(log_path):
+                try:
+                    with open(log_path, "r", encoding="utf-8", errors="replace") as f:
+                        text = format_train_log_terminal(
+                            latest_log_session_text(f.read())
+                        )
+                    if text.strip():
+                        self._set_training_log_mirror(text)
+                except OSError:
+                    pass
             tb = data.get("tensorboard_url") or getattr(
                 self.training_manager, "tensorboard_url", ""
             )
@@ -4198,19 +4604,23 @@ class MyTrainDialog(QDialog):
             self.append_training_log(self.tr("Training stopped by user"))
             if hasattr(self, "ssh_reattach_btn"):
                 self._refresh_reattach_button()
+        elif event_type == "training_log_snapshot":
+            self._set_training_log_mirror(data.get("text", ""))
         elif event_type == "training_log":
             log_message = data.get("message", "")
-            if log_message:
-                self.append_training_log(log_message)
+            if self.training_status == "training":
                 if log_message.startswith("TensorBoard:"):
                     self.tensorboard_url = log_message.split("TensorBoard:", 1)[
                         -1
                     ].strip()
                     if hasattr(self, "open_tb_button"):
                         self.open_tb_button.setVisible(True)
+            elif log_message:
+                self.append_training_log(log_message)
         elif event_type == "training_progress":
+            cur = int(data.get("current_epochs", 0) or 0)
             self._apply_epoch_progress(
-                data.get("current_epochs", 0),
+                cur,
                 data.get("total_epochs", self.total_epochs),
             )
         elif event_type == "training_images":
@@ -4223,82 +4633,22 @@ class MyTrainDialog(QDialog):
                 self._remote_preview_paths = paths
                 self._show_training_image_paths(paths)
 
-    @staticmethod
-    def _clean_ansi_codes(text: str) -> str:
-        ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
-        return ansi_escape.sub("", text)
-
-    def _training_progress_phase_key(self, line: str):
-        """Identify Ultralytics tqdm train/val progress for in-place coalescing.
-
-        Returns a stable key so one epoch train and one epoch val each occupy
-        a single log line (updated in place as batches advance).
-        """
-        s = (line or "").strip()
-        if not s:
-            return None
-        looks_like_bar = (
-            "%" in s
-            and (
-                "it/s" in s
-                or "s/it" in s
-                or "━" in s
-                or "─" in s
-                or "/" in s
-            )
-        )
-        if not looks_like_bar:
-            return None
-
-        # Train / fit loop: "113/300  ... 98% ... 456/465"
-        m = re.match(r"^(\d+)/(\d+)\b", s)
-        if m:
-            epoch = int(m.group(1))
-            self._log_last_train_epoch = epoch
-            return ("train", epoch)
-
-        # Val loop: "Class     Images  Instances  Box(P ..."
-        if re.match(r"^(Class|Labels|all)\b", s, re.IGNORECASE):
-            epoch = getattr(self, "_log_last_train_epoch", None)
-            return ("val", epoch)
-
-        return ("progress", s.split(":", 1)[0][:48])
-
-    def _replace_last_log_line(self, text: str):
-        cursor = self.log_display.textCursor()
-        cursor.movePosition(QTextCursor.MoveOperation.End)
-        cursor.movePosition(
-            QTextCursor.MoveOperation.StartOfBlock,
-            QTextCursor.MoveMode.KeepAnchor,
-        )
-        if cursor.hasSelection():
-            cursor.insertText(text)
-        else:
-            self.log_display.append(text)
-        self.log_display.setTextCursor(cursor)
-        self.log_display.ensureCursorVisible()
-
     def append_training_log(self, text):
         if not hasattr(self, "log_display"):
             return
-
-        text = self._clean_ansi_codes(text or "")
-        # Local tqdm often uses \\r to refresh the same terminal line
-        if "\r" in text:
-            text = text.split("\r")[-1]
-        text = text.strip()
-        if not text:
+        if self.training_status == "training":
             return
-
-        phase_key = self._training_progress_phase_key(text)
-        last_key = getattr(self, "_log_progress_phase_key", None)
-        if phase_key is not None and phase_key == last_key:
-            self._replace_last_log_line(text)
+        text = format_train_log_terminal(text or "")
+        if not text.strip():
             return
-
-        self.log_display.append(text)
-        self._log_progress_phase_key = phase_key
-        self.log_display.ensureCursorVisible()
+        self.log_display.append(text.strip())
+        if getattr(self, "_log_follow_tail", True):
+            self._log_scroll_programmatic = True
+            try:
+                bar = self.log_display.verticalScrollBar()
+                bar.setValue(bar.maximum())
+            finally:
+                self._log_scroll_programmatic = False
 
     def init_training_status(self, parent_layout):
         status_group = QGroupBox(self.tr("Training Status"))
@@ -4330,8 +4680,7 @@ class MyTrainDialog(QDialog):
             )
             if reply == QMessageBox.StandardButton.Yes:
                 self.log_display.clear()
-                self._log_progress_phase_key = None
-                self._log_last_train_epoch = None
+                self._log_follow_tail = True
 
     def copy_training_logs(self):
         if hasattr(self, "log_display"):
@@ -4348,6 +4697,9 @@ class MyTrainDialog(QDialog):
         self.log_display.setReadOnly(True)
         self.log_display.setMinimumHeight(250)
         self.log_display.setStyleSheet(get_log_display_style())
+        self.log_display.verticalScrollBar().valueChanged.connect(
+            self._on_training_log_scroll
+        )
         logs_layout.addWidget(self.log_display)
 
         button_layout = QHBoxLayout()
@@ -4572,12 +4924,20 @@ class MyTrainDialog(QDialog):
             # different Ultralytics default.yaml (e.g. epochs=5 for demos).
             # Progress bar used to show UI 100 while the server used its own 5.
             _always_pass = {"epochs", "batch", "imgsz", "workers"}
+            freeze_raw = advanced_params.get("freeze")
+            freeze_parsed = parse_freeze_value(freeze_raw)
+            if freeze_parsed is None:
+                advanced_params.pop("freeze", None)
+            else:
+                advanced_params["freeze"] = freeze_parsed
+
             advanced_params = {
                 key: value
                 for key, value in advanced_params.items()
                 if key in DEFAULT_TRAINING_CONFIG
                 and (
                     key in _always_pass
+                    or key == "freeze"
                     or value != DEFAULT_TRAINING_CONFIG[key]
                 )
             }
@@ -4611,6 +4971,84 @@ class MyTrainDialog(QDialog):
             )
             raise
 
+    def build_custom_training_spec(self, config):
+        """Resolve paths and substitute placeholders in the custom command."""
+        custom = config.get("custom") or {}
+        template = (custom.get("command") or "").strip()
+        if not template:
+            raise ValueError(self.tr("Custom command is empty"))
+
+        self.append_training_log(self.tr("Resolving training paths..."))
+        train_args = self.get_training_args(config)
+        remote = self.train_mode == "remote"
+        model = train_args.get("model") or ""
+        data = train_args.get("data") or ""
+        project = train_args.get("project") or ""
+        name = train_args.get("name") or "exp"
+        if remote and self.ssh_client.connected:
+            ssh_client.mkdir_p(project.replace("\\", "/"))
+            model = upload_model_if_local(
+                self.ssh_client, model, project.replace("\\", "/")
+            )
+        paths = build_path_context(
+            model=model,
+            data=data,
+            project=project,
+            name=name,
+            device=train_args.get("device"),
+        )
+        if remote:
+            for key in paths:
+                paths[key] = posix_if_needed(paths[key], remote=True)
+        resolved = substitute_custom_command(template, paths)
+        py_exe = ""
+        if self.train_mode == "interpreter":
+            py_exe = self._selected_interpreter_python() or ""
+            if py_exe:
+                before = resolved
+                resolved = bind_command_to_python(resolved, py_exe)
+                if resolved != before:
+                    self.append_training_log(
+                        self.tr(
+                            "Interpreter: using YOLO CLI from this env "
+                            "(not system yolo on PATH): %s"
+                        )
+                        % py_exe
+                    )
+        exec_cwd = (custom.get("exec_cwd") or "").strip()
+        if remote:
+            exec_cwd = posix_if_needed(exec_cwd, remote=True)
+
+        self.append_training_log(self.tr("Effective model: %s") % paths["model"])
+        self.append_training_log(self.tr("Effective data: %s") % paths["data"])
+        self.append_training_log(
+            self.tr("Effective device (Basic Settings): %s") % paths["device"]
+        )
+        self.append_training_log(
+            self.tr(
+                "Basic fields (model, data, project, name, device) in the "
+                "command are replaced by Config values."
+            )
+        )
+        self.append_training_log(self.tr("Resolved command: %s") % resolved)
+
+        epochs = (config.get("train") or {}).get("epochs")
+        if epochs is None:
+            epochs = parse_epochs_from_cli(resolved)
+        try:
+            epochs = max(0, int(epochs or 0))
+        except (TypeError, ValueError):
+            epochs = parse_epochs_from_cli(resolved)
+
+        return {
+            "resolved_command": resolved,
+            "exec_cwd": exec_cwd,
+            "project": paths["project"],
+            "name": paths["name"],
+            "run_dir": paths["run_dir"],
+            "epochs": epochs,
+        }
+
     def start_training_from_train_tab(self):
         if self.train_mode == "remote" and not self._ensure_selected_server_ready():
             return
@@ -4623,6 +5061,7 @@ class MyTrainDialog(QDialog):
             return
 
         config = self.get_current_config()
+        custom_backend = (config.get("training_backend") or "ultralytics") == "custom"
         project_path = config["basic"]["project"]
         name = config["basic"]["name"]
         self.current_project_path = self._join_run_dir(project_path, name)
@@ -4645,13 +5084,11 @@ class MyTrainDialog(QDialog):
 
         try:
             self.append_training_log(self.tr("Preparing training..."))
-            train_args = self.get_training_args(config)
             py_exe = self._selected_interpreter_python()
             if py_exe:
                 self.append_training_log(
                     self.tr("Training Python: %s") % py_exe
                 )
-            # interpreter shares local filesystem path with local mode
             start_mode = (
                 "remote" if self.train_mode == "remote" else "local"
             )
@@ -4663,15 +5100,28 @@ class MyTrainDialog(QDialog):
                     self.append_training_log(
                         self.tr("Remote Python: %s") % remote_py
                     )
-            success, message = self.training_manager.start_training(
-                train_args,
-                mode=start_mode,
-                ssh_client=self.ssh_client
-                if self.train_mode == "remote"
-                else None,
-                python_executable=py_exe,
-                remote_python=remote_py,
-            )
+            if custom_backend:
+                spec = self.build_custom_training_spec(config)
+                success, message = self.training_manager.start_custom_training(
+                    spec,
+                    mode=start_mode,
+                    ssh_client=self.ssh_client
+                    if self.train_mode == "remote"
+                    else None,
+                    python_executable=py_exe,
+                    remote_python=remote_py,
+                )
+            else:
+                train_args = self.get_training_args(config)
+                success, message = self.training_manager.start_training(
+                    train_args,
+                    mode=start_mode,
+                    ssh_client=self.ssh_client
+                    if self.train_mode == "remote"
+                    else None,
+                    python_executable=py_exe,
+                    remote_python=remote_py,
+                )
             if not success:
                 self.append_training_log(
                     f"Failed to start training: {message}"
@@ -6029,8 +6479,7 @@ print("BATCH_PREDICT_OK:" + labels_dir + " (%d txt)" % n, flush=True)
 
         if hasattr(self, "log_display"):
             self.log_display.clear()
-            self._log_progress_phase_key = None
-            self._log_last_train_epoch = None
+            self._log_follow_tail = True
 
         for i, image_label in enumerate(self.image_labels):
             image_label.clear()

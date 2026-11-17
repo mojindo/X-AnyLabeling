@@ -284,11 +284,15 @@ def start_remote_tensorboard(
 
 
 def start_local_tensorboard(
-    logdir: str, preferred_port: int = 6006
+    logdir: str,
+    preferred_port: int = 6006,
+    *,
+    python_executable: str = "",
 ) -> Tuple[object, int, str]:
     """Start local tensorboard subprocess. Returns (Popen, port, url)."""
     import subprocess
     import socket
+    import sys
 
     def _free(port: int) -> bool:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -300,21 +304,31 @@ def start_local_tensorboard(
             port = candidate
             break
 
-    proc = subprocess.Popen(
-        [
-            "tensorboard",
-            "--logdir",
-            logdir,
-            "--host",
-            "127.0.0.1",
-            "--port",
-            str(port),
-        ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    url = f"http://127.0.0.1:{port}"
-    return proc, port, url
+    tb_args = ["--logdir", logdir, "--host", "127.0.0.1", "--port", str(port)]
+    py = (python_executable or "").strip() or sys.executable
+    candidates = [
+        ["tensorboard", *tb_args],
+        [py, "-m", "tensorboard.main", *tb_args],
+        [sys.executable, "-m", "tensorboard.main", *tb_args],
+        [sys.executable, "-m", "tensorboard", *tb_args],
+    ]
+    last_err: Optional[Exception] = None
+    for cmd in candidates:
+        exe = cmd[0]
+        if exe not in ("tensorboard",) and not os.path.isfile(exe):
+            continue
+        try:
+            proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            url = f"http://127.0.0.1:{port}"
+            return proc, port, url
+        except (FileNotFoundError, OSError) as e:
+            last_err = e
+            continue
+    raise FileNotFoundError(last_err or "tensorboard not found in PATH")
 
 
 def fetch_remote_log_tail(

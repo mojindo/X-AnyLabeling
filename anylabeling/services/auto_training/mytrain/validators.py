@@ -9,7 +9,7 @@ from .config import MIN_LABELED_IMAGES_THRESHOLD
 
 
 def validate_basic_config(
-    config: Dict, *, remote: bool = False
+    config: Dict, *, remote: bool = False, custom: bool = False
 ) -> Tuple[Union[bool, str], str]:
     """Validate basic training configuration
 
@@ -38,19 +38,20 @@ def validate_basic_config(
     model_path = basic.get("model", "").strip()
     if not model_path:
         return False, "Valid model file is required"
-    if not remote and not os.path.exists(model_path):
+    if custom:
+        pass
+    elif not remote and not os.path.exists(model_path):
         return False, "Valid model file is required"
-    if remote and not (
+    elif remote and not (
         os.path.exists(model_path) or model_path.endswith(".pt")
     ):
-        # Allow local .pt upload or remote weight name/path
         if not model_path.endswith(".pt"):
             return False, "Valid model file (.pt) is required"
 
     data_path = basic.get("data", "").strip()
     if not data_path:
         return False, "Valid data file is required"
-    if not remote and not os.path.exists(data_path):
+    if not custom and not remote and not os.path.exists(data_path):
         return False, "Valid data file is required"
 
     return True, ""

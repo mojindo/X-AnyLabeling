@@ -16,6 +16,13 @@ from typing import Dict, Optional, Tuple
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from .config import get_settings_config_path
+from .custom_training import (
+    bind_command_to_python,
+    build_remote_custom_launch,
+    build_ultralytics_train_cli,
+    interpreter_path_env,
+    wrap_local_shell_command,
+)
 from .logging_bridge import emit_train_log
 
 
@@ -48,6 +55,57 @@ class TrainingLogRedirector(QObject):
         pass
 
 
+def _kill_process_tree(pid: Optional[int]) -> None:
+    """Stop Ultralytics training and its worker children (Windows needs /T)."""
+    if pid is None:
+        return
+    try:
+        pid_int = int(pid)
+    except (TypeError, ValueError):
+        return
+    if pid_int <= 0:
+        return
+    if os.name == "nt":
+        flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        subprocess.run(
+            ["taskkill", "/PID", str(pid_int), "/T", "/F"],
+            check=False,
+            capture_output=True,
+            creationflags=flags,
+        )
+        return
+    try:
+        pgid = os.getpgid(pid_int)
+        os.killpg(pgid, signal.SIGTERM)
+    except (ProcessLookupError, PermissionError, OSError):
+        try:
+            os.kill(pid_int, signal.SIGTERM)
+        except OSError:
+            return
+    time.sleep(0.4)
+    try:
+        pgid = os.getpgid(pid_int)
+        os.killpg(pgid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError, OSError):
+        try:
+            os.kill(pid_int, signal.SIGKILL)
+        except OSError:
+            pass
+
+
+def _purge_local_run_dir(run_dir: str) -> None:
+    """Remove a previous Ultralytics run folder so exist_ok does not continue."""
+    rd = (run_dir or "").strip()
+    if not rd:
+        return
+    for _ in range(4):
+        if os.path.isdir(rd):
+            shutil.rmtree(rd, ignore_errors=True)
+        if not os.path.isdir(rd):
+            break
+        time.sleep(0.2)
+
+
 class TrainingManager:
     def __init__(self):
         self.training_process = None
@@ -69,6 +127,10 @@ class TrainingManager:
         self._local_run_dir = ""
         self._local_python_exe = ""
         self._local_pid: Optional[int] = None
+        self._custom_job = False
+        self._local_log_handle = None
+        self._local_monitor_started_at = 0.0
+        self._local_run_started_at = 0.0
 
     def notify_callbacks(self, event_type: str, data: dict):
         for callback in self.callbacks:
@@ -106,12 +168,13 @@ class TrainingManager:
             import sys
 
             args = dict(train_args)
+            self._custom_job = False
             self._mode = "local"
             self.total_epochs = args.get("epochs", 100)
             self.stop_event.clear()
             self._detach_without_kill = False
             self.tensorboard_url = ""
-            args.pop("_task", None)
+            task = (args.pop("_task", None) or "detect").strip().lower()
             from anylabeling.services.auto_training.mytrain.remote.job_state import (
                 load_local_job,
                 probe_local_job,
@@ -124,118 +187,100 @@ class TrainingManager:
                     False,
                     "A local training job is still running. Reattach to watch it.",
                 )
+            from anylabeling.services.auto_training.mytrain.remote.job_state import (
+                clear_local_job,
+            )
+
+            if existing:
+                clear_local_job()
 
             # exist_ok reuses project/name; drop leftover results/images so the
             # progress bar and previews are not stuck on the previous run.
             project_dir = args.get("project", "") or ""
             run_name = args.get("name", "exp")
             run_dir = os.path.join(project_dir, run_name) if project_dir else ""
-            if run_dir and os.path.isdir(run_dir) and args.get("exist_ok"):
-                try:
-                    shutil.rmtree(run_dir, ignore_errors=True)
-                except Exception:
-                    pass
+            if run_dir and args.get("exist_ok", True):
+                _purge_local_run_dir(run_dir)
 
-            model = args.pop("model")
-            script_content = f"""# -*- coding: utf-8 -*-
-import io
-import os
-import signal
-import sys
-import multiprocessing
-
-if sys.platform.startswith("win"):
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
-
-import matplotlib
-matplotlib.use('Agg')
-
-from ultralytics import YOLO, settings
-
-try:
-    settings.update({{"tensorboard": True}})
-except Exception:
-    pass
-
-def signal_handler(signum, frame):
-    print("Training interrupted by signal", flush=True)
-    sys.exit(1)
-
-
-if __name__ == "__main__":
-    if sys.platform.startswith("win"):
-        multiprocessing.set_start_method('spawn', force=True)
-
-    signal.signal(signal.SIGTERM, signal_handler)
-    signal.signal(signal.SIGINT, signal_handler)
-
-    _train_log = os.path.join({repr(args.get("project", "") or "/tmp")}, "train_run.log")
-    try:
-        os.makedirs(os.path.dirname(_train_log) or ".", exist_ok=True)
-        _log_f = open(_train_log, "a", encoding="utf-8", buffering=1)
-        sys.stdout = _log_f
-        sys.stderr = _log_f
-    except Exception:
-        pass
-
-    try:
-        model = YOLO({repr(model)})
-        train_args = {repr(args)}
-        train_args['verbose'] = False
-        train_args['show'] = False
-        results = model.train(**train_args)
-    except KeyboardInterrupt:
-        print("Training interrupted by user", flush=True)
-        sys.exit(1)
-    except Exception as e:
-        print(f"Training error: {{e}}", flush=True)
-        sys.exit(1)
-"""
-
-            script_path = os.path.join(
-                args.get("project", "/tmp"), "train_script.py"
-            )
-            os.makedirs(os.path.dirname(script_path), exist_ok=True)
-            with open(script_path, "w", encoding="utf-8") as f:
-                f.write(script_content)
-
-            # Watch project root (not name/) so we never mkdir the run dir
-            # before Ultralytics starts — that would trigger name-2 increment.
-            project_dir = args.get("project", "") or "/tmp"
+            args["resume"] = False
+            command = build_ultralytics_train_cli(args, task=task)
+            if not command.strip():
+                return False, "Empty training command"
 
             py_exe = (python_executable or "").strip() or sys.executable
             if not os.path.isfile(py_exe):
                 return False, f"Training Python not found: {py_exe}"
 
+            resolved = bind_command_to_python(command, py_exe)
+            os.makedirs(project_dir or ".", exist_ok=True)
+
             self._local_log_path = os.path.join(project_dir, "train_run.log")
+            self._close_local_log_handle()
+            try:
+                with open(self._local_log_path, "w", encoding="utf-8") as _lf:
+                    _lf.write(
+                        f"=== Training {time.strftime('%Y-%m-%d %H:%M:%S')} ===\n"
+                    )
+                    _lf.write(f"Command: {command}\n")
+            except OSError:
+                pass
             self._local_project = project_dir
             self._local_name = run_name
             self._local_run_dir = run_dir or os.path.join(project_dir, run_name)
             self._local_python_exe = py_exe
             self._log_offset = 0
+            self._local_run_started_at = time.time()
 
-            creationflags = 0
-            if os.name == "nt":
-                creationflags = (
+            log_handle = open(
+                self._local_log_path, "a", encoding="utf-8", buffering=1
+            )
+            self._local_log_handle = log_handle
+            popen_kwargs: Dict = {
+                "stdout": log_handle,
+                "stderr": subprocess.STDOUT,
+            }
+            using_external_py = bool(
+                (python_executable or "").strip()
+                and os.path.isfile((python_executable or "").strip())
+            )
+            if using_external_py:
+                popen_kwargs["env"] = interpreter_path_env(py_exe)
+                launcher = (
+                    "import os, subprocess, sys; "
+                    f"rc = subprocess.run({resolved!r}, shell=True, env=os.environ); "
+                    "sys.exit(rc.returncode if rc.returncode is not None else 1)"
+                )
+                popen_cmd = [py_exe, "-c", launcher]
+                if os.name != "nt":
+                    popen_kwargs["preexec_fn"] = os.setsid
+                    popen_kwargs["close_fds"] = True
+                else:
+                    popen_kwargs["creationflags"] = (
+                        subprocess.CREATE_NEW_PROCESS_GROUP
+                        | getattr(
+                            subprocess, "CREATE_BREAKAWAY_FROM_JOB", 0x01000000
+                        )
+                    )
+            elif os.name == "nt":
+                popen_kwargs["shell"] = True
+                popen_cmd = resolved
+                popen_kwargs["creationflags"] = (
                     subprocess.CREATE_NEW_PROCESS_GROUP
                     | getattr(subprocess, "CREATE_BREAKAWAY_FROM_JOB", 0x01000000)
                 )
-            self.training_process = subprocess.Popen(
-                [py_exe, script_path],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                creationflags=creationflags,
-                preexec_fn=os.setsid if os.name != "nt" else None,
-                close_fds=os.name != "nt",
-            )
+            else:
+                popen_cmd = wrap_local_shell_command(resolved)
+                popen_kwargs["preexec_fn"] = os.setsid
+                popen_kwargs["close_fds"] = True
+
+            self.training_process = subprocess.Popen(popen_cmd, **popen_kwargs)
             self._local_pid = self.training_process.pid
             self._persist_local_job(
                 {
                     "status": "running",
-                    "script_path": script_path,
                     "data": args.get("data", ""),
-                    "model": model,
+                    "model": args.get("model", ""),
+                    "resolved_command": command[:2000],
                 }
             )
 
@@ -255,7 +300,7 @@ if __name__ == "__main__":
 
             threading.Thread(
                 target=self._monitor_local,
-                kwargs={"from_attach": False, "script_path": script_path},
+                kwargs={"from_attach": False, "script_path": ""},
                 daemon=True,
             ).start()
             threading.Thread(target=save_settings_config, daemon=True).start()
@@ -270,7 +315,7 @@ if __name__ == "__main__":
             return False, f"Failed to start training: {str(e)}"
 
     def _maybe_start_local_tb(self, logdir: str) -> None:
-        if self.tensorboard_url:
+        if self.tensorboard_url or self._custom_job:
             return
         try:
             from anylabeling.services.auto_training.mytrain.remote.remote_trainer import (
@@ -280,7 +325,9 @@ if __name__ == "__main__":
             # Only ensure project root exists — never pre-create the run name
             # subdirectory (Ultralytics would treat it as occupied → name-2).
             os.makedirs(logdir, exist_ok=True)
-            proc, port, url = start_local_tensorboard(logdir)
+            proc, port, url = start_local_tensorboard(
+                logdir, python_executable=self._local_python_exe or ""
+            )
             self._tb_process = proc
             self.tensorboard_url = url
             self.notify_callbacks(
@@ -289,6 +336,17 @@ if __name__ == "__main__":
             )
         except Exception as e:
             emit_train_log(self, f"TensorBoard not started: {e}")
+
+    def _close_local_log_handle(self) -> None:
+        handle = self._local_log_handle
+        if handle is None:
+            return
+        try:
+            handle.flush()
+            handle.close()
+        except Exception:
+            pass
+        self._local_log_handle = None
 
     def _persist_local_job(self, extra: Optional[Dict] = None) -> None:
         from anylabeling.services.auto_training.mytrain.remote.job_state import (
@@ -315,6 +373,22 @@ if __name__ == "__main__":
             state.update(extra)
         save_local_job(state)
 
+    def _emit_train_log_snapshot(self, log_path: str) -> None:
+        from .custom_training import format_train_log_terminal, latest_log_session_text
+
+        if not log_path or not os.path.isfile(log_path):
+            return
+        try:
+            with open(log_path, "r", encoding="utf-8", errors="replace") as f:
+                content = f.read()
+        except OSError:
+            return
+        body = latest_log_session_text(content)
+        text = format_train_log_terminal(body)
+        if not text.strip():
+            return
+        self.notify_callbacks("training_log_snapshot", {"text": text})
+
     def _read_local_log_delta(self, log_path: str, byte_offset: int) -> int:
         if not log_path or not os.path.isfile(log_path):
             return max(0, int(byte_offset or 0))
@@ -334,10 +408,6 @@ if __name__ == "__main__":
                 if not data:
                     break
                 offset += len(data)
-                text = data.decode("utf-8", errors="replace")
-                for line in text.splitlines():
-                    if line.strip():
-                        emit_train_log(self, line.rstrip())
                 if len(data) < chunk_limit:
                     break
                 try:
@@ -347,6 +417,7 @@ if __name__ == "__main__":
         if offset != start_offset:
             self._log_offset = offset
             self._persist_local_job()
+            self._emit_train_log_snapshot(log_path)
         return offset
 
     def _notify_local_epoch_from_csv(self) -> None:
@@ -356,6 +427,13 @@ if __name__ == "__main__":
         csv_path = os.path.join(run_dir, "results.csv")
         if not os.path.isfile(csv_path):
             return
+        started = float(getattr(self, "_local_run_started_at", 0) or 0)
+        if started > 0:
+            try:
+                if os.path.getmtime(csv_path) < started - 0.5:
+                    return
+            except OSError:
+                return
         try:
             with open(csv_path, "r", encoding="utf-8", errors="replace") as f:
                 content = f.read(500_000)
@@ -380,12 +458,14 @@ if __name__ == "__main__":
 
         try:
             self.is_training = True
+            self._local_monitor_started_at = time.time()
             self.notify_callbacks(
                 "training_started",
                 {
                     "total_epochs": self.total_epochs,
                     "python": self._local_python_exe,
                     "reattached": from_attach,
+                    "custom": self._custom_job,
                 },
             )
             if from_attach:
@@ -393,20 +473,18 @@ if __name__ == "__main__":
                     self,
                     f"Reattached to local PID {self._local_pid}",
                 )
+            if log_path:
+                self._emit_train_log_snapshot(log_path)
 
             while not self.stop_event.is_set():
                 last_size = self._read_local_log_delta(log_path, last_size)
                 self._notify_local_epoch_from_csv()
 
-                pid = self._local_pid
-                if self.training_process is not None:
-                    pid = self.training_process.pid
-                alive = is_local_pid_alive(pid)
-                exited = (
-                    self.training_process is not None
-                    and self.training_process.poll() is not None
-                )
-                if not alive or exited:
+                proc = self.training_process
+                if proc is not None:
+                    if proc.poll() is not None:
+                        break
+                elif self._local_pid and not is_local_pid_alive(self._local_pid):
                     break
                 time.sleep(1.0)
 
@@ -425,15 +503,26 @@ if __name__ == "__main__":
                     )
                     return
                 proc = self.training_process
-                if proc is not None and proc.poll() is None:
-                    try:
-                        proc.terminate()
-                        proc.wait(timeout=5)
-                    except subprocess.TimeoutExpired:
-                        proc.kill()
-                    except Exception:
-                        pass
+                root_pid = (
+                    proc.pid if proc is not None and proc.poll() is None else None
+                )
+                if root_pid is None and self._local_pid:
+                    from anylabeling.services.auto_training.mytrain.remote.job_state import (
+                        is_local_pid_alive,
+                    )
+
+                    if is_local_pid_alive(self._local_pid):
+                        root_pid = self._local_pid
+                if root_pid is not None:
+                    _kill_process_tree(root_pid)
+                    if proc is not None:
+                        try:
+                            proc.wait(timeout=8)
+                        except Exception:
+                            pass
+                self._close_local_log_handle()
                 self.is_training = False
+                self.training_process = None
                 clear_local_job()
                 self.notify_callbacks("training_stopped", {})
                 if script_path:
@@ -449,7 +538,21 @@ if __name__ == "__main__":
             if self.training_process is not None:
                 return_code = self.training_process.poll()
             self.is_training = False
-            if return_code == 0:
+            self._close_local_log_handle()
+            ran_for = time.time() - float(self._local_monitor_started_at or 0)
+            log_bytes = 0
+            if log_path and os.path.isfile(log_path):
+                try:
+                    log_bytes = os.path.getsize(log_path)
+                except OSError:
+                    log_bytes = 0
+            suspect_quick = (
+                self._custom_job
+                and ran_for < 8.0
+                and log_bytes < 180
+                and return_code == 0
+            )
+            if return_code == 0 and not suspect_quick:
                 clear_local_job()
                 self._maybe_start_local_tb(self._local_project)
                 self.notify_callbacks(
@@ -457,6 +560,18 @@ if __name__ == "__main__":
                     {
                         "results": "Training completed successfully",
                         "tensorboard_url": self.tensorboard_url,
+                    },
+                )
+            elif suspect_quick:
+                clear_local_job()
+                self.notify_callbacks(
+                    "training_error",
+                    {
+                        "error": (
+                            "Custom command exited immediately with no log output. "
+                            "Check Execution directory, placeholders, and that "
+                            "the command runs in a shell."
+                        )
                     },
                 )
             else:
@@ -520,6 +635,7 @@ if __name__ == "__main__":
         self.tensorboard_url = job.get("tensorboard_url") or ""
         self._log_offset = int(job.get("log_offset") or 0)
         self.training_process = None
+        self._custom_job = bool(job.get("custom"))
 
         self._persist_local_job({"status": "running"})
         threading.Thread(
@@ -717,13 +833,6 @@ if __name__ == "__main__":
             if not data:
                 break
             offset += len(data)
-            text = data.decode("utf-8", errors="replace")
-            for line in text.splitlines():
-                if line.strip():
-                    self.notify_callbacks(
-                        "training_log",
-                        {"message": line.rstrip()},
-                    )
             if len(data) < chunk_limit:
                 break
             size = ssh_client.file_size(remote_log)
@@ -733,7 +842,27 @@ if __name__ == "__main__":
         if offset != start_offset or offset != int(self._log_offset or 0):
             self._log_offset = offset
             self._persist_remote_job()
+            self._emit_remote_train_log_snapshot(ssh_client, remote_log)
         return offset
+
+    def _emit_remote_train_log_snapshot(self, ssh_client, remote_log: str) -> None:
+        from .custom_training import format_train_log_terminal, latest_log_session_text
+
+        if not remote_log:
+            return
+        size = ssh_client.file_size(remote_log)
+        if size <= 0:
+            return
+        cap = 2_000_000
+        data = ssh_client.read_bytes_from(
+            remote_log, offset=0, max_bytes=min(size, cap)
+        )
+        if not data:
+            return
+        body = latest_log_session_text(data.decode("utf-8", errors="replace"))
+        text = format_train_log_terminal(body)
+        if text.strip():
+            self.notify_callbacks("training_log_snapshot", {"text": text})
 
     def _monitor_remote(self, ssh_client, *, from_attach: bool = False):
         from anylabeling.services.auto_training.mytrain.remote.job_state import (
@@ -978,6 +1107,7 @@ if __name__ == "__main__":
         self._remote_project = job.get("project") or ""
         self._remote_name = job.get("name") or ""
         self.total_epochs = int(job.get("epochs") or 100)
+        self._custom_job = bool(job.get("custom"))
         self.tensorboard_url = job.get("tensorboard_url") or ""
         self._log_offset = int(job.get("log_offset") or 0)
 
@@ -1042,6 +1172,7 @@ if __name__ == "__main__":
                 )
 
             args = dict(train_args)
+            self._custom_job = False
             self._mode = "remote"
             self._ssh_client = ssh_client
             self.total_epochs = args.get("epochs", 100)
@@ -1161,48 +1292,312 @@ if __name__ == "__main__":
         except Exception as e:
             return False, f"Failed to start remote training: {e}"
 
+    def start_custom_training(
+        self,
+        spec: Dict,
+        *,
+        mode: str = "local",
+        ssh_client=None,
+        python_executable: str = "",
+        remote_python: str = "",
+    ) -> Tuple[bool, str]:
+        """Run a user-defined shell command (placeholders already resolved)."""
+        if self.is_training:
+            return False, "Training is already in progress"
+        mode = (mode or "local").lower()
+        if mode == "remote":
+            return self._start_custom_remote(
+                spec, ssh_client, remote_python=remote_python or ""
+            )
+        return self._start_custom_local(
+            spec, python_executable=python_executable or ""
+        )
+
+    def _start_custom_local(
+        self, spec: Dict, *, python_executable: str = ""
+    ) -> Tuple[bool, str]:
+        import sys
+
+        from anylabeling.services.auto_training.mytrain.remote.job_state import (
+            load_local_job,
+            probe_local_job,
+        )
+
+        try:
+            resolved = (spec.get("resolved_command") or "").strip()
+            if not resolved:
+                return False, "Custom command is empty"
+            project = (spec.get("project") or "").strip() or os.path.abspath(
+                os.path.curdir
+            )
+            name = (spec.get("name") or "exp").strip()
+            run_dir = os.path.join(project, name)
+            exec_cwd = (spec.get("exec_cwd") or "").strip() or None
+            if exec_cwd and not os.path.isdir(exec_cwd):
+                return False, f"Execution directory not found: {exec_cwd}"
+
+            existing = load_local_job()
+            st, _sm = probe_local_job(existing)
+            if st == "alive":
+                return (
+                    False,
+                    "A local training job is still running. Reattach to watch it.",
+                )
+            from anylabeling.services.auto_training.mytrain.remote.job_state import (
+                clear_local_job,
+            )
+
+            if existing:
+                clear_local_job()
+
+            os.makedirs(project, exist_ok=True)
+            _purge_local_run_dir(run_dir)
+
+            log_path = os.path.join(project, "train_run.log")
+            self._close_local_log_handle()
+            try:
+                with open(log_path, "w", encoding="utf-8") as header_f:
+                    header_f.write(
+                        f"=== Custom training {time.strftime('%Y-%m-%d %H:%M:%S')} ===\n"
+                    )
+                    header_f.write(f"Command: {resolved}\n")
+                    if exec_cwd:
+                        header_f.write(f"CWD: {exec_cwd}\n")
+            except OSError:
+                pass
+            self._mode = "local"
+            self._custom_job = True
+            from anylabeling.services.auto_training.mytrain.custom_training import (
+                parse_epochs_from_cli,
+            )
+
+            self.total_epochs = int(spec.get("epochs") or 0) or parse_epochs_from_cli(
+                resolved
+            )
+            self.stop_event.clear()
+            self._detach_without_kill = False
+            self.tensorboard_url = ""
+            self._local_log_path = log_path
+            self._local_project = project
+            self._local_name = name
+            self._local_run_dir = run_dir
+            py_exe = (python_executable or "").strip() or sys.executable
+            self._local_python_exe = py_exe
+            self._log_offset = 0
+            self._local_run_started_at = time.time()
+
+            log_handle = open(log_path, "a", encoding="utf-8", buffering=1)
+            self._local_log_handle = log_handle
+            popen_kwargs: Dict = {
+                "stdout": log_handle,
+                "stderr": subprocess.STDOUT,
+                "cwd": exec_cwd,
+            }
+            using_external_py = bool(
+                (python_executable or "").strip()
+                and os.path.isfile((python_executable or "").strip())
+            )
+            if using_external_py:
+                popen_kwargs["env"] = interpreter_path_env(py_exe)
+                launcher = (
+                    "import os, subprocess, sys; "
+                    f"rc = subprocess.run({resolved!r}, shell=True, env=os.environ); "
+                    "sys.exit(rc.returncode if rc.returncode is not None else 1)"
+                )
+                popen_cmd = [py_exe, "-c", launcher]
+                popen_kwargs["stdout"] = log_handle
+                popen_kwargs["stderr"] = subprocess.STDOUT
+                if os.name != "nt":
+                    popen_kwargs["preexec_fn"] = os.setsid
+                    popen_kwargs["close_fds"] = True
+                else:
+                    popen_kwargs["creationflags"] = (
+                        subprocess.CREATE_NEW_PROCESS_GROUP
+                        | getattr(
+                            subprocess, "CREATE_BREAKAWAY_FROM_JOB", 0x01000000
+                        )
+                    )
+            elif os.name == "nt":
+                popen_kwargs["shell"] = True
+                popen_cmd = resolved
+                popen_kwargs["creationflags"] = (
+                    subprocess.CREATE_NEW_PROCESS_GROUP
+                    | getattr(subprocess, "CREATE_BREAKAWAY_FROM_JOB", 0x01000000)
+                )
+            else:
+                popen_cmd = wrap_local_shell_command(resolved)
+                popen_kwargs["preexec_fn"] = os.setsid
+                popen_kwargs["close_fds"] = True
+
+            self.training_process = subprocess.Popen(popen_cmd, **popen_kwargs)
+            self._local_pid = self.training_process.pid
+            self._persist_local_job(
+                {
+                    "status": "running",
+                    "custom": True,
+                    "resolved_command": resolved[:2000],
+                }
+            )
+            threading.Thread(
+                target=self._monitor_local,
+                kwargs={"from_attach": False, "script_path": ""},
+                daemon=True,
+            ).start()
+            return True, "Custom training started successfully"
+        except Exception as e:
+            self._custom_job = False
+            return False, f"Failed to start custom training: {e}"
+
+    def _start_custom_remote(
+        self, spec: Dict, ssh_client, *, remote_python: str = ""
+    ) -> Tuple[bool, str]:
+        from anylabeling.services.auto_training.mytrain.remote.job_state import (
+            load_remote_job,
+            probe_remote_job,
+        )
+        from anylabeling.services.auto_training.mytrain.remote.remote_trainer import (
+            fetch_remote_log_tail,
+        )
+
+        if ssh_client is None or not getattr(ssh_client, "connected", False):
+            return False, "Remote SSH is not connected"
+        try:
+            resolved = (spec.get("resolved_command") or "").strip()
+            if not resolved:
+                return False, "Custom command is empty"
+            project = (spec.get("project") or "").strip().replace("\\", "/")
+            if not project:
+                return False, "Project path is required"
+            name = (spec.get("name") or "exp").strip()
+            exec_cwd = (spec.get("exec_cwd") or "").strip().replace("\\", "/")
+            if exec_cwd:
+                _c, o, _e = ssh_client.exec(
+                    f"test -d {shlex.quote(exec_cwd)} && echo ok"
+                )
+                if "ok" not in (o or ""):
+                    return False, f"Remote execution directory not found: {exec_cwd}"
+
+            existing = load_remote_job()
+            st, _sm = probe_remote_job(ssh_client, existing)
+            if st == "alive":
+                return (
+                    False,
+                    "A remote job is still running. Use Reattach instead of starting a new one.",
+                )
+
+            ssh_client.mkdir_p(project)
+            remote_log = f"{project.rstrip('/')}/train_run.log"
+            run_dir = f"{project.rstrip('/')}/{name}"
+            from anylabeling.services.auto_training.mytrain.custom_training import (
+                parse_epochs_from_cli,
+            )
+
+            ssh_client.exec(f": > {shlex.quote(remote_log)}")
+
+            self._mode = "remote"
+            self._ssh_client = ssh_client
+            self._custom_job = True
+            self.total_epochs = int(spec.get("epochs") or 0) or parse_epochs_from_cli(
+                resolved
+            )
+            self.stop_event.clear()
+            self._detach_without_kill = False
+            self.tensorboard_url = ""
+            self._remote_log_path = remote_log
+            self._remote_project = project
+            self._remote_name = name
+            self._remote_run_dir = run_dir
+            self._log_offset = 0
+
+            start_cmd = build_remote_custom_launch(
+                resolved,
+                remote_log=remote_log,
+                exec_cwd=exec_cwd,
+            )
+            code, out, err = ssh_client.exec(start_cmd)
+            pid_line = (out or "").strip().splitlines()
+            if code != 0 or not pid_line:
+                extra = fetch_remote_log_tail(ssh_client, [remote_log])
+                return False, f"Failed to start remote custom training: {err or out}\n{extra}"
+
+            self._remote_pid = pid_line[-1].strip()
+            self._persist_remote_job(
+                {
+                    "status": "running",
+                    "custom": True,
+                    "resolved_command": resolved[:2000],
+                    "remote_python": (remote_python or "").strip(),
+                }
+            )
+            threading.Thread(
+                target=self._monitor_remote,
+                args=(ssh_client,),
+                kwargs={"from_attach": False},
+                daemon=True,
+            ).start()
+            return True, "Remote custom training started successfully"
+        except Exception as e:
+            self._custom_job = False
+            return False, f"Failed to start remote custom training: {e}"
+
+    def _local_root_pid(self) -> Optional[int]:
+        proc = self.training_process
+        if proc is not None and proc.poll() is None:
+            return int(proc.pid)
+        if self._local_pid:
+            return int(self._local_pid)
+        return None
+
     def stop_training(self, wait: bool = False) -> bool:
         if not self.is_training and self._mode not in ("remote", "local"):
             return False
         try:
             self._detach_without_kill = False
             self.stop_event.set()
-            if not self.is_training:
-                from anylabeling.services.auto_training.mytrain.remote.job_state import (
-                    clear_local_job,
-                    clear_remote_job,
-                    is_local_pid_alive,
-                    load_local_job,
-                    load_remote_job,
-                )
 
+            from anylabeling.services.auto_training.mytrain.remote.job_state import (
+                clear_local_job,
+                clear_remote_job,
+                is_local_pid_alive,
+                load_local_job,
+                load_remote_job,
+            )
+
+            root_pid = self._local_root_pid()
+            if root_pid and is_local_pid_alive(root_pid):
+                _kill_process_tree(root_pid)
+                self._close_local_log_handle()
+                if self.training_process is not None:
+                    try:
+                        self.training_process.wait(timeout=8)
+                    except Exception:
+                        pass
+                    self.training_process = None
+
+            if not self.is_training:
                 ljob = load_local_job()
                 lpid = (ljob or {}).get("pid")
                 if lpid and is_local_pid_alive(lpid):
-                    try:
-                        if os.name == "nt":
-                            subprocess.run(
-                                ["taskkill", "/PID", str(lpid), "/F"],
-                                check=False,
-                                capture_output=True,
-                            )
-                        else:
-                            os.kill(int(lpid), signal.SIGTERM)
-                    except Exception:
-                        pass
+                    _kill_process_tree(int(lpid))
                     clear_local_job()
 
-                if self._ssh_client is not None:
-                    job = load_remote_job()
-                    pid = (job or {}).get("pid") or self._remote_pid
-                    if pid:
-                        try:
+            if self._ssh_client is not None and not self.is_training:
+                job = load_remote_job()
+                pid = (job or {}).get("pid") or self._remote_pid
+                if pid:
+                    try:
+                        if os.name == "nt":
                             self._ssh_client.exec(
                                 f"kill {shlex.quote(str(pid))} 2>/dev/null || true"
                             )
-                        except Exception:
-                            pass
-                    clear_remote_job()
+                        else:
+                            self._ssh_client.exec(
+                                f"kill -- -$(ps -o pgid= -p {shlex.quote(str(pid))} | tr -d ' ') "
+                                f"2>/dev/null || kill {shlex.quote(str(pid))} 2>/dev/null || true"
+                            )
+                    except Exception:
+                        pass
+                clear_remote_job()
             return True
         except Exception:
             return False

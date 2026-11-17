@@ -4,7 +4,7 @@ import re
 import shutil
 import random
 from datetime import datetime
-from typing import List
+from typing import List, Optional, Union
 
 from ._io import load_yaml_config, save_yaml_config
 from .config import (
@@ -325,4 +325,24 @@ def parse_string_to_digit_list(input_string: str) -> List[int]:
         return [int(num) for num in numbers_as_strings]
 
     except Exception:
+        return None
+
+
+def parse_freeze_value(raw) -> Optional[Union[int, List[int]]]:
+    """Parse Ultralytics ``freeze`` from UI text (layers int or index list)."""
+    if raw is None:
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, list):
+        return raw
+    text = str(raw).strip()
+    if not text:
+        return None
+    digits = parse_string_to_digit_list(text)
+    if digits is not None:
+        return digits[0] if len(digits) == 1 else digits
+    try:
+        return int(text)
+    except ValueError:
         return None

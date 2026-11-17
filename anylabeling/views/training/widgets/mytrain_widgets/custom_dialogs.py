@@ -5,6 +5,9 @@ from PyQt6.QtWidgets import (
     QFormLayout,
     QHBoxLayout,
     QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QMessageBox,
     QVBoxLayout,
 )
 from typing import List, Optional
@@ -426,3 +429,110 @@ class BatchInferDialog(QDialog):
 
     def get_imgsz(self) -> int:
         return self._imgsz
+
+
+class RemoteDirBrowserDialog(QDialog):
+    """Browse remote directories over SSH (single selection for exec cwd)."""
+
+    def __init__(self, parent=None, ssh_client=None, start_path: str = ""):
+        super().__init__(parent)
+        self._client = ssh_client
+        self._cwd = (start_path or "").strip().replace("\\", "/")
+        if not self._cwd:
+            self._cwd = getattr(ssh_client, "home", "") or "/"
+        self._selected = self._cwd
+        self.setWindowTitle(self.tr("Remote directory"))
+        self.setMinimumSize(520, 420)
+        self.setModal(True)
+        self.setStyleSheet(get_ultralytics_dialog_style())
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(16, 16, 16, 16)
+        self.path_label = QLabel(self._cwd)
+        self.path_label.setWordWrap(True)
+        layout.addWidget(self.path_label)
+
+        self.dir_list = QListWidget()
+        self.dir_list.itemDoubleClicked.connect(self._enter_dir)
+        layout.addWidget(self.dir_list)
+
+        btn_row = QHBoxLayout()
+        up_btn = SecondaryButton(self.tr("Up"))
+        up_btn.clicked.connect(self._go_up)
+        btn_row.addWidget(up_btn)
+        btn_row.addStretch()
+        cancel_btn = SecondaryButton(self.tr("Cancel"))
+        cancel_btn.clicked.connect(self.reject)
+        btn_row.addWidget(cancel_btn)
+        ok_btn = PrimaryButton(self.tr("Select"))
+        ok_btn.clicked.connect(self._accept_selection)
+        btn_row.addWidget(ok_btn)
+        layout.addLayout(btn_row)
+
+        self._refresh_listing()
+
+    def _refresh_listing(self) -> None:
+        self.path_label.setText(self._cwd)
+        self.dir_list.clear()
+        client = self._client
+        if client is None or not getattr(client, "connected", False):
+            return
+        parent = posix_dirname(self._cwd)
+        if parent and parent != self._cwd:
+            item = QListWidgetItem(
+                "..  ({parent})".format(parent=self.tr("parent"))
+            )
+            item.setData(256, parent)
+            self.dir_list.addItem(item)
+        try:
+            names = client.listdir(self._cwd)
+        except Exception:
+            names = []
+        for name in sorted(names):
+            if name in (".", ".."):
+                continue
+            child = self._cwd.rstrip("/") + "/" + name
+            if client.exists(child):
+                item = QListWidgetItem(name + "/")
+                item.setData(256, child)
+                self.dir_list.addItem(item)
+
+    def _enter_dir(self, item: QListWidgetItem) -> None:
+        path = item.data(256)
+        if path:
+            self._cwd = str(path).replace("\\", "/")
+            self._selected = self._cwd
+            self._refresh_listing()
+
+    def _go_up(self) -> None:
+        parent = posix_dirname(self._cwd)
+        if parent and parent != self._cwd:
+            self._cwd = parent
+            self._selected = self._cwd
+            self._refresh_listing()
+
+    def _accept_selection(self) -> None:
+        cur = self.dir_list.currentItem()
+        if cur is not None:
+            path = cur.data(256)
+            parent_tag = "..  ({parent})".format(parent=self.tr("parent"))
+            if path and cur.text() != parent_tag:
+                self._selected = str(path).replace("\\", "/")
+            else:
+                self._selected = self._cwd
+        else:
+            self._selected = self._cwd
+        self.accept()
+
+    def selected_path(self) -> str:
+        return self._selected or self._cwd
+
+
+def posix_dirname(path: str) -> str:
+    path = (path or "/").replace("\\", "/").rstrip("/") or "/"
+    if path == "/":
+        return "/"
+    idx = path.rfind("/")
+    if idx <= 0:
+        return "/"
+    return path[:idx] or "/"

@@ -8,6 +8,7 @@ MYTRAIN_HIDDENIMPORTS = [
     "anylabeling.views.training.widgets.mytrain_widgets.free_infer_panel",
     "anylabeling.services.auto_training.mytrain",
     "anylabeling.services.auto_training.mytrain.trainer",
+    "anylabeling.services.auto_training.mytrain.custom_training",
     "anylabeling.services.auto_training.mytrain.exporter",
     "anylabeling.services.auto_training.mytrain.free_infer",
     "anylabeling.services.auto_training.mytrain.local_interpreters",

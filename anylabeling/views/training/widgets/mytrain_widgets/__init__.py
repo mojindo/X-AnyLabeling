@@ -1,6 +1,7 @@
 from .custom_dialogs import (
     BatchInferDialog,
     ExportFormatDialog,
+    RemoteDirBrowserDialog,
     RemotePredictDialog,
 )
 from .custom_widgets import (

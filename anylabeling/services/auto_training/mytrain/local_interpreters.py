@@ -227,7 +227,12 @@ def profile_display_name(profile: Dict[str, Any]) -> str:
     return f"{name}{mark}"
 
 
-def probe_interpreter(python_exe: str, timeout: float = 45.0) -> Tuple[bool, str, Dict[str, Any]]:
+def probe_interpreter(
+    python_exe: str,
+    timeout: float = 45.0,
+    *,
+    require_ultralytics: bool = True,
+) -> Tuple[bool, str, Dict[str, Any]]:
     """
     Run a small probe in the target interpreter.
 
@@ -248,9 +253,8 @@ try:
         info["ultralytics"] = True
         info["ultralytics_version"] = getattr(ultralytics, "__version__", "")
     except Exception as e:
-        info["error"] = "ultralytics: %s" % e
-        print(json.dumps(info))
-        raise SystemExit(2)
+        info["ultralytics"] = False
+        info["ultralytics_error"] = str(e)
     try:
         import torch
         info["torch"] = str(torch.__version__)
@@ -297,16 +301,21 @@ except Exception as e:
 
     ultra = payload.get("ultralytics")
     torch_v = payload.get("torch") or "?"
+    if not torch_v or torch_v == "?":
+        return False, payload.get("error") or "PyTorch not available", payload
     cuda = payload.get("cuda")
     n = payload.get("device_count") or 0
     py_v = payload.get("python") or "?"
     ultra_v = payload.get("ultralytics_version") or ""
-    msg = (
-        f"Python {py_v}, ultralytics {ultra_v or 'ok'}, "
-        f"torch {torch_v}, cuda={cuda}, GPUs={n}"
-    )
+    if ultra:
+        ultra_part = f"ultralytics {ultra_v or 'ok'}"
+    else:
+        ultra_part = "ultralytics not installed"
+    msg = f"Python {py_v}, {ultra_part}, torch {torch_v}, cuda={cuda}, GPUs={n}"
     if not ultra:
-        return False, "ultralytics not importable", payload
+        if require_ultralytics:
+            return False, "ultralytics not importable", payload
+        msg = msg + " (ultralytics optional for custom training)"
     return True, msg, payload
 
 

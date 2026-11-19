@@ -4350,6 +4350,18 @@ Press Enter to search.</source>
       <translation>导入自定义 VOC 分割标签</translation>
     </message>
     <message>
+      <source>VOC OBB</source>
+      <translation>VOC 旋转框</translation>
+    </message>
+    <message>
+      <source>Upload Custom Pascal VOC OBB Annotations</source>
+      <translation>导入自定义 VOC 旋转框（robndbox）标签</translation>
+    </message>
+    <message>
+      <source>Export Custom PASCAL VOC OBB Annotations</source>
+      <translation>导出自定义 PASCAL VOC 旋转框（robndbox）标签</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="1742" />
       <location filename="../../views/labeling/label_widget.py" line="1611" />
       <source>COCO Detection</source>

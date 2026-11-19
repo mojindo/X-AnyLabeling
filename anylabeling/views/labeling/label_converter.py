@@ -344,6 +344,76 @@ class LabelConverter:
         return rotation_angle_degrees / 360 * (2 * math.pi)
 
     @staticmethod
+    def voc_robndbox_to_points(cx, cy, w, h, angle_rad):
+        """Convert roLabelImg VOC robndbox to four image-space corners.
+
+        Angle is in radians CCW from +x, applied to the unrotated w×h box
+        centered on (cx, cy), matching common robndbox tooling (roLabelImg).
+        """
+        cos_t = math.cos(angle_rad)
+        sin_t = math.sin(angle_rad)
+        half_w, half_h = w / 2, h / 2
+        corners = []
+        for dx, dy in (
+            (-half_w, -half_h),
+            (-half_w, half_h),
+            (half_w, half_h),
+            (half_w, -half_h),
+        ):
+            corners.append(
+                [
+                    cx + dx * cos_t - dy * sin_t,
+                    cy + dx * sin_t + dy * cos_t,
+                ]
+            )
+        return corners
+
+    @classmethod
+    def rotation_points_to_voc_robndbox(cls, points):
+        """Convert rotation quadrilateral to VOC robndbox parameters."""
+        pts = np.asarray(points, dtype=float)
+        if pts.shape[0] != 4 or pts.shape[1] != 2:
+            raise ValueError("rotation shape must have exactly four points")
+
+        best = None
+        for index in range(4):
+            ordered = np.roll(pts, -index, axis=0)
+            center_x, center_y = ordered.mean(axis=0)
+            edge_a = ordered[1] - ordered[0]
+            edge_b = ordered[2] - ordered[1]
+            len_a = float(np.linalg.norm(edge_a))
+            len_b = float(np.linalg.norm(edge_b))
+            if len_a <= 0 or len_b <= 0:
+                continue
+            if len_a >= len_b:
+                width, height, edge = len_a, len_b, edge_a
+            else:
+                width, height, edge = len_b, len_a, edge_b
+            angle_rad = math.atan2(float(edge[1]), float(edge[0]))
+            if angle_rad > math.pi / 2:
+                angle_rad -= math.pi
+            elif angle_rad <= -math.pi / 2:
+                angle_rad += math.pi
+            reconstructed = np.asarray(
+                cls.voc_robndbox_to_points(
+                    center_x, center_y, width, height, angle_rad
+                )
+            )
+            error = float(np.max(np.linalg.norm(reconstructed - ordered, axis=1)))
+            if best is None or error < best[0]:
+                best = (
+                    error,
+                    float(center_x),
+                    float(center_y),
+                    width,
+                    height,
+                    angle_rad,
+                )
+        if best is None:
+            raise ValueError("invalid rotation quadrilateral")
+        return best[1:]
+
+    @staticmethod
     def clamp_points(points, image_width, image_height):
         """Clamp points to ensure they are within image boundaries.
 
@@ -777,6 +847,12 @@ class LabelConverter:
                 raise ValueError(f"missing <{path}>")
             return float(element.text)
 
+        def get_robndbox_coordinate(parent, tag):
+            element = parent.find(tag)
+            if element is None or element.text is None:
+                raise ValueError(f"missing <robndbox/{tag}>")
+            return float(element.text)
+
         for object_index, obj in enumerate(root.findall("object"), 1):
             name_elem = obj.find("name")
             if name_elem is None:
@@ -787,7 +863,19 @@ class LabelConverter:
                 difficult = str(obj.find("difficult").text)
             points = []
             try:
-                if obj.find("polygon") is not None and mode == "polygon":
+                robndbox = obj.find("robndbox")
+                if mode == "obb" and robndbox is not None:
+                    cx = get_robndbox_coordinate(robndbox, "cx")
+                    cy = get_robndbox_coordinate(robndbox, "cy")
+                    width = get_robndbox_coordinate(robndbox, "w")
+                    height = get_robndbox_coordinate(robndbox, "h")
+                    angle = get_robndbox_coordinate(robndbox, "angle")
+                    points = self.voc_robndbox_to_points(
+                        cx, cy, width, height, angle
+                    )
+                    shape_type = "rotation"
+                    voc_obb_angle = angle
+                elif obj.find("polygon") is not None and mode == "polygon":
                     num_points = len(obj.find("polygon")) // 2
                     for i in range(1, num_points + 1):
                         x_tag = f"polygon/x{i}"
@@ -830,6 +918,11 @@ class LabelConverter:
                 "shape_type": shape_type,
                 "flags": {},
             }
+            if shape_type == "rotation":
+                if mode == "obb":
+                    shape["direction"] = voc_obb_angle
+                else:
+                    shape["direction"] = self.calculate_rotation_theta(points)
 
             self.custom_data["shapes"].append(shape)
 
@@ -1615,6 +1708,28 @@ class LabelConverter:
                     y_tag = ET.SubElement(polygon, f"y{i+1}")
                     x_tag.text = str(point[0])
                     y_tag.text = str(point[1])
+            elif shape["shape_type"] == "rotation" and mode == "obb":
+                if len(points) != 4:
+                    continue
+                try:
+                    cx, cy, width, height, angle = (
+                        self.rotation_points_to_voc_robndbox(points)
+                    )
+                except ValueError as e:
+                    logger.warning(
+                        "Skipping VOC OBB export for label %s: %s",
+                        label,
+                        e,
+                    )
+                    continue
+                is_emtpy_file = False
+                ET.SubElement(object_elem, "type").text = "robndbox"
+                robndbox = ET.SubElement(object_elem, "robndbox")
+                ET.SubElement(robndbox, "cx").text = f"{cx:.4f}"
+                ET.SubElement(robndbox, "cy").text = f"{cy:.4f}"
+                ET.SubElement(robndbox, "w").text = f"{width:.4f}"
+                ET.SubElement(robndbox, "h").text = f"{height:.4f}"
+                ET.SubElement(robndbox, "angle").text = f"{angle:.4f}"
 
         xml_string = ET.tostring(root, encoding="utf-8")
         dom = minidom.parseString(xml_string)

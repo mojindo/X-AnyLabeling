@@ -1693,6 +1693,13 @@ class LabelingWidget(LabelDialog):
             icon=upload_export_icon,
             tip=self.tr("Upload Custom Pascal VOC Segmentation Annotations"),
         )
+        upload_voc_obb_annotation = action(
+            self.tr("VOC OBB"),
+            lambda: utils.upload_voc_annotation(self, "obb"),
+            None,
+            icon=upload_export_icon,
+            tip=self.tr("Upload Custom Pascal VOC OBB Annotations"),
+        )
         upload_coco_det_annotation = action(
             self.tr("COCO Detection"),
             lambda: utils.upload_coco_annotation(self, "rectangle"),
@@ -1823,6 +1830,13 @@ class LabelingWidget(LabelDialog):
             None,
             icon=upload_export_icon,
             tip=self.tr("Export Custom PASCAL VOC Segmentation Annotations"),
+        )
+        export_voc_obb_annotation = action(
+            self.tr("VOC OBB"),
+            lambda: utils.export_voc_annotation(self, "obb"),
+            None,
+            icon=upload_export_icon,
+            tip=self.tr("Export Custom PASCAL VOC OBB Annotations"),
         )
         export_coco_det_annotation = action(
             self.tr("COCO Detection"),
@@ -2068,6 +2082,7 @@ class LabelingWidget(LabelDialog):
             upload_yolo_pose_annotation=upload_yolo_pose_annotation,
             upload_voc_det_annotation=upload_voc_det_annotation,
             upload_voc_seg_annotation=upload_voc_seg_annotation,
+            upload_voc_obb_annotation=upload_voc_obb_annotation,
             upload_coco_det_annotation=upload_coco_det_annotation,
             upload_coco_seg_annotation=upload_coco_seg_annotation,
             upload_coco_pose_annotation=upload_coco_pose_annotation,
@@ -2085,6 +2100,7 @@ class LabelingWidget(LabelDialog):
             export_yolo_pose_annotation=export_yolo_pose_annotation,
             export_voc_det_annotation=export_voc_det_annotation,
             export_voc_seg_annotation=export_voc_seg_annotation,
+            export_voc_obb_annotation=export_voc_obb_annotation,
             export_coco_det_annotation=export_coco_det_annotation,
             export_coco_seg_annotation=export_coco_seg_annotation,
             export_coco_pose_annotation=export_coco_pose_annotation,
@@ -2366,6 +2382,7 @@ class LabelingWidget(LabelDialog):
                 None,
                 upload_voc_det_annotation,
                 upload_voc_seg_annotation,
+                upload_voc_obb_annotation,
                 None,
                 upload_coco_det_annotation,
                 upload_coco_seg_annotation,
@@ -2393,6 +2410,7 @@ class LabelingWidget(LabelDialog):
                 None,
                 export_voc_det_annotation,
                 export_voc_seg_annotation,
+                export_voc_obb_annotation,
                 None,
                 export_coco_det_annotation,
                 export_coco_seg_annotation,

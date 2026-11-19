@@ -4383,6 +4383,18 @@ Enter キーを押して検索します。</translation>
       <translation>カスタムPascal VOCセグメンテーションアノテーションをアップロード</translation>
     </message>
     <message>
+      <source>VOC OBB</source>
+      <translation>VOC 回転ボックス</translation>
+    </message>
+    <message>
+      <source>Upload Custom Pascal VOC OBB Annotations</source>
+      <translation>カスタム VOC OBB（robndbox）アノテーションをアップロード</translation>
+    </message>
+    <message>
+      <source>Export Custom PASCAL VOC OBB Annotations</source>
+      <translation>カスタム PASCAL VOC OBB（robndbox）アノテーションをエクスポート</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="1742" />
       <location filename="../../views/labeling/label_widget.py" line="1611" />
       <source>COCO Detection</source>

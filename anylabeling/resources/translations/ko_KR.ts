@@ -4384,6 +4384,18 @@ Enter 키를 눌러 검색합니다.</translation>
       <translation>사용자 지정 Pascal VOC 세분화 주석 업로드</translation>
     </message>
     <message>
+      <source>VOC OBB</source>
+      <translation>VOC 회전 바운딩 박스</translation>
+    </message>
+    <message>
+      <source>Upload Custom Pascal VOC OBB Annotations</source>
+      <translation>사용자 지정 Pascal VOC OBB(robndbox) 주석 업로드</translation>
+    </message>
+    <message>
+      <source>Export Custom PASCAL VOC OBB Annotations</source>
+      <translation>사용자 지정 PASCAL VOC OBB(robndbox) 주석 내보내기</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="1742" />
       <location filename="../../views/labeling/label_widget.py" line="1611" />
       <source>COCO Detection</source>

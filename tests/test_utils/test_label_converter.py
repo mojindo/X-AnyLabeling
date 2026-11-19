@@ -523,6 +523,29 @@ class TestLabelConverterVocValidation(unittest.TestCase):
         warning.assert_called_once()
         self.assertIn("bndbox/ymax", warning.call_args.args[0])
 
+    def test_voc_robndbox_import(self):
+        objects = (
+            "<object><type>robndbox</type><name>barcode</name>"
+            "<difficult>0</difficult>"
+            "<robndbox><cx>100</cx><cy>200</cy><w>40</w><h>10</h>"
+            "<angle>0.05</angle></robndbox></object>"
+        )
+        data = self._convert(objects, mode="obb")
+        self.assertEqual(len(data["shapes"]), 1)
+        shape = data["shapes"][0]
+        self.assertEqual(shape["label"], "barcode")
+        self.assertEqual(shape["shape_type"], "rotation")
+        self.assertEqual(len(shape["points"]), 4)
+
+        cx, cy, w, h, angle = self.converter.rotation_points_to_voc_robndbox(
+            shape["points"]
+        )
+        self.assertAlmostEqual(cx, 100, places=3)
+        self.assertAlmostEqual(cy, 200, places=3)
+        self.assertAlmostEqual(w, 40, places=3)
+        self.assertAlmostEqual(h, 10, places=3)
+        self.assertAlmostEqual(angle, 0.05, places=3)
+
 
 try:
     from pycocotools import mask as mask_utils

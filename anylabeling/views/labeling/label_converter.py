@@ -564,6 +564,8 @@ class LabelConverter:
 
     @staticmethod
     def read_lines(file_path: str, encoding: str = "utf-8") -> List[str]:
+        if encoding.lower().replace("_", "-") in {"utf-8", "utf8"}:
+            encoding = "utf-8-sig"
         with open(file_path, "r", encoding=encoding) as f:
             return f.read().splitlines()
 
@@ -1037,7 +1039,9 @@ class LabelConverter:
         image_width, image_height = self.get_image_size(image_file)
 
         for line in lines:
-            line = line.strip().split(" ")
+            line = line.split()
+            if not line or line[0].startswith(("imagesource:", "gsd:")):
+                continue
             x0, y0, x1, y1, x2, y2, x3, y3 = [float(i) for i in line[:8]]
             difficult = line[-1]
             points = [[x0, y0], [x1, y1], [x2, y2], [x3, y3]]

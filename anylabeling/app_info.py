@@ -1,6 +1,6 @@
 __appname__ = "Mojindo-X-Anylabeling"
 __appdescription__ = "Mojindo fork of X-AnyLabeling: a lightweight, efficient, and unified cross-platform desktop application for AI-assisted annotation of text, image, video, and multimodal data."
-__version__ = "4.3.2"
+__version__ = "4.3.3"
 __url__ = "https://github.com/mojindo/X-AnyLabeling"
 __appid__ = "Mojindo-X-Anylabeling"
 

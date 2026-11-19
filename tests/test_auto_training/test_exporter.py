@@ -1,6 +1,7 @@
 import threading
 import json
 import yaml
+import pytest
 
 from anylabeling.services.auto_training.ultralytics import exporter
 from anylabeling.services.auto_training.ultralytics.exporter import (
@@ -112,6 +113,17 @@ def test_stop_export_can_terminate_process_synchronously(monkeypatch):
     assert manager.stop_export(wait=True)
     assert terminated == [process]
     assert manager.stop_event.is_set()
+
+
+def test_external_export_reports_payload_errors():
+    manager = ExportManager()
+    events = []
+    manager.callbacks = [lambda event, data: events.append((event, data))]
+    data = {"error": "Unsupported export payload field in 'args'"}
+
+    manager._notify_external_export_event("environment_error", data)
+
+    assert events == [("export_error", data)]
 
 
 def test_stopped_export_ignores_late_worker_events():
@@ -233,3 +245,27 @@ def test_onnx_import_failure_preserves_fallback(monkeypatch):
     monkeypatch.setattr(builtins, "__import__", interrupt_import)
     with pytest.raises(KeyboardInterrupt):
         exporter.validate_onnx_export_environment()
+
+
+@pytest.mark.parametrize("end2end", ["True", "False"])
+def test_auto_labeling_config_preserves_yolo26_family(
+    tmp_path, monkeypatch, end2end
+):
+    (tmp_path / "args.yaml").write_text(
+        "task: segment\nmodel: yolo26n-seg.pt\n"
+    )
+    model_path = tmp_path / "best.onnx"
+    model_path.touch()
+    monkeypatch.setattr(
+        exporter,
+        "_load_onnx_metadata",
+        lambda path: {
+            "names": "{0: 'cat'}",
+            "end2end": end2end,
+        },
+    )
+    config_path = create_auto_labeling_config(str(tmp_path), str(model_path))
+    with open(config_path, encoding="utf-8") as stream:
+        config = yaml.safe_load(stream)
+    assert config["type"] == "yolo26_seg"
+    assert config["end2end"] is (end2end == "True")

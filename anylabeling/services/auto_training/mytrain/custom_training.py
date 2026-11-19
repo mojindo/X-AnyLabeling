@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import posixpath
 import re
 import shlex
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -121,6 +122,11 @@ def substitute_custom_command(template: str, paths: Dict[str, str]) -> str:
     return enforce_basic_cli_overrides(out, paths)
 
 
+def is_windows_local_path(path: str) -> bool:
+    """True for ``C:\\...`` / ``C:/...`` paths that cannot exist on a remote host."""
+    return bool(re.match(r"^[A-Za-z]:[\\/]", (path or "").strip()))
+
+
 def posix_if_needed(path: str, *, remote: bool) -> str:
     if not path:
         return path
@@ -175,6 +181,25 @@ def bind_command_to_python(command: str, python_executable: str) -> str:
         f"{py_q} -c "
         f"\"import sys; from ultralytics.cfg import entrypoint; "
         f"sys.argv = {argv}; entrypoint()\""
+    )
+
+
+def bind_remote_command_to_python(command: str, remote_python: str) -> str:
+    """Put the remote env's ``bin`` first on PATH so ``yolo`` / ``python`` resolve.
+
+    A non-interactive ``bash -lc`` does not activate a conda env, so a command
+    typed as ``yolo detect train …`` fails with ``yolo: command not found``
+    even when the env has Ultralytics installed.
+    """
+    cmd = (command or "").strip()
+    py = (remote_python or "").strip().replace("\\", "/")
+    if not cmd or not py or not py.startswith("/"):
+        return cmd
+    bin_dir = posixpath.dirname(py.rstrip("/"))
+    if not bin_dir or bin_dir == "/":
+        return cmd
+    return "export PATH={bin_}:$PATH && {cmd}".format(
+        bin_=shlex.quote(bin_dir), cmd=cmd
     )
 
 
@@ -349,4 +374,8 @@ def build_remote_custom_launch(
     inner_parts.append(command)
     inner = " && ".join(inner_parts)
     log_q = shlex.quote(remote_log.replace("\\", "/"))
-    return f"nohup bash -lc {shlex.quote(inner)} > {log_q} 2>&1 & echo $!"
+    # </dev/null so the SSH channel closes immediately instead of waiting for
+    # the background job (the caller would block until training finished).
+    return (
+        f"nohup bash -lc {shlex.quote(inner)} > {log_q} 2>&1 < /dev/null & echo $!"
+    )

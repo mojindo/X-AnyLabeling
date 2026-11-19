@@ -102,6 +102,11 @@ class _CompareBatchWorker(QtCore.QThread):
                 f"suspect false label (误标): {st.suspect_fp}.\n"
                 f"Backup: {result.backup_dir}"
             )
+            if getattr(result, "created_labels", 0):
+                summary += (
+                    f"\nCreated {result.created_labels} empty label file(s) "
+                    "for images without JSON."
+                )
             val_metrics = getattr(result, "val_metrics", None)
             if val_metrics is not None:
                 summary += "\n\n" + val_metrics.format_summary()

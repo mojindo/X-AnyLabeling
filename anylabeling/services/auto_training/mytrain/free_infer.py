@@ -152,6 +152,7 @@ def scan_remote_weights(
     home: str,
     *,
     tasks: Optional[Sequence[str]] = None,
+    remote_base: str = "",
 ) -> List[WeightEntry]:
     """Scan remote ``_runs/{task}/{name}/weights`` for .pt/.onnx."""
     from anylabeling.services.auto_training.mytrain.remote.remote_paths import (
@@ -163,7 +164,7 @@ def scan_remote_weights(
     ]
     entries: List[WeightEntry] = []
     for task in task_list:
-        base = runs_remote_dir(task, home)
+        base = runs_remote_dir(task, home, remote_base)
         try:
             names = client.listdir(base)
         except Exception:

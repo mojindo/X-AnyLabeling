@@ -43,6 +43,7 @@ def empty_profile(*, name: str = "") -> Dict[str, Any]:
         "conda_executable": "",
         "conda_env_name": "",
         "remote_python": "",
+        "remote_base_dir": "",
     }
 
 
@@ -67,6 +68,7 @@ def _normalize_profile(raw: Dict[str, Any]) -> Dict[str, Any]:
             "conda_executable": str(raw.get("conda_executable") or "").strip(),
             "conda_env_name": str(raw.get("conda_env_name") or "").strip(),
             "remote_python": str(raw.get("remote_python") or "").strip(),
+            "remote_base_dir": str(raw.get("remote_base_dir") or "").strip(),
         }
     )
     return p

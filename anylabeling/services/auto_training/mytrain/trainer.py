@@ -1263,7 +1263,7 @@ class TrainingManager:
             start_cmd = format_nohup_train(
                 remote_python or None, remote_script, remote_log
             )
-            code, out, err = ssh_client.exec(start_cmd)
+            code, out, err = ssh_client.exec(start_cmd, timeout=60)
 
             pid_line = (out or "").strip().splitlines()
             if code != 0 or not pid_line:
@@ -1470,6 +1470,12 @@ class TrainingManager:
                 return False, "Project path is required"
             name = (spec.get("name") or "exp").strip()
             exec_cwd = (spec.get("exec_cwd") or "").strip().replace("\\", "/")
+            from anylabeling.services.auto_training.mytrain.custom_training import (
+                is_windows_local_path,
+            )
+
+            if is_windows_local_path(exec_cwd):
+                exec_cwd = ""
             if exec_cwd:
                 _c, o, _e = ssh_client.exec(
                     f"test -d {shlex.quote(exec_cwd)} && echo ok"
@@ -1514,7 +1520,7 @@ class TrainingManager:
                 remote_log=remote_log,
                 exec_cwd=exec_cwd,
             )
-            code, out, err = ssh_client.exec(start_cmd)
+            code, out, err = ssh_client.exec(start_cmd, timeout=60)
             pid_line = (out or "").strip().splitlines()
             if code != 0 or not pid_line:
                 extra = fetch_remote_log_tail(ssh_client, [remote_log])

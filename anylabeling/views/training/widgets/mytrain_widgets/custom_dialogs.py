@@ -492,7 +492,12 @@ class RemoteDirBrowserDialog(QDialog):
             if name in (".", ".."):
                 continue
             child = self._cwd.rstrip("/") + "/" + name
-            if client.exists(child):
+            is_dir = (
+                client.is_dir(child)
+                if hasattr(client, "is_dir")
+                else client.exists(child)
+            )
+            if is_dir:
                 item = QListWidgetItem(name + "/")
                 item.setData(256, child)
                 self.dir_list.addItem(item)

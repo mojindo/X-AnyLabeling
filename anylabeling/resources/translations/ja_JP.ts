@@ -11279,4 +11279,33 @@ Failed: %d</source>
       <translation>ロック切替</translation>
     </message>
   </context>
+  <context>
+    <name>MyTrainDialog</name>
+    <message>
+      <source>Remote base directory:</source>
+      <translation>リモート基準ディレクトリ:</translation>
+    </message>
+    <message>
+      <source>Optional. Empty uses ~/xanylabeling_datasets</source>
+      <translation>任意。空の場合は ~/xanylabeling_datasets を使います</translation>
+    </message>
+    <message>
+      <source>Tip: each row is one server. Choose the target in “Selected server”, then Test Connection. Upload, training, and remote tests use that server. Remote base directory is the root for datasets and runs; leave it empty for ~/xanylabeling_datasets.</source>
+      <translation>ヒント: 各行が1台のサーバーです。「選択中のサーバー」で対象を選び、接続をテストしてください。アップロード、学習、リモートテストはそのサーバーを使います。リモート基準ディレクトリはデータセットと実行結果のルートです。空なら ~/xanylabeling_datasets です。</translation>
+    </message>
+    <message>
+      <source>Remote dataset unchanged, skipped upload:
+%s</source>
+      <translation>リモートのデータセットに変更がないため、アップロードをスキップしました:
+%s</translation>
+    </message>
+    <message>
+      <source>Dataset unchanged, upload skipped. data.yaml is ready on the server.</source>
+      <translation>データセットに変更がないためアップロードをスキップしました。サーバー上の data.yaml は準備済みです。</translation>
+    </message>
+    <message>
+      <source>Uploaded selected sub-datasets and generated data.yaml on the server.</source>
+      <translation>選択したサブデータセットをアップロードし、サーバー上に data.yaml を生成しました。</translation>
+    </message>
+  </context>
 </TS>

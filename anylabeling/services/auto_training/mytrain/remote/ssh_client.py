@@ -390,11 +390,19 @@ class SSHClient:
         local_dir: str,
         remote_dir: str,
         progress: Optional[Callable[[str], None]] = None,
+        control: Optional[object] = None,
     ) -> None:
         local_dir = str(Path(local_dir).resolve())
         self.mkdir_p(remote_dir)
         sftp = self.sftp()
+
+        def _check() -> None:
+            checkpoint = getattr(control, "checkpoint", None)
+            if checkpoint is not None:
+                checkpoint()
+
         for root, dirs, files in os.walk(local_dir):
+            _check()
             rel = os.path.relpath(root, local_dir)
             if rel == ".":
                 rdir = remote_dir
@@ -404,11 +412,16 @@ class SSHClient:
             for d in dirs:
                 self.mkdir_p(f"{rdir}/{d}")
             for name in files:
+                _check()
                 lp = os.path.join(root, name)
                 rp = f"{rdir}/{name}"
                 if progress:
                     progress(rp)
-                sftp.put(lp, rp)
+
+                def _during_put(_done, _total, _check=_check):
+                    _check()
+
+                sftp.put(lp, rp, callback=_during_put)
 
     def read_text(self, remote_path: str, max_bytes: int = 200_000) -> str:
         sftp = self.sftp()
@@ -448,5 +461,14 @@ class SSHClient:
         try:
             self.sftp().stat(remote_path)
             return True
+        except IOError:
+            return False
+
+    def is_dir(self, remote_path: str) -> bool:
+        try:
+            import stat as statmod
+
+            mode = self.sftp().stat(remote_path).st_mode
+            return statmod.S_ISDIR(mode)
         except IOError:
             return False

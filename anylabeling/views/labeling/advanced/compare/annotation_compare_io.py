@@ -14,6 +14,7 @@ from anylabeling.config import get_work_directory
 from anylabeling.views.labeling.classifier.utils import get_label_file_path
 from anylabeling.views.labeling.label_converter import LabelConverter
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.schema import create_xlabel_template
 
 from .annotation_compare import (
     PENDING_GT_STATUSES,
@@ -43,6 +44,7 @@ class BatchCompareResult:
     stats_total: CompareStats = field(default_factory=CompareStats)
     val_metrics: Optional[DetValMetrics] = None
     backup_dir: str = ""
+    created_labels: int = 0
     errors: List[str] = field(default_factory=list)
 
 
@@ -89,6 +91,52 @@ def write_label_json(path: str, data: Dict[str, Any]) -> None:
     os.makedirs(osp.dirname(path) or ".", exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def create_empty_label_json(label_path: str, image_path: str) -> None:
+    """Write a label JSON with image basics only (no shapes)."""
+    try:
+        img_w, img_h = image_size(image_path)
+    except Exception:
+        img_w, img_h = 0, 0
+    data = create_xlabel_template(
+        flags={},
+        shapes=[],
+        image_path=osp.basename(image_path),
+        image_height=img_h,
+        image_width=img_w,
+    )
+    write_label_json(label_path, data)
+
+
+def ensure_label_jsons(
+    image_paths: List[str],
+    output_dir: Optional[str],
+) -> Tuple[int, List[str]]:
+    """Create empty label JSONs for images that have none (or an unusable one).
+
+    Missing annotations are treated as "no boxes", so comparing needs a real
+    file to write review marks into. Returns ``(created, errors)``.
+    """
+    created = 0
+    errors: List[str] = []
+    for image_path in image_paths:
+        label_path = get_label_file_path(image_path, output_dir)
+        if label_path and osp.isfile(label_path):
+            try:
+                if osp.getsize(label_path) > 0:
+                    continue
+            except OSError:
+                continue
+        if not osp.isfile(image_path):
+            errors.append(f"{osp.basename(image_path)}: Missing image: {image_path}")
+            continue
+        try:
+            create_empty_label_json(label_path, image_path)
+            created += 1
+        except OSError as e:
+            errors.append(f"{osp.basename(image_path)}: {e}")
+    return created, errors
 
 
 def image_size(image_path: str) -> Tuple[int, int]:
@@ -214,14 +262,18 @@ def process_one_image(
     classes: List[str],
     settings: CompareSettings,
     common_labels: Optional[set] = None,
-) -> Tuple[Optional[List[Dict[str, Any]]], CompareStats, Optional[str]]:
-    stats = CompareStats()
-    if not osp.isfile(label_path):
-        return None, stats, f"Missing label: {label_path}"
-    if not osp.isfile(image_path):
-        return None, stats, f"Missing image: {image_path}"
+) -> Tuple[Optional[List[Dict[str, Any]]], CompareStats, Optional[str], bool]:
+    """Compare one image. A missing label JSON counts as an empty annotation.
 
-    data = read_label_json(label_path)
+    Returns ``(merged_shapes, stats, error, had_label_json)``. ``had_label_json``
+    lets the caller decide whether an all-empty result needs a new file.
+    """
+    stats = CompareStats()
+    had_label = bool(label_path) and osp.isfile(label_path)
+    if not osp.isfile(image_path):
+        return None, stats, f"Missing image: {image_path}", had_label
+
+    data = read_label_json(label_path) if had_label else {}
     gt_shapes = data.get("shapes")
     if not isinstance(gt_shapes, list):
         gt_shapes = []
@@ -233,14 +285,20 @@ def process_one_image(
     if osp.isfile(pred_txt):
         pred_shapes = parse_yolo_txt(pred_txt, classes, img_w, img_h)
 
+    # No JSON means "annotation is empty": every prediction counts, even labels
+    # that no other GT file uses, so those boxes are flagged as missed.
+    if had_label:
+        cmp_labels = common_labels
+    else:
+        cmp_labels = {str(c).strip() for c in classes if str(c).strip()}
     merged, st = compare_shapes(
         gt_shapes,
         pred_shapes,
         settings,
-        common_labels=common_labels,
+        common_labels=cmp_labels,
         classes=classes,
     )
-    return merged, st, None
+    return merged, st, None, had_label
 
 
 def write_review_label(
@@ -292,11 +350,23 @@ def run_batch_compare(
         label_paths.append(lp)
         pairs.append((image_path, lp))
 
+    # Backup originals first, then scan: every image gets a label JSON
+    # (empty = no annotations) so the compare step can write marks even where
+    # the dataset had no JSON at all.
     result.backup_dir = backup_label_files(label_paths)
+    result.created_labels, ensure_errors = ensure_label_jsons(
+        image_paths, output_dir
+    )
+    result.errors.extend(ensure_errors)
+
     gt_labels_all = collect_gt_labels_from_images(image_paths, output_dir)
     class_set = {str(c).strip() for c in classes if str(c).strip()}
     common_labels = gt_labels_all & class_set
-    if gt_labels_all and class_set and not common_labels:
+    if not gt_labels_all:
+        # No GT anywhere: treat every image as an empty annotation, so prediction
+        # boxes are still compared (all pred-only marks) instead of skipped.
+        common_labels = set(class_set)
+    elif class_set and not common_labels:
         result.errors.append(
             "No overlapping labels between ground-truth JSON and classes.txt; "
             "compare skipped for all shapes."
@@ -307,7 +377,7 @@ def run_batch_compare(
     for i, (image_path, label_path) in enumerate(pairs):
         if progress_cb:
             progress_cb(i, total, osp.basename(image_path))
-        merged, st, err = process_one_image(
+        merged, st, err, had_label = process_one_image(
             image_path=image_path,
             label_path=label_path,
             pred_dir=pred_dir,
@@ -322,7 +392,7 @@ def run_batch_compare(
             continue
         try:
             # Collect GT/pred for YOLO-val metrics (same label filter as compare).
-            data = read_label_json(label_path)
+            data = read_label_json(label_path) if had_label else {}
             gt_shapes = data.get("shapes")
             if not isinstance(gt_shapes, list):
                 gt_shapes = []

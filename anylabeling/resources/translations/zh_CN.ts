@@ -11771,4 +11771,106 @@ Continue?</source>
       <translation>已加载 %d 个标签（来自 %d 张图像）。</translation>
     </message>
   </context>
+  <context>
+    <name>MyTrainDialog</name>
+    <message>
+      <source>Remote base directory:</source>
+      <translation>远程基础目录：</translation>
+    </message>
+    <message>
+      <source>Optional. Empty uses ~/xanylabeling_datasets</source>
+      <translation>可选。留空则使用 ~/xanylabeling_datasets</translation>
+    </message>
+    <message>
+      <source>Tip: each row is one server. Choose the target in “Selected server”, then Test Connection. Upload, training, and remote tests use that server. Remote base directory is the root for datasets and runs; leave it empty for ~/xanylabeling_datasets.</source>
+      <translation>提示：每一行是一台服务器。在“已选服务器”中选择目标后测试连接。上传、训练和远程测试都使用该服务器。远程基础目录是数据集和训练结果的根目录；留空则使用 ~/xanylabeling_datasets。</translation>
+    </message>
+    <message>
+      <source>Remote dataset unchanged, skipped upload:
+%s</source>
+      <translation>远程数据集没有变化，已跳过上传：
+%s</translation>
+    </message>
+    <message>
+      <source>Dataset unchanged, upload skipped. data.yaml is ready on the server.</source>
+      <translation>数据集没有变化，已跳过上传。服务器上的 data.yaml 已就绪。</translation>
+    </message>
+    <message>
+      <source>Uploaded selected sub-datasets and generated data.yaml on the server.</source>
+      <translation>已上传勾选的子数据集，并在服务器上生成了 data.yaml。</translation>
+    </message>
+  </context>
+  <context>
+    <name>UltralyticsDialog</name>
+    <message>
+      <source>Remote base directory:</source>
+      <translation>远程基础目录：</translation>
+    </message>
+    <message>
+      <source>Optional. Empty uses ~/xanylabeling_datasets</source>
+      <translation>可选。留空则使用 ~/xanylabeling_datasets</translation>
+    </message>
+    <message>
+      <source>Pause Upload</source>
+      <translation>暂停上传</translation>
+    </message>
+    <message>
+      <source>Resume Upload</source>
+      <translation>恢复上传</translation>
+    </message>
+    <message>
+      <source>Stop Upload</source>
+      <translation>终止上传</translation>
+    </message>
+    <message>
+      <source>Uploaded local model to %s</source>
+      <translation>已将本地模型上传到 %s</translation>
+    </message>
+    <message>
+      <source>Ignored local execution directory for remote training: %s</source>
+      <translation>远程训练已忽略本机执行目录：%s</translation>
+    </message>
+    <message>
+      <source>Optional remote directory. Browse the server, or leave empty.</source>
+      <translation>可选的远程目录。浏览服务器选择，或留空。</translation>
+    </message>
+    <message>
+      <source>Remote: %s is first on PATH so 'yolo' resolves inside this env.</source>
+      <translation>远程：已将 %s 放到 PATH 前面，使该环境中的 yolo 可以被找到。</translation>
+    </message>
+    <message>
+      <source>Upload paused. Click Resume Upload to continue.</source>
+      <translation>上传已暂停。点击恢复上传可继续。</translation>
+    </message>
+    <message>
+      <source>Uploading dataset...</source>
+      <translation>正在上传数据集...</translation>
+    </message>
+    <message>
+      <source>Stopping upload...</source>
+      <translation>正在终止上传...</translation>
+    </message>
+    <message>
+      <source>Upload stopped. Click Generate Dataset Lists to upload again.</source>
+      <translation>上传已终止。请重新点击生成数据集列表后再上传。</translation>
+    </message>
+    <message>
+      <source>Dataset unchanged, upload skipped. data.yaml is ready on the server.</source>
+      <translation>数据集没有变化，已跳过上传。服务器上的 data.yaml 已就绪。</translation>
+    </message>
+    <message>
+      <source>Uploaded selected sub-datasets and generated data.yaml on the server.</source>
+      <translation>已上传勾选的子数据集，并在服务器上生成了 data.yaml。</translation>
+    </message>
+    <message>
+      <source>Tip: each row is one server. Choose the target in “Selected server”, then Test Connection. Upload, training, and remote tests use that server. Remote base directory is the root for datasets and runs; leave it empty for ~/xanylabeling_datasets.</source>
+      <translation>提示：每一行是一台服务器。在“已选服务器”中选择目标后测试连接。上传、训练和远程测试都使用该服务器。远程基础目录是数据集和训练结果的根目录；留空则使用 ~/xanylabeling_datasets。</translation>
+    </message>
+    <message>
+      <source>Remote dataset unchanged, skipped upload:
+%s</source>
+      <translation>远程数据集没有变化，已跳过上传：
+%s</translation>
+    </message>
+  </context>
 </TS>

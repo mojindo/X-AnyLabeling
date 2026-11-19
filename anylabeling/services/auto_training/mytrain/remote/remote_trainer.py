@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shlex
 import tempfile
+import threading
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
@@ -21,18 +23,283 @@ from .remote_runtime import (
 from .ssh_client import SSHClient, SSHError
 
 
+_UPLOAD_MANIFEST = ".xal_upload_manifest.json"
+
+
+class UploadStopped(Exception):
+    """User stopped a dataset upload. A later run must upload again."""
+
+
+class UploadGate:
+    """Pause blocks the next file; stop aborts and cannot be resumed."""
+
+    def __init__(self) -> None:
+        self._resume = threading.Event()
+        self._resume.set()
+        self._stop = threading.Event()
+
+    def pause(self) -> None:
+        if not self._stop.is_set():
+            self._resume.clear()
+
+    def resume(self) -> None:
+        self._resume.set()
+
+    def stop(self) -> None:
+        self._stop.set()
+        self._resume.set()
+
+    @property
+    def stopped(self) -> bool:
+        return self._stop.is_set()
+
+    def checkpoint(self) -> None:
+        while not self._resume.is_set():
+            if self._stop.is_set():
+                raise UploadStopped("Upload stopped")
+            self._resume.wait(0.2)
+        if self._stop.is_set():
+            raise UploadStopped("Upload stopped")
+
+
+def _local_upload_entries(
+    local_root: str, subdirs: Sequence[str]
+) -> Dict[str, Dict[str, int]]:
+    """Selected subdirs plus ROOT/classes.txt. Values are size and mtime_ns."""
+    root = Path(local_root)
+    entries: Dict[str, Dict[str, int]] = {}
+    classes = root / "classes.txt"
+    if classes.is_file():
+        st = classes.stat()
+        entries["classes.txt"] = {
+            "size": int(st.st_size),
+            "mtime_ns": int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1e9))),
+        }
+    for sd in subdirs:
+        sub = root / sd
+        if not sub.is_dir():
+            continue
+        for dirpath, dirnames, filenames in os.walk(sub):
+            dirnames[:] = [d for d in dirnames if d and not d.startswith(".")]
+            for name in filenames:
+                if not name or name.startswith("."):
+                    continue
+                full = Path(dirpath) / name
+                if not full.is_file():
+                    continue
+                rel = full.relative_to(root).as_posix()
+                st = full.stat()
+                entries[rel] = {
+                    "size": int(st.st_size),
+                    "mtime_ns": int(
+                        getattr(st, "st_mtime_ns", int(st.st_mtime * 1e9))
+                    ),
+                }
+    return entries
+
+
+def _remote_selected_sizes(
+    client: SSHClient,
+    remote_root: str,
+    subdirs: Sequence[str],
+    *,
+    remote_python: str = "",
+) -> Optional[Dict[str, int]]:
+    """Size of classes.txt and each selected subdir already on the server."""
+    script = """# -*- coding: utf-8 -*-
+import json, os, sys
+root = sys.argv[1]
+subdirs = json.loads(sys.argv[2])
+out = {}
+classes = os.path.join(root, "classes.txt")
+if os.path.isfile(classes):
+    out["classes.txt"] = os.path.getsize(classes)
+for sd in subdirs:
+    base = os.path.join(root, sd)
+    if not os.path.isdir(base):
+        continue
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = [d for d in dirnames if d and not d.startswith(".")]
+        for name in filenames:
+            if not name or name.startswith("."):
+                continue
+            full = os.path.join(dirpath, name)
+            if not os.path.isfile(full):
+                continue
+            rel = os.path.relpath(full, root).replace(os.sep, "/")
+            try:
+                out[rel] = os.path.getsize(full)
+            except OSError:
+                pass
+print(json.dumps(out))
+"""
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix="_xal_sizes.py", delete=False, encoding="utf-8"
+    ) as f:
+        f.write(script)
+        local_script = f.name
+    remote_script = f"{remote_root.rstrip('/')}/_xal_sizes.py"
+    try:
+        client.mkdir_p(remote_root)
+        client.upload_file(local_script, remote_script)
+        script_q = shlex.quote(remote_script)
+        arg_s = (
+            shlex.quote(remote_root)
+            + " "
+            + shlex.quote(json.dumps(list(subdirs)))
+        )
+        py = (remote_python or "").strip()
+        if py:
+            cmd = f"{shlex.quote(py)} {script_q} {arg_s}"
+        else:
+            cmd = (
+                f"python3 {script_q} {arg_s} || python {script_q} {arg_s}"
+            )
+        code, out, err = client.exec(cmd, timeout=300)
+        client.exec(f"rm -f {shlex.quote(remote_script)}")
+        if code != 0:
+            return None
+        text = (out or "").strip().splitlines()
+        if not text:
+            return {}
+        data = json.loads(text[-1])
+        if not isinstance(data, dict):
+            return None
+        return {str(k): int(v) for k, v in data.items()}
+    except Exception:
+        return None
+    finally:
+        try:
+            os.unlink(local_script)
+        except OSError:
+            pass
+
+
+def _read_remote_manifest(
+    client: SSHClient, remote_root: str
+) -> Optional[dict]:
+    path = f"{remote_root.rstrip('/')}/{_UPLOAD_MANIFEST}"
+    try:
+        raw = client.read_text(path, max_bytes=8_000_000)
+    except Exception:
+        return None
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _payload_unchanged(
+    local_entries: Dict[str, Dict[str, int]],
+    remote_sizes: Optional[Dict[str, int]],
+    manifest: Optional[dict],
+) -> bool:
+    if remote_sizes is None:
+        return False
+    local_sizes = {rel: meta["size"] for rel, meta in local_entries.items()}
+    if local_sizes != remote_sizes:
+        return False
+    if not manifest:
+        return True
+    old = manifest.get("files") or {}
+    if not isinstance(old, dict) or set(old) != set(local_entries):
+        return False
+    for rel, meta in local_entries.items():
+        prev = old.get(rel) or {}
+        if not isinstance(prev, dict):
+            return False
+        if int(prev.get("size", -1)) != int(meta["size"]):
+            return False
+        if int(prev.get("mtime_ns", -1)) != int(meta["mtime_ns"]):
+            return False
+    return True
+
+
+def _write_remote_manifest(
+    client: SSHClient,
+    remote_root: str,
+    subdirs: Sequence[str],
+    entries: Dict[str, Dict[str, int]],
+) -> None:
+    payload = {
+        "version": 1,
+        "subdirs": list(subdirs),
+        "files": entries,
+    }
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix="_xal_manifest.json", delete=False, encoding="utf-8"
+    ) as f:
+        json.dump(payload, f)
+        local_path = f.name
+    try:
+        client.upload_file(
+            local_path, f"{remote_root.rstrip('/')}/{_UPLOAD_MANIFEST}"
+        )
+    finally:
+        try:
+            os.unlink(local_path)
+        except OSError:
+            pass
+
+
 def upload_dataset(
     client: SSHClient,
     local_root: str,
     *,
+    subdirs: Sequence[str],
     progress: Optional[Callable[[str], None]] = None,
-) -> str:
-    """Upload local ROOT to ~/xanylabeling_datasets/<name>. Returns remote abs path."""
-    remote = dataset_remote_dir(local_root, client.home)
-    # Remove existing then upload fresh (MVP full upload)
-    client.exec(f"rm -rf {shlex.quote(remote)}")
-    client.upload_directory(local_root, remote, progress=progress)
-    return remote
+    remote_base: str = "",
+    remote_python: str = "",
+    control: Optional[UploadGate] = None,
+) -> Tuple[str, bool]:
+    """Upload selected subdirs and classes.txt.
+
+    Returns ``(remote_path, skipped)``. ``skipped`` is True when the remote
+    copy already matches and nothing was transferred.
+    """
+    remote = dataset_remote_dir(local_root, client.home, remote_base)
+    entries = _local_upload_entries(local_root, subdirs)
+    if "classes.txt" not in entries:
+        raise SSHError(f"classes.txt not found under {local_root}")
+    if not any(rel != "classes.txt" for rel in entries):
+        raise SSHError("No files found in the selected sub-datasets")
+
+    def _tick() -> None:
+        if control is not None:
+            control.checkpoint()
+
+    _tick()
+    client.mkdir_p(remote)
+    remote_sizes = _remote_selected_sizes(
+        client, remote, subdirs, remote_python=remote_python
+    )
+    manifest = _read_remote_manifest(client, remote)
+    if _payload_unchanged(entries, remote_sizes, manifest):
+        if not manifest:
+            _write_remote_manifest(client, remote, subdirs, entries)
+        if progress:
+            progress(f"unchanged {remote}")
+        return remote, True
+
+    root = Path(local_root)
+    for sd in subdirs:
+        _tick()
+        remote_sub = f"{remote.rstrip('/')}/{sd}"
+        client.exec(f"rm -rf {shlex.quote(remote_sub)}")
+        local_sub = root / sd
+        if local_sub.is_dir():
+            client.upload_directory(
+                str(local_sub),
+                remote_sub,
+                progress=progress,
+                control=control,
+            )
+    _tick()
+    client.upload_file(str(root / "classes.txt"), f"{remote.rstrip('/')}/classes.txt")
+    _tick()
+    _write_remote_manifest(client, remote, subdirs, entries)
+    return remote, False
 
 
 def remote_merge_lists(

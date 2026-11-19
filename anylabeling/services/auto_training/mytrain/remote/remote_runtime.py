@@ -53,11 +53,12 @@ def format_nohup_train(
     if remote_python and str(remote_python).strip():
         py_q = shlex.quote(remote_python.strip())
         return (
-            f"nohup {py_q} {script_q} > {log_q} 2>&1 & echo $!"
+            f"nohup {py_q} {script_q} > {log_q} 2>&1 < /dev/null & echo $!"
         )
     return (
-        f"nohup python3 {script_q} > {log_q} 2>&1 & echo $!; "
-        f"test $? -eq 0 || nohup python {script_q} > {log_q} 2>&1 & echo $!"
+        f"nohup python3 {script_q} > {log_q} 2>&1 < /dev/null & echo $!; "
+        f"test $? -eq 0 || nohup python {script_q} > {log_q} 2>&1 "
+        f"< /dev/null & echo $!"
     )
 
 

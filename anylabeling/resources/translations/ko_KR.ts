@@ -11281,4 +11281,33 @@ Failed: %d</source>
       <translation>잠금 전환</translation>
     </message>
   </context>
+  <context>
+    <name>MyTrainDialog</name>
+    <message>
+      <source>Remote base directory:</source>
+      <translation>원격 기본 디렉터리:</translation>
+    </message>
+    <message>
+      <source>Optional. Empty uses ~/xanylabeling_datasets</source>
+      <translation>선택 사항. 비우면 ~/xanylabeling_datasets 를 사용합니다</translation>
+    </message>
+    <message>
+      <source>Tip: each row is one server. Choose the target in “Selected server”, then Test Connection. Upload, training, and remote tests use that server. Remote base directory is the root for datasets and runs; leave it empty for ~/xanylabeling_datasets.</source>
+      <translation>팁: 각 행은 서버 하나입니다. “선택한 서버”에서 대상을 고른 뒤 연결을 테스트하세요. 업로드, 학습, 원격 테스트는 그 서버를 사용합니다. 원격 기본 디렉터리는 데이터셋과 실행 결과의 루트이며, 비우면 ~/xanylabeling_datasets 입니다.</translation>
+    </message>
+    <message>
+      <source>Remote dataset unchanged, skipped upload:
+%s</source>
+      <translation>원격 데이터셋이 변하지 않아 업로드를 건너뛰었습니다:
+%s</translation>
+    </message>
+    <message>
+      <source>Dataset unchanged, upload skipped. data.yaml is ready on the server.</source>
+      <translation>데이터셋이 변하지 않아 업로드를 건너뛰었습니다. 서버의 data.yaml 이 준비되었습니다.</translation>
+    </message>
+    <message>
+      <source>Uploaded selected sub-datasets and generated data.yaml on the server.</source>
+      <translation>선택한 하위 데이터셋을 업로드하고 서버에 data.yaml 을 생성했습니다.</translation>
+    </message>
+  </context>
 </TS>

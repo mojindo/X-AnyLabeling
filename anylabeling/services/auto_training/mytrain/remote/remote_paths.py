@@ -19,19 +19,36 @@ def expand_remote_home(path: str, home: str) -> str:
     return path
 
 
-def dataset_remote_dir(local_root_name: str, home: str) -> str:
-    """
-    ``~/xanylabeling_datasets/<local_folder_name>`` as absolute POSIX path.
-    """
-    name = os.path.basename(local_root_name.rstrip("\\/"))
-    rel = f"{REMOTE_DATASETS_BASE}/{name}"
-    return expand_remote_home(rel, home)
+def resolve_remote_base(base: str, home: str) -> str:
+    """Remote root for datasets and runs. Empty base keeps the old default."""
+    raw = (base or "").strip().replace("\\", "/")
+    if not raw:
+        return expand_remote_home(REMOTE_DATASETS_BASE, home).rstrip("/")
+    if raw == "~" or raw.startswith("~/"):
+        return expand_remote_home(raw, home).rstrip("/") or "/"
+    if not raw.startswith("/"):
+        home = (home or "").rstrip("/")
+        return f"{home}/{raw.lstrip('/')}".rstrip("/") or "/"
+    return raw.rstrip("/") or "/"
 
 
-def runs_remote_dir(task: str, home: str) -> str:
+def dataset_remote_dir(
+    local_root_name: str, home: str, base: str = ""
+) -> str:
+    """
+    ``<base>/<local_folder_name>`` as an absolute POSIX path.
+
+    ``base`` empty uses ``~/xanylabeling_datasets``.
+    """
+    name = os.path.basename(str(local_root_name).rstrip("\\/")) or "dataset"
+    root = resolve_remote_base(base, home)
+    return f"{root}/{name}"
+
+
+def runs_remote_dir(task: str, home: str, base: str = "") -> str:
     task = (task or "detect").lower()
-    rel = f"{REMOTE_RUNS_BASE}/{task}"
-    return expand_remote_home(rel, home)
+    root = resolve_remote_base(base, home)
+    return f"{root}/_runs/{task}"
 
 
 def posix_join(*parts: str) -> str:

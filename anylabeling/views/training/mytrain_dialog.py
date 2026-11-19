@@ -113,14 +113,18 @@ from anylabeling.services.auto_training.mytrain.remote.remote_trainer import (
     remote_export_onnx,
     remote_merge_lists,
     remote_predict_yolo,
+    UploadGate,
+    UploadStopped,
     upload_dataset,
     upload_model_if_local,
     count_local_images,
 )
 from anylabeling.services.auto_training.mytrain.custom_training import (
     bind_command_to_python,
+    bind_remote_command_to_python,
     build_path_context,
     format_train_log_terminal,
+    is_windows_local_path,
     latest_log_session_text,
     parse_epochs_from_cli,
     posix_if_needed,
@@ -214,6 +218,15 @@ class MyTrainDialog(QDialog):
         self._bg_bridge.log.connect(
             self.append_training_log, Qt.ConnectionType.QueuedConnection
         )
+        self._upload_bridge = _BgTaskBridge()
+        self._upload_bridge.log.connect(
+            self._on_dataset_upload_progress, Qt.ConnectionType.QueuedConnection
+        )
+        self._upload_bridge.finished.connect(
+            self._on_dataset_upload_finished, Qt.ConnectionType.QueuedConnection
+        )
+        self._upload_gate = UploadGate()
+        self._dataset_upload_running = False
 
         # Training related attributes
         self.log_redirector = TrainingLogRedirector()
@@ -353,7 +366,9 @@ class MyTrainDialog(QDialog):
                     self.free_infer_panel.set_status(msg)
                     return
                 home = self.ssh_client.home
-                entries = scan_remote_weights(self.ssh_client, home)
+                entries = scan_remote_weights(
+                    self.ssh_client, home, remote_base=self._remote_base_dir()
+                )
             else:
                 entries = scan_local_weights()
             self.free_infer_panel.set_weight_entries(entries)
@@ -441,7 +456,10 @@ class MyTrainDialog(QDialog):
                 home = self.ssh_client.home
                 if weight.source == "upload" or not weight.remote:
                     remote_run = posix_join(
-                        runs_remote_dir("free_infer", home), job_id
+                        runs_remote_dir(
+                            "free_infer", home, self._remote_base_dir()
+                        ),
+                        job_id,
                     )
                     local_w = weight.weight_path
                     ok_pred, payload = remote_batch_predict_yolo(
@@ -605,7 +623,9 @@ class MyTrainDialog(QDialog):
                         "pose",
                         "free_infer",
                     ):
-                        base = runs_remote_dir(task, home)
+                        base = runs_remote_dir(
+                            task, home, self._remote_base_dir()
+                        )
                         try:
                             names = self.ssh_client.listdir(base)
                         except Exception:
@@ -715,6 +735,10 @@ class MyTrainDialog(QDialog):
                     "background. Re-open via Train menu to show this window."
                 )
             )
+            try:
+                self._save_ssh_settings()
+            except Exception:
+                pass
             self.hide()
             event.ignore()
             return
@@ -723,6 +747,10 @@ class MyTrainDialog(QDialog):
             self.save_training_logs_to_file()
 
         self.clear_cache()
+        try:
+            self._save_ssh_settings()
+        except Exception:
+            pass
         try:
             self.ssh_client.disconnect()
         except Exception:
@@ -959,6 +987,21 @@ class MyTrainDialog(QDialog):
         self.remote_gpu_label.setWordWrap(True)
         remote_layout.addWidget(self.remote_gpu_label)
 
+        base_row = QHBoxLayout()
+        base_row.addWidget(QLabel(self.tr("Remote base directory:")))
+        self.remote_base_edit = CustomLineEdit()
+        self.remote_base_edit.setPlaceholderText(
+            self.tr("Optional. Empty uses ~/xanylabeling_datasets")
+        )
+        self.remote_base_edit.editingFinished.connect(
+            self._sync_remote_runtime_to_profile
+        )
+        base_row.addWidget(self.remote_base_edit, 1)
+        self.remote_base_browse_btn = SecondaryButton(self.tr("Browse"))
+        self.remote_base_browse_btn.clicked.connect(self.browse_remote_base_dir)
+        base_row.addWidget(self.remote_base_browse_btn)
+        remote_layout.addLayout(base_row)
+
         runtime_row = QHBoxLayout()
         runtime_row.addWidget(QLabel(self.tr("Remote runtime:")))
         self.remote_runtime_combo = CustomComboBox()
@@ -1061,8 +1104,10 @@ class MyTrainDialog(QDialog):
         tip = QLabel(
             self.tr(
                 "Tip: each row is one server. Choose the target in "
-                "“Selected server”, then Test Connection. Upload / train "
-                "always use the selected (connected) server."
+                "“Selected server”, then Test Connection. Upload, training, "
+                "and remote tests use that server. Remote base directory is "
+                "the root for datasets and runs; leave it empty for "
+                "~/xanylabeling_datasets."
             )
         )
         tip.setWordWrap(True)
@@ -1104,6 +1149,13 @@ class MyTrainDialog(QDialog):
                 if self.train_mode == "remote"
                 else self.tr("Generate Dataset Lists")
             )
+        self._refresh_exec_cwd_hint()
+        if (
+            self.train_mode == "remote"
+            and hasattr(self, "custom_exec_cwd_edit")
+            and is_windows_local_path(self.custom_exec_cwd_edit.text())
+        ):
+            self.custom_exec_cwd_edit.clear()
 
     def _interp_settings_path(self):
         return local_interp.profiles_path()
@@ -1602,8 +1654,8 @@ class MyTrainDialog(QDialog):
         )
 
         # Sync name changes into the Selected-server combo labels
-        name_edit.editingFinished.connect(self._on_ssh_row_field_changed)
-        host_edit.editingFinished.connect(self._on_ssh_row_field_changed)
+        for edit in (name_edit, host_edit, port_edit, user_edit, pass_edit):
+            edit.editingFinished.connect(self._on_ssh_row_field_changed)
 
         h.addWidget(name_edit, 2)
         h.addWidget(host_edit, 2)
@@ -1645,6 +1697,7 @@ class MyTrainDialog(QDialog):
             if s.get("id") == row.get("id"):
                 existing = s
                 break
+        kept = existing or {}
         return {
             "id": row.get("id") or empty_profile()["id"],
             "name": name,
@@ -1652,8 +1705,13 @@ class MyTrainDialog(QDialog):
             "port": port,
             "username": user,
             "password": row["password"].text(),
-            "last_ok": (existing or {}).get("last_ok"),
-            "last_tested_at": (existing or {}).get("last_tested_at") or "",
+            "last_ok": kept.get("last_ok"),
+            "last_tested_at": kept.get("last_tested_at") or "",
+            "remote_runtime": kept.get("remote_runtime") or "shell",
+            "conda_executable": kept.get("conda_executable") or "",
+            "conda_env_name": kept.get("conda_env_name") or "",
+            "remote_python": kept.get("remote_python") or "",
+            "remote_base_dir": kept.get("remote_base_dir") or "",
         }
 
     def _sync_rows_to_store(self) -> None:
@@ -1715,6 +1773,7 @@ class MyTrainDialog(QDialog):
             return
         active = self._selected_profile_id()
         self._sync_rows_to_store()
+        self._sync_remote_runtime_to_profile()
         self._refresh_ssh_profile_combo(active)
 
     def _load_ssh_settings(self):
@@ -1783,10 +1842,25 @@ class MyTrainDialog(QDialog):
         py = (self._selected_profile().get("remote_python") or "").strip()
         return py or None
 
+    def _conda_python_from_combo(self) -> str:
+        if not hasattr(self, "remote_conda_env_combo"):
+            return ""
+        idx = self.remote_conda_env_combo.currentIndex()
+        if idx < 0:
+            return ""
+        data = self.remote_conda_env_combo.itemData(idx)
+        if isinstance(data, dict):
+            return str(data.get("python") or "").strip()
+        return ""
+
     def _ensure_remote_conda_ready(self) -> bool:
         if self._remote_runtime_kind() != "conda":
             return True
-        if not (self._selected_profile().get("remote_python") or "").strip():
+        self._sync_remote_runtime_to_profile()
+        py = (self._selected_profile().get("remote_python") or "").strip()
+        if not py:
+            py = self._conda_python_from_combo()
+        if not py:
             QMessageBox.warning(
                 self,
                 self.tr("Conda"),
@@ -1798,13 +1872,50 @@ class MyTrainDialog(QDialog):
             return False
         return True
 
+    def _remote_base_dir(self) -> str:
+        if hasattr(self, "remote_base_edit"):
+            return self.remote_base_edit.text().strip()
+        profile = self._selected_profile() or {}
+        return str(profile.get("remote_base_dir") or "").strip()
+
+    def _apply_remote_project_dir(self) -> None:
+        if not self.ssh_client.connected or "project" not in self.config_widgets:
+            return
+        project = runs_remote_dir(
+            self.selected_task_type or "detect",
+            self.ssh_client.home,
+            self._remote_base_dir(),
+        )
+        self.config_widgets["project"].setText(project)
+
+    def browse_remote_base_dir(self) -> None:
+        if not self.ssh_client.connected:
+            QMessageBox.warning(
+                self,
+                self.tr("SSH"),
+                self.tr("Connect to the remote server first (Test Connection)."),
+            )
+            return
+        start = self._remote_base_dir() or (self.ssh_client.home or "/")
+        dialog = RemoteDirBrowserDialog(self, self.ssh_client, start)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        path = dialog.selected_path().strip()
+        if path:
+            self.remote_base_edit.setText(path)
+            self._sync_remote_runtime_to_profile()
+
     def _on_remote_runtime_changed(self, _index: int = 0) -> None:
+        if getattr(self, "_ssh_loading_profile", False):
+            return
         kind = self._remote_runtime_kind()
         if hasattr(self, "remote_conda_panel"):
             self.remote_conda_panel.setVisible(kind == "conda")
         self._sync_remote_runtime_to_profile()
 
     def _sync_remote_runtime_to_profile(self) -> None:
+        if getattr(self, "_ssh_loading_profile", False):
+            return
         pid = self._selected_profile_id()
         if not pid:
             return
@@ -1828,6 +1939,8 @@ class MyTrainDialog(QDialog):
                 s["conda_executable"] = conda_exe
                 s["conda_env_name"] = conda_env
                 s["remote_python"] = remote_py
+                if hasattr(self, "remote_base_edit"):
+                    s["remote_base_dir"] = self.remote_base_edit.text().strip()
                 break
         self._persist_ssh_profiles()
 
@@ -1836,26 +1949,31 @@ class MyTrainDialog(QDialog):
             return
         blocking = getattr(self, "_ssh_loading_profile", False)
         self._ssh_loading_profile = True
+        runtime = profile.get("remote_runtime") or "shell"
+        conda_exe = profile.get("conda_executable") or ""
+        base_dir = profile.get("remote_base_dir") or ""
+        name = profile.get("conda_env_name") or ""
+        py = profile.get("remote_python") or ""
         try:
-            runtime = profile.get("remote_runtime") or "shell"
+            if hasattr(self, "remote_conda_exe_edit"):
+                self.remote_conda_exe_edit.setText(conda_exe)
+            if hasattr(self, "remote_base_edit"):
+                self.remote_base_edit.setText(base_dir)
+            self.remote_conda_env_combo.blockSignals(True)
+            self.remote_runtime_combo.blockSignals(True)
+            self.remote_conda_env_combo.clear()
+            if name or py:
+                label = f"{name}  ({py})" if name and py else (name or py)
+                self.remote_conda_env_combo.addItem(
+                    label, {"name": name, "python": py}
+                )
             combo_idx = 1 if runtime == "conda" else 0
             self.remote_runtime_combo.setCurrentIndex(combo_idx)
-            if hasattr(self, "remote_conda_exe_edit"):
-                self.remote_conda_exe_edit.setText(
-                    profile.get("conda_executable") or ""
-                )
-            self.remote_conda_env_combo.blockSignals(True)
-            self.remote_conda_env_combo.clear()
-            name = profile.get("conda_env_name") or ""
-            py = profile.get("remote_python") or ""
-            if name and py:
-                self.remote_conda_env_combo.addItem(
-                    f"{name}  ({py})", {"name": name, "python": py}
-                )
-            self.remote_conda_env_combo.blockSignals(False)
             if hasattr(self, "remote_conda_panel"):
                 self.remote_conda_panel.setVisible(runtime == "conda")
         finally:
+            self.remote_conda_env_combo.blockSignals(False)
+            self.remote_runtime_combo.blockSignals(False)
             self._ssh_loading_profile = blocking
 
     def scan_remote_conda_envs(self) -> None:
@@ -2550,10 +2668,173 @@ class MyTrainDialog(QDialog):
         )
         self.prepare_dataset_btn.clicked.connect(self.prepare_dataset_lists)
         btn_row.addWidget(self.prepare_dataset_btn)
+        self.upload_pause_btn = SecondaryButton(self.tr("Pause Upload"))
+        self.upload_pause_btn.clicked.connect(self.pause_dataset_upload)
+        self.upload_pause_btn.setVisible(False)
+        btn_row.addWidget(self.upload_pause_btn)
+        self.upload_resume_btn = SecondaryButton(self.tr("Resume Upload"))
+        self.upload_resume_btn.clicked.connect(self.resume_dataset_upload)
+        self.upload_resume_btn.setVisible(False)
+        self.upload_resume_btn.setEnabled(False)
+        btn_row.addWidget(self.upload_resume_btn)
+        self.upload_stop_btn = SecondaryButton(self.tr("Stop Upload"))
+        self.upload_stop_btn.clicked.connect(self.stop_dataset_upload)
+        self.upload_stop_btn.setVisible(False)
+        btn_row.addWidget(self.upload_stop_btn)
         btn_row.addStretch()
         layout.addLayout(btn_row)
 
         parent_layout.addWidget(group)
+
+    def _set_upload_controls(self, active: bool, paused: bool = False) -> None:
+        self.prepare_dataset_btn.setEnabled(not active)
+        for btn in (
+            self.upload_pause_btn,
+            self.upload_resume_btn,
+            self.upload_stop_btn,
+        ):
+            btn.setVisible(active)
+        self.upload_pause_btn.setEnabled(active and not paused)
+        self.upload_resume_btn.setEnabled(active and paused)
+        self.upload_stop_btn.setEnabled(active)
+
+    def pause_dataset_upload(self) -> None:
+        if not self._dataset_upload_running:
+            return
+        self._upload_gate.pause()
+        self._set_upload_controls(True, paused=True)
+        self.dataset_status_label.setText(
+            self.tr("Upload paused. Click Resume Upload to continue.")
+        )
+
+    def resume_dataset_upload(self) -> None:
+        if not self._dataset_upload_running:
+            return
+        self._upload_gate.resume()
+        self._set_upload_controls(True, paused=False)
+        self.dataset_status_label.setText(self.tr("Uploading dataset..."))
+
+    def stop_dataset_upload(self) -> None:
+        if not self._dataset_upload_running:
+            return
+        self._upload_gate.stop()
+        self.upload_pause_btn.setEnabled(False)
+        self.upload_resume_btn.setEnabled(False)
+        self.upload_stop_btn.setEnabled(False)
+        self.dataset_status_label.setText(self.tr("Stopping upload..."))
+
+    def _on_dataset_upload_progress(self, message: str) -> None:
+        text = str(message or "").strip()
+        if text and hasattr(self, "dataset_status_label"):
+            self.dataset_status_label.setText(text)
+
+    def _begin_dataset_upload(self, root: str, subdirs) -> None:
+        self._dataset_upload_running = True
+        self._upload_gate = UploadGate()
+        self._set_upload_controls(True, paused=False)
+        self.dataset_status_label.setText(self.tr("Uploading dataset..."))
+        remote_base = self._remote_base_dir()
+        remote_python = self._remote_python_for_exec() or ""
+        gate = self._upload_gate
+        client = self.ssh_client
+
+        def _progress(message: str) -> None:
+            self._upload_bridge.log.emit(str(message))
+
+        def _run() -> None:
+            try:
+                remote_root, skipped = upload_dataset(
+                    client,
+                    root,
+                    subdirs=subdirs,
+                    progress=_progress,
+                    remote_base=remote_base,
+                    remote_python=remote_python,
+                    control=gate,
+                )
+                if skipped:
+                    _progress(
+                        self.tr(
+                            "Remote dataset unchanged, skipped upload:\n%s"
+                        )
+                        % remote_root
+                    )
+                else:
+                    _progress(self.tr("Merging lists on remote..."))
+                gate.checkpoint()
+                ok2, info = remote_merge_lists(
+                    client,
+                    remote_root,
+                    subdirs,
+                    remote_python=remote_python or None,
+                )
+                self._upload_bridge.finished.emit(
+                    "dataset_upload",
+                    bool(ok2),
+                    {
+                        "remote": remote_root,
+                        "skipped": skipped,
+                        "info": info,
+                        "stopped": False,
+                    },
+                )
+            except UploadStopped:
+                self._upload_bridge.finished.emit(
+                    "dataset_upload",
+                    False,
+                    {"stopped": True},
+                )
+            except Exception as e:
+                self._upload_bridge.finished.emit(
+                    "dataset_upload",
+                    False,
+                    {"stopped": False, "error": str(e)},
+                )
+
+        threading.Thread(
+            target=_run, daemon=True, name="xal-dataset-upload"
+        ).start()
+
+    def _on_dataset_upload_finished(self, _task: str, ok: bool, payload) -> None:
+        self._dataset_upload_running = False
+        self._set_upload_controls(False)
+        data = payload if isinstance(payload, dict) else {"error": str(payload)}
+        if data.get("stopped"):
+            self.dataset_status_label.setText(
+                self.tr(
+                    "Upload stopped. Click Generate Dataset Lists to upload again."
+                )
+            )
+            return
+        if data.get("error"):
+            self.dataset_status_label.setText(str(data["error"]))
+            QMessageBox.critical(
+                self, self.tr("Upload Error"), str(data["error"])
+            )
+            return
+        if not ok:
+            info = str(data.get("info") or "")
+            self.dataset_status_label.setText(info[:500])
+            QMessageBox.critical(self, self.tr("Remote merge failed"), info)
+            return
+        remote_root = data.get("remote") or ""
+        info = data.get("info") or ""
+        self.remote_dataset_root = remote_root
+        self.data_yaml_path = info
+        self.dataset_status_label.setText(
+            self.tr("Remote dataset ready:\n%s\n%s") % (remote_root, info)
+        )
+        self.clear_cache()
+        self.refresh_dataset_summary()
+        if data.get("skipped"):
+            done = self.tr(
+                "Dataset unchanged, upload skipped. data.yaml is ready on the server."
+            )
+        else:
+            done = self.tr(
+                "Uploaded selected sub-datasets and generated data.yaml on the server."
+            )
+        QMessageBox.information(self, self.tr("Success"), done)
 
     def browse_dataset_root(self):
         dir_path = QFileDialog.getExistingDirectory(
@@ -2651,6 +2932,7 @@ class MyTrainDialog(QDialog):
             )
             return False
         self._ssh_profiles["active_id"] = profile.get("id") or ""
+        self._sync_remote_runtime_to_profile()
         self._persist_ssh_profiles()
         if not self._ensure_remote_conda_ready():
             return False
@@ -2674,56 +2956,12 @@ class MyTrainDialog(QDialog):
             return
 
         if self.train_mode == "remote":
+            if self._dataset_upload_running:
+                return
             if not self._ensure_selected_server_ready():
                 return
-            try:
-                QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-                self.dataset_status_label.setText(
-                    self.tr("Uploading dataset...")
-                )
-                QApplication.processEvents()
-
-                remote_root = upload_dataset(
-                    self.ssh_client,
-                    root,
-                    progress=lambda m: self._ssh_upload_progress(
-                        m, self.dataset_status_label
-                    ),
-                )
-                self.remote_dataset_root = remote_root
-                self.dataset_status_label.setText(
-                    self.tr("Merging lists on remote...")
-                )
-                QApplication.processEvents()
-                ok2, info = remote_merge_lists(
-                    self.ssh_client,
-                    remote_root,
-                    subdirs,
-                    remote_python=self._remote_python_for_exec(),
-                )
-                if not ok2:
-                    QMessageBox.critical(
-                        self, self.tr("Remote merge failed"), info
-                    )
-                    self.dataset_status_label.setText(info[:500])
-                    return
-                self.data_yaml_path = info
-                self.dataset_status_label.setText(
-                    self.tr("Remote dataset ready:\n%s\n%s")
-                    % (remote_root, info)
-                )
-                self.clear_cache()
-                self.refresh_dataset_summary()
-                QMessageBox.information(
-                    self,
-                    self.tr("Success"),
-                    self.tr("Uploaded and generated data.yaml on server."),
-                )
-            except Exception as e:
-                QMessageBox.critical(self, self.tr("Upload Error"), str(e))
-                self.dataset_status_label.setText(str(e))
-            finally:
-                QApplication.restoreOverrideCursor()
+            self._save_ssh_settings()
+            self._begin_dataset_upload(root, subdirs)
             return
 
         result = merge_dataset_lists(root, subdirs)
@@ -2879,7 +3117,9 @@ class MyTrainDialog(QDialog):
         )
         if self.train_mode == "remote" and self.ssh_client.connected:
             project = runs_remote_dir(
-                self.selected_task_type or "detect", self.ssh_client.home
+                self.selected_task_type or "detect",
+                self.ssh_client.home,
+                self._remote_base_dir(),
             )
         self.config_widgets["project"].setText(project)
         self.config_widgets["project"].setReadOnly(self.project_readonly)
@@ -3164,6 +3404,7 @@ class MyTrainDialog(QDialog):
         self.custom_exec_cwd_edit.setPlaceholderText(
             self.tr("Optional — leave empty for default (like Ultralytics)")
         )
+        self._refresh_exec_cwd_hint()
         cwd_row.addWidget(self.custom_exec_cwd_edit, 1)
         self.custom_exec_cwd_browse_btn = SecondaryButton(self.tr("Browse"))
         self.custom_exec_cwd_browse_btn.clicked.connect(
@@ -3183,6 +3424,34 @@ class MyTrainDialog(QDialog):
         if hasattr(self, "train_settings_group"):
             self.train_settings_group.setVisible(not custom)
 
+    def _refresh_exec_cwd_hint(self) -> None:
+        if not hasattr(self, "custom_exec_cwd_edit"):
+            return
+        if self.train_mode == "remote":
+            self.custom_exec_cwd_edit.setPlaceholderText(
+                self.tr(
+                    "Optional remote directory. Browse the server, or leave empty."
+                )
+            )
+        else:
+            self.custom_exec_cwd_edit.setPlaceholderText(
+                self.tr("Optional — leave empty for default (like Ultralytics)")
+            )
+
+    def _remote_exec_browse_start(self) -> str:
+        text = (self.custom_exec_cwd_edit.text() or "").strip().replace("\\", "/")
+        if text.startswith("/") and not is_windows_local_path(text):
+            return text
+        home = (getattr(self.ssh_client, "home", "") or "").rstrip("/")
+        base = self._remote_base_dir().replace("\\", "/")
+        if base == "~":
+            return home or "/"
+        if base.startswith("~/"):
+            return f"{home}/{base[2:]}".rstrip("/") or home or "/"
+        if base.startswith("/"):
+            return base.rstrip("/") or "/"
+        return home or "/"
+
     def browse_custom_exec_cwd(self) -> None:
         if self.train_mode == "remote":
             if not self.ssh_client.connected:
@@ -3192,14 +3461,15 @@ class MyTrainDialog(QDialog):
                     self.tr("Connect to the remote server first."),
                 )
                 return
-            start = (self.custom_exec_cwd_edit.text() or "").strip()
-            if not start:
-                start = getattr(self.ssh_client, "home", "") or "/"
             dlg = RemoteDirBrowserDialog(
-                self, ssh_client=self.ssh_client, start_path=start
+                self,
+                ssh_client=self.ssh_client,
+                start_path=self._remote_exec_browse_start(),
             )
             if dlg.exec() == QDialog.DialogCode.Accepted:
-                self.custom_exec_cwd_edit.setText(dlg.selected_path())
+                chosen = (dlg.selected_path() or "").strip()
+                if chosen and not is_windows_local_path(chosen):
+                    self.custom_exec_cwd_edit.setText(chosen)
             return
         path = QFileDialog.getExistingDirectory(
             self,
@@ -4893,10 +5163,29 @@ class MyTrainDialog(QDialog):
             device_value = self._resolve_train_device(config["basic"]["device"])
             self.append_training_log(f"Using device: {device_value}")
 
+            model_path = config["basic"]["model"]
+            project_path = config["basic"]["project"]
+            if (
+                self.train_mode == "remote"
+                and getattr(self.ssh_client, "connected", False)
+                and model_path
+                and os.path.isfile(model_path)
+            ):
+                remote_project = str(project_path or "").replace("\\", "/")
+                if remote_project:
+                    self.ssh_client.mkdir_p(remote_project)
+                    uploaded = upload_model_if_local(
+                        self.ssh_client, model_path, remote_project
+                    )
+                    self.append_training_log(
+                        self.tr("Uploaded local model to %s") % uploaded
+                    )
+                    model_path = uploaded
+
             train_args = {
                 "data": data_path,
-                "model": config["basic"]["model"],
-                "project": config["basic"]["project"],
+                "model": model_path,
+                "project": project_path,
                 "name": config["basic"]["name"],
                 # Keep the exact Name from UI; Ultralytics would otherwise
                 # increment to name-2 / name-3 when the save dir already exists.
@@ -4986,9 +5275,10 @@ class MyTrainDialog(QDialog):
         project = train_args.get("project") or ""
         name = train_args.get("name") or "exp"
         if remote and self.ssh_client.connected:
-            ssh_client.mkdir_p(project.replace("\\", "/"))
+            remote_project = project.replace("\\", "/")
+            self.ssh_client.mkdir_p(remote_project)
             model = upload_model_if_local(
-                self.ssh_client, model, project.replace("\\", "/")
+                self.ssh_client, model, remote_project
             )
         paths = build_path_context(
             model=model,
@@ -5015,8 +5305,29 @@ class MyTrainDialog(QDialog):
                         )
                         % py_exe
                     )
+        elif remote:
+            remote_py = self._remote_python_for_exec() or ""
+            if remote_py:
+                before = resolved
+                resolved = bind_remote_command_to_python(resolved, remote_py)
+                if resolved != before:
+                    self.append_training_log(
+                        self.tr(
+                            "Remote: %s is first on PATH so 'yolo' resolves "
+                            "inside this env."
+                        )
+                        % remote_py
+                    )
         exec_cwd = (custom.get("exec_cwd") or "").strip()
-        if remote:
+        if remote and is_windows_local_path(exec_cwd):
+            self.append_training_log(
+                self.tr(
+                    "Ignored local execution directory for remote training: %s"
+                )
+                % exec_cwd
+            )
+            exec_cwd = ""
+        elif remote:
             exec_cwd = posix_if_needed(exec_cwd, remote=True)
 
         self.append_training_log(self.tr("Effective model: %s") % paths["model"])
@@ -5060,6 +5371,8 @@ class MyTrainDialog(QDialog):
         if not self._ensure_remote_train_allowed():
             return
 
+        if self.train_mode == "remote" and self.ssh_client.connected:
+            self._apply_remote_project_dir()
         config = self.get_current_config()
         custom_backend = (config.get("training_backend") or "ultralytics") == "custom"
         project_path = config["basic"]["project"]

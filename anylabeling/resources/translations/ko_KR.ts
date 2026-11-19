@@ -5419,6 +5419,22 @@ Results have been saved to:
       <source>Label '{target}' already exists.\n\nMerge '{source}' into '{target}' instead?</source>
       <translation>라벨 '{target}'이(가) 이미 있습니다.\n\n대신 '{source}'을(를) '{target}'(으)로 병합할까요?</translation>
     </message>
+    <message>
+      <source>Filter Labels</source>
+      <translation>라벨 필터</translation>
+    </message>
+    <message>
+      <source>All unchecked labels are locked. Unlock them first to remove their annotations.</source>
+      <translation>선택 해제한 라벨이 모두 잠겨 있습니다. 어노테이션을 제거하려면 먼저 잠금을 해제하세요.</translation>
+    </message>
+    <message>
+      <source>Locked labels will keep their annotations:\n{labels}</source>
+      <translation>잠긴 라벨은 어노테이션을 유지합니다:\n{labels}</translation>
+    </message>
+    <message>
+      <source>Keep {keep_count} label(s) and remove all annotations for {remove_count} other label(s) across the entire dataset?\n\nThis cannot be undone.{extra}</source>
+      <translation>{keep_count}개 라벨을 유지하고 전체 데이터셋에서 다른 {remove_count}개 라벨의 모든 어노테이션을 제거할까요?\n\n이 작업은 취소할 수 없습니다.{extra}</translation>
+    </message>
 </context>
   <context>
     <name>Model</name>
@@ -11289,6 +11305,45 @@ Failed: %d</source>
     <message>
       <source>Toggle Lock</source>
       <translation>잠금 전환</translation>
+    </message>
+    <message>
+      <source>Filter Labels…</source>
+      <translation>라벨 필터…</translation>
+    </message>
+  </context>
+  <context>
+    <name>LabelFilterDialog</name>
+    <message>
+      <source>Filter Labels</source>
+      <translation>라벨 필터</translation>
+    </message>
+    <message>
+      <source>Checked labels will be kept. Unchecked labels and all of their annotations will be removed from the entire dataset.</source>
+      <translation>선택한 라벨은 유지됩니다. 선택 해제한 라벨과 해당 모든 어노테이션은 전체 데이터셋에서 제거됩니다.</translation>
+    </message>
+    <message>
+      <source>Select All</source>
+      <translation>모두 선택</translation>
+    </message>
+    <message>
+      <source>Deselect All</source>
+      <translation>모두 해제</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>취소</translation>
+    </message>
+    <message>
+      <source>OK</source>
+      <translation>확인</translation>
+    </message>
+    <message>
+      <source>This label is locked; its annotations cannot be removed until the lock is cleared.</source>
+      <translation>이 라벨은 잠겨 있습니다. 잠금을 해제하기 전에는 어노테이션을 제거할 수 없습니다.</translation>
+    </message>
+    <message>
+      <source>Select at least one label to keep.</source>
+      <translation>유지할 라벨을 하나 이상 선택하세요.</translation>
     </message>
   </context>
   <context>

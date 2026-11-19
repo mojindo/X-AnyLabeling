@@ -5389,6 +5389,22 @@ Results have been saved to:
       <source>Label '{target}' already exists.\n\nMerge '{source}' into '{target}' instead?</source>
       <translation>标签 '{target}' 已存在。\n\n是否改为将 '{source}' 合并到 '{target}'？</translation>
     </message>
+    <message>
+      <source>Filter Labels</source>
+      <translation>标签过滤</translation>
+    </message>
+    <message>
+      <source>All unchecked labels are locked. Unlock them first to remove their annotations.</source>
+      <translation>未勾选的所有标签均已锁定，请先取消锁定后再删除其标注。</translation>
+    </message>
+    <message>
+      <source>Locked labels will keep their annotations:\n{labels}</source>
+      <translation>已锁定的标签将保留其标注：\n{labels}</translation>
+    </message>
+    <message>
+      <source>Keep {keep_count} label(s) and remove all annotations for {remove_count} other label(s) across the entire dataset?\n\nThis cannot be undone.{extra}</source>
+      <translation>保留 {keep_count} 个标签，并从整个数据集中删除另外 {remove_count} 个标签的全部标注？\n\n此操作无法撤销。{extra}</translation>
+    </message>
 </context>
   <context>
     <name>Model</name>
@@ -11259,6 +11275,45 @@ Failed: %d</source>
     <message>
       <source>Toggle Lock</source>
       <translation>切换锁定</translation>
+    </message>
+    <message>
+      <source>Filter Labels…</source>
+      <translation>标签过滤…</translation>
+    </message>
+  </context>
+  <context>
+    <name>LabelFilterDialog</name>
+    <message>
+      <source>Filter Labels</source>
+      <translation>标签过滤</translation>
+    </message>
+    <message>
+      <source>Checked labels will be kept. Unchecked labels and all of their annotations will be removed from the entire dataset.</source>
+      <translation>勾选的标签会保留；未勾选的标签及其全部标注将从整个数据集中删除。</translation>
+    </message>
+    <message>
+      <source>Select All</source>
+      <translation>全选</translation>
+    </message>
+    <message>
+      <source>Deselect All</source>
+      <translation>取消全选</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>取消</translation>
+    </message>
+    <message>
+      <source>OK</source>
+      <translation>确定</translation>
+    </message>
+    <message>
+      <source>This label is locked; its annotations cannot be removed until the lock is cleared.</source>
+      <translation>该标签已锁定，取消锁定前无法删除其标注。</translation>
+    </message>
+    <message>
+      <source>Select at least one label to keep.</source>
+      <translation>请至少选择一个要保留的标签。</translation>
     </message>
   </context>
   <context>

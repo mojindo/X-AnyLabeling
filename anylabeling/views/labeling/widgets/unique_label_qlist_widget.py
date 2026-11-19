@@ -15,6 +15,7 @@ class UniqueLabelQListWidget(EscapableQListWidget):
     label_delete_requested = QtCore.pyqtSignal(str)
     label_merge_requested = QtCore.pyqtSignal(str)
     label_rename_requested = QtCore.pyqtSignal(str)
+    label_filter_requested = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -39,28 +40,33 @@ class UniqueLabelQListWidget(EscapableQListWidget):
 
     def _show_context_menu(self, pos):
         item = self.itemAt(pos)
-        if item is None:
-            return
-        if not item.isSelected():
-            self.clearSelection()
-            item.setSelected(True)
-
-        label = item.data(Qt.ItemDataRole.UserRole)
         menu = QtWidgets.QMenu(self)
-        delete_action = menu.addAction(self.tr("Delete Label…"))
-        merge_action = menu.addAction(self.tr("Merge into Existing Label…"))
-        rename_action = menu.addAction(self.tr("Rename Label…"))
-        menu.addSeparator()
-        lock_action = menu.addAction(self.tr("Toggle Lock"))
+        delete_action = merge_action = rename_action = lock_action = None
+        label = None
+        if item is not None:
+            if not item.isSelected():
+                self.clearSelection()
+                item.setSelected(True)
+            label = item.data(Qt.ItemDataRole.UserRole)
+            delete_action = menu.addAction(self.tr("Delete Label…"))
+            merge_action = menu.addAction(self.tr("Merge into Existing Label…"))
+            rename_action = menu.addAction(self.tr("Rename Label…"))
+            menu.addSeparator()
+            lock_action = menu.addAction(self.tr("Toggle Lock"))
+            menu.addSeparator()
+        filter_action = menu.addAction(self.tr("Filter Labels…"))
         action = menu.exec(self.viewport().mapToGlobal(pos))
-        if action == delete_action:
-            self.label_delete_requested.emit(label)
-        elif action == merge_action:
-            self.label_merge_requested.emit(label)
-        elif action == rename_action:
-            self.label_rename_requested.emit(label)
-        elif action == lock_action:
-            self.items_lock_requested.emit(self.selectedItems())
+        if action == filter_action:
+            self.label_filter_requested.emit()
+        elif label is not None:
+            if action == delete_action:
+                self.label_delete_requested.emit(label)
+            elif action == merge_action:
+                self.label_merge_requested.emit(label)
+            elif action == rename_action:
+                self.label_rename_requested.emit(label)
+            elif action == lock_action:
+                self.items_lock_requested.emit(self.selectedItems())
 
     # QT Overload
     def mousePressEvent(self, event):

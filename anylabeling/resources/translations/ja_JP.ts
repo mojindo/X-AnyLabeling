@@ -5417,6 +5417,22 @@ Results have been saved to:
       <source>Label '{target}' already exists.\n\nMerge '{source}' into '{target}' instead?</source>
       <translation>ラベル '{target}' は既に存在します。\n\n代わりに '{source}' を '{target}' に統合しますか？</translation>
     </message>
+    <message>
+      <source>Filter Labels</source>
+      <translation>ラベルでフィルタ</translation>
+    </message>
+    <message>
+      <source>All unchecked labels are locked. Unlock them first to remove their annotations.</source>
+      <translation>チェックを外したラベルはすべてロックされています。注釈を削除するには先にロックを解除してください。</translation>
+    </message>
+    <message>
+      <source>Locked labels will keep their annotations:\n{labels}</source>
+      <translation>ロックされたラベルは注釈を保持します：\n{labels}</translation>
+    </message>
+    <message>
+      <source>Keep {keep_count} label(s) and remove all annotations for {remove_count} other label(s) across the entire dataset?\n\nThis cannot be undone.{extra}</source>
+      <translation>{keep_count} 個のラベルを残し、データセット全体で他 {remove_count} 個のラベルの注釈をすべて削除しますか？\n\nこの操作は元に戻せません。{extra}</translation>
+    </message>
 </context>
   <context>
     <name>Model</name>
@@ -11287,6 +11303,45 @@ Failed: %d</source>
     <message>
       <source>Toggle Lock</source>
       <translation>ロック切替</translation>
+    </message>
+    <message>
+      <source>Filter Labels…</source>
+      <translation>ラベルでフィルタ…</translation>
+    </message>
+  </context>
+  <context>
+    <name>LabelFilterDialog</name>
+    <message>
+      <source>Filter Labels</source>
+      <translation>ラベルでフィルタ</translation>
+    </message>
+    <message>
+      <source>Checked labels will be kept. Unchecked labels and all of their annotations will be removed from the entire dataset.</source>
+      <translation>チェックしたラベルは残します。チェックを外したラベルとそのすべての注釈はデータセット全体から削除されます。</translation>
+    </message>
+    <message>
+      <source>Select All</source>
+      <translation>すべて選択</translation>
+    </message>
+    <message>
+      <source>Deselect All</source>
+      <translation>すべて解除</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>キャンセル</translation>
+    </message>
+    <message>
+      <source>OK</source>
+      <translation>OK</translation>
+    </message>
+    <message>
+      <source>This label is locked; its annotations cannot be removed until the lock is cleared.</source>
+      <translation>このラベルはロックされています。ロックを解除するまで注釈は削除できません。</translation>
+    </message>
+    <message>
+      <source>Select at least one label to keep.</source>
+      <translation>保持するラベルを少なくとも 1 つ選択してください。</translation>
     </message>
   </context>
   <context>

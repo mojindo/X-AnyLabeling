@@ -364,6 +364,9 @@ class LabelingWidget(LabelDialog):
         self.unique_label_list.label_rename_requested.connect(
             self.rename_unique_label
         )
+        self.unique_label_list.label_filter_requested.connect(
+            self.filter_unique_labels
+        )
         # Keep Labels panel empty until a dataset is opened and scanned.
         # Config "labels" remain available via LabelDialog history only.
         self.label_dock = QtWidgets.QDockWidget(self.tr("Labels"), self)
@@ -4672,24 +4675,7 @@ class LabelingWidget(LabelDialog):
             self.label_info[label]["delete"] = False
             self.label_info[label]["value"] = None
 
-    def apply_unique_label_dataset_op(
-        self, source_label, *, delete=False, new_value=None
-    ):
-        """Apply delete / merge / rename across the whole opened dataset."""
-        image_files = self._image_file_list()
-        if not image_files:
-            QtWidgets.QMessageBox.information(
-                self,
-                self.tr("No Images"),
-                self.tr("Please open a folder or images first."),
-            )
-            return False
-
-        self._reset_label_info_ops()
-        self._ensure_label_info_entry(source_label)
-        self.label_info[source_label]["delete"] = bool(delete)
-        self.label_info[source_label]["value"] = new_value
-
+    def _apply_label_info_to_dataset(self, image_files):
         ok = LabelModifyDialog.rewrite_annotation_labels(
             image_files,
             self.output_dir,
@@ -4769,6 +4755,115 @@ class LabelingWidget(LabelDialog):
         )
         popup.show_popup(self)
         return True
+
+    def apply_unique_label_dataset_op(
+        self, source_label, *, delete=False, new_value=None
+    ):
+        """Apply delete / merge / rename across the whole opened dataset."""
+        image_files = self._image_file_list()
+        if not image_files:
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("No Images"),
+                self.tr("Please open a folder or images first."),
+            )
+            return False
+
+        self._reset_label_info_ops()
+        self._ensure_label_info_entry(source_label)
+        self.label_info[source_label]["delete"] = bool(delete)
+        self.label_info[source_label]["value"] = new_value
+
+        return self._apply_label_info_to_dataset(image_files)
+
+    def collect_label_manager_label_names(self):
+        """Label names shown in Label Manager plus dataset / Labels panel."""
+        classes = set(self.collect_labels_from_annotations())
+        classes.update(self.unique_label_list.all_labels())
+        for index in range(self.label_dialog.label_list.count()):
+            text = self.label_dialog.label_list.item(index).text()
+            if text:
+                classes.add(text)
+        return sorted(classes, key=natural_sort_key)
+
+    def filter_unique_labels(self):
+        from .widgets.label_filter_dialog import LabelFilterDialog
+
+        if not self._image_file_list():
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("No Images"),
+                self.tr("Please open a folder or images first."),
+            )
+            return
+
+        dialog = LabelFilterDialog(self)
+        if dialog.exec() != QtWidgets.QDialog.DialogCode.Accepted:
+            return
+
+        keep = dialog.selected_labels()
+        remove = dialog.unchecked_labels()
+        if not remove:
+            return
+
+        locked_skipped = {
+            label
+            for label in remove
+            if self.unique_label_list.lock_states.get(label, False)
+        }
+        removable = remove - locked_skipped
+        if not removable and locked_skipped:
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Filter Labels"),
+                self.tr(
+                    "All unchecked labels are locked. Unlock them first "
+                    "to remove their annotations."
+                ),
+            )
+            return
+
+        preview = "\n".join(sorted(locked_skipped, key=natural_sort_key))
+        extra = ""
+        if locked_skipped:
+            extra = "\n\n" + self.tr(
+                "Locked labels will keep their annotations:\n{labels}"
+            ).format(labels=preview)
+
+        box = QtWidgets.QMessageBox(self)
+        box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        box.setWindowTitle(self.tr("Filter Labels"))
+        box.setText(
+            self.tr(
+                "Keep {keep_count} label(s) and remove all annotations for "
+                "{remove_count} other label(s) across the entire dataset?"
+                "\n\nThis cannot be undone.{extra}"
+            ).format(
+                keep_count=len(keep),
+                remove_count=len(removable),
+                extra=extra,
+            )
+        )
+        box.setStandardButtons(
+            QtWidgets.QMessageBox.StandardButton.Yes
+            | QtWidgets.QMessageBox.StandardButton.No
+        )
+        box.setDefaultButton(QtWidgets.QMessageBox.StandardButton.No)
+        if box.exec() != QtWidgets.QMessageBox.StandardButton.Yes:
+            return
+
+        image_files = self._image_file_list()
+        all_labels = self.collect_label_manager_label_names()
+        self._reset_label_info_ops()
+        for label in all_labels:
+            self._ensure_label_info_entry(label)
+            if label in keep:
+                continue
+            if self.unique_label_list.lock_states.get(label, False):
+                continue
+            self.label_info[label]["delete"] = True
+
+        self._apply_label_info_to_dataset(image_files)
 
     def delete_unique_label(self, label):
         box = QtWidgets.QMessageBox(self)

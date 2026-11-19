@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
     QCheckBox,
     QDialog,
     QFileDialog,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -26,6 +27,11 @@ from PyQt6.QtWidgets import (
 )
 
 from anylabeling.views.labeling.advanced.ops.dataset_filter import (
+    SUSPECT_ATTR_MODEL_FALSE,
+    SUSPECT_ATTR_MODEL_MISS,
+    SUSPECT_ATTR_NORMAL,
+    SUSPECT_ATTR_SUSPECT_FN,
+    SUSPECT_ATTR_SUSPECT_FP,
     filter_matching_images,
     transfer_image_and_label,
 )
@@ -112,12 +118,17 @@ class DatasetFilterDialog(QDialog):
 
         tip = QLabel(
             self.tr(
-                "Select labels and/or empty images. Matching images and their "
-                "annotation JSON will be copied or moved to the output folder."
+                "OR within each group. Category and suspect groups use AND with "
+                "each other; per-shape suspect types (excluding Normal) need "
+                "one shape matching both. Normal means no suspect marks on the "
+                "image. Strict empty is OR with all other selected groups."
             )
         )
         tip.setWordWrap(True)
         root.addWidget(tip)
+
+        labels_group = QGroupBox(self.tr("Category labels (normal annotations)"))
+        labels_layout = QVBoxLayout(labels_group)
 
         search_row = QHBoxLayout()
         search_row.addWidget(QLabel(self.tr("Search:")))
@@ -129,14 +140,14 @@ class DatasetFilterDialog(QDialog):
         self.search_edit.setStyleSheet(get_lineedit_style())
         self.search_edit.textChanged.connect(self._apply_label_filter)
         search_row.addWidget(self.search_edit, 1)
-        root.addLayout(search_row)
+        labels_layout.addLayout(search_row)
 
         self.list_widget = QListWidget()
         self.list_widget.setSelectionMode(
             QAbstractItemView.SelectionMode.NoSelection
         )
         self.list_widget.setUniformItemSizes(True)
-        root.addWidget(self.list_widget, 1)
+        labels_layout.addWidget(self.list_widget, 1)
 
         select_row = QHBoxLayout()
         self.select_all_btn = QPushButton(self.tr("Select All"))
@@ -152,10 +163,38 @@ class DatasetFilterDialog(QDialog):
         select_row.addWidget(self.clear_btn)
         select_row.addWidget(self.refresh_btn)
         select_row.addStretch(1)
-        root.addLayout(select_row)
+        labels_layout.addLayout(select_row)
+        root.addWidget(labels_group, 1)
 
-        self.cb_empty = QCheckBox(self.tr("Include empty images (no annotations)"))
-        root.addWidget(self.cb_empty)
+        suspect_group = QGroupBox(self.tr("Suspect attributes"))
+        suspect_layout = QVBoxLayout(suspect_group)
+        self._suspect_checks: dict[str, QCheckBox] = {}
+        suspect_items = (
+            (SUSPECT_ATTR_NORMAL, self.tr("Normal (no suspect marks on image)")),
+            (SUSPECT_ATTR_MODEL_FALSE, self.tr("Suspect false alarm")),
+            (SUSPECT_ATTR_MODEL_MISS, self.tr("Suspect missed detection")),
+            (SUSPECT_ATTR_SUSPECT_FP, self.tr("Suspect false label")),
+            (SUSPECT_ATTR_SUSPECT_FN, self.tr("Suspect missed label")),
+        )
+        for key, title in suspect_items:
+            box = QCheckBox(title)
+            self._suspect_checks[key] = box
+            suspect_layout.addWidget(box)
+        root.addWidget(suspect_group)
+
+        empty_group = QGroupBox(self.tr("Empty images"))
+        empty_layout = QVBoxLayout(empty_group)
+        self.cb_empty = QCheckBox(
+            self.tr("Include strict empty images only")
+        )
+        self.cb_empty.setToolTip(
+            self.tr(
+                "Empty means no normal annotation and no suspect-tagged shapes "
+                "on the image (ignore JSON with only suspect marks)."
+            )
+        )
+        empty_layout.addWidget(self.cb_empty)
+        root.addWidget(empty_group)
 
         out_row = QHBoxLayout()
         out_row.addWidget(QLabel(self.tr("Output folder:")))
@@ -266,6 +305,13 @@ class DatasetFilterDialog(QDialog):
                     out.append(text)
         return out
 
+    def selected_suspect_attrs(self) -> List[str]:
+        return [
+            key
+            for key, box in self._suspect_checks.items()
+            if box.isChecked()
+        ]
+
     def _select_all(self) -> None:
         for row in range(self.list_widget.count()):
             item = self.list_widget.item(row)
@@ -300,13 +346,15 @@ class DatasetFilterDialog(QDialog):
             return
 
         labels = self.selected_labels()
+        suspect_attrs = self.selected_suspect_attrs()
         include_empty = bool(self.cb_empty.isChecked())
-        if not labels and not include_empty:
+        if not labels and not include_empty and not suspect_attrs:
             QMessageBox.warning(
                 self,
                 self.tr("Dataset Filter"),
                 self.tr(
-                    "Please select at least one label, or enable empty images."
+                    "Select at least one category label, suspect attribute, or "
+                    "strict empty images."
                 ),
             )
             return
@@ -334,6 +382,7 @@ class DatasetFilterDialog(QDialog):
             images,
             labels=labels,
             include_empty=include_empty,
+            suspect_attrs=suspect_attrs,
             output_dir=self._output_dir(),
         )
         if not matched:

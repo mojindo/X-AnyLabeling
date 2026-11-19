@@ -11712,6 +11712,66 @@ Label files updated: {files}</source>
       <translation>勾选标签和/或空图。匹配的图像及其标注 JSON 将按所选模式复制或移动到输出目录。</translation>
     </message>
     <message>
+      <source>OR within each group, AND across groups. When both category labels and suspect attributes are selected, a single shape must match both. Matching images and JSON are copied or moved to the output folder.</source>
+      <translation>组内为“或”、组间为“与”。同时勾选类别标签与疑是属性时，须在同一框上同时满足。匹配的图像与 JSON 将复制或移动到输出目录。</translation>
+    </message>
+    <message>
+      <source>OR within each group, AND across groups. Category labels plus per-shape suspect types (excluding Normal) require one shape to match both. Normal means the whole image has no suspect marks. Matching images and JSON are copied or moved.</source>
+      <translation>组内为“或”、组间为“与”。类别标签与误报/漏报/误标/漏标等须在同一框上同时满足；“正常”指整图没有任何疑是标记。匹配的图像与 JSON 将复制或移动。</translation>
+    </message>
+    <message>
+      <source>OR within each group. Category and suspect groups use AND with each other; per-shape suspect types (excluding Normal) need one shape matching both. Normal means no suspect marks on the image. Strict empty is OR with all other selected groups.</source>
+      <translation>组内为“或”。类别与疑是组彼此为“与”；误报/漏报/误标/漏标与类别组合时须同一框；“正常”为整图无疑似标记。严格空图与所勾选的其他条件为“或”（并集）。</translation>
+    </message>
+    <message>
+      <source>Category labels (normal annotations)</source>
+      <translation>类别标签（普通标注）</translation>
+    </message>
+    <message>
+      <source>Suspect attributes</source>
+      <translation>疑是属性</translation>
+    </message>
+    <message>
+      <source>Normal (no suspect mark)</source>
+      <translation>正常（无疑似标记）</translation>
+    </message>
+    <message>
+      <source>Normal (no suspect marks on image)</source>
+      <translation>正常（整图无疑似标记）</translation>
+    </message>
+    <message>
+      <source>Suspect false alarm</source>
+      <translation>疑是误报</translation>
+    </message>
+    <message>
+      <source>Suspect missed detection</source>
+      <translation>疑是漏报</translation>
+    </message>
+    <message>
+      <source>Suspect false label</source>
+      <translation>疑是误标</translation>
+    </message>
+    <message>
+      <source>Suspect missed label</source>
+      <translation>疑是漏标</translation>
+    </message>
+    <message>
+      <source>Empty images</source>
+      <translation>空图</translation>
+    </message>
+    <message>
+      <source>Include strict empty images only</source>
+      <translation>仅包含严格空图</translation>
+    </message>
+    <message>
+      <source>Empty means no normal annotation and no suspect-tagged shapes on the image (ignore JSON with only suspect marks).</source>
+      <translation>空图指既无普通标注、也没有任何疑是标记的框（仅有疑是标记的 JSON 不算空图）。</translation>
+    </message>
+    <message>
+      <source>Select at least one category label, suspect attribute, or strict empty images.</source>
+      <translation>请至少选择一个类别标签、疑是属性，或勾选严格空图。</translation>
+    </message>
+    <message>
       <source>Search:</source>
       <translation>搜索:</translation>
     </message>

@@ -8,6 +8,57 @@ from PyQt6.QtCore import Qt
 
 from collections import OrderedDict
 
+import cv2
+import numpy as np
+
+
+def pixmap_from_file(path: str) -> Optional[QtGui.QPixmap]:
+    """Load a pixmap; fall back to OpenCV when Qt cannot open Unicode paths."""
+    if not path or not osp.isfile(path):
+        return None
+    pm = QtGui.QPixmap(path)
+    if not pm.isNull():
+        return pm
+    try:
+        data = np.fromfile(path, dtype=np.uint8)
+        if data.size == 0:
+            return None
+        img = cv2.imdecode(data, cv2.IMREAD_UNCHANGED)
+        if img is None:
+            return None
+        if img.ndim == 2:
+            h, w = img.shape
+            qimg = QtGui.QImage(
+                img.data,
+                w,
+                h,
+                img.strides[0],
+                QtGui.QImage.Format.Format_Grayscale8,
+            ).copy()
+        elif img.shape[2] == 4:
+            rgba = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+            h, w = rgba.shape[:2]
+            qimg = QtGui.QImage(
+                rgba.data,
+                w,
+                h,
+                rgba.strides[0],
+                QtGui.QImage.Format.Format_RGBA8888,
+            ).copy()
+        else:
+            rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            h, w = rgb.shape[:2]
+            qimg = QtGui.QImage(
+                rgb.data,
+                w,
+                h,
+                rgb.strides[0],
+                QtGui.QImage.Format.Format_RGB888,
+            ).copy()
+        return QtGui.QPixmap.fromImage(qimg)
+    except Exception:
+        return None
+
 
 class AnnotationInspectorDock(QtWidgets.QDockWidget):
     # image_path, label_json_path, shape_index, shape_key
@@ -196,8 +247,8 @@ class AnnotationInspectorDock(QtWidgets.QDockWidget):
         if icon is not None:
             self._icon_cache.move_to_end(path)
             return icon
-        pm = QtGui.QPixmap(path)
-        if pm.isNull():
+        pm = pixmap_from_file(path)
+        if pm is None or pm.isNull():
             return None
         pm = pm.scaled(
             96,

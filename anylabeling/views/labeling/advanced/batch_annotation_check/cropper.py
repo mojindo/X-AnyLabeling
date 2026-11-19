@@ -197,3 +197,24 @@ def crop_polygon_bgra(
     bgra[:, :, 3] = alpha
     return bgra
 
+
+def write_crop_image(
+    path: str,
+    image: np.ndarray,
+    *,
+    jpeg_quality: int = 85,
+) -> None:
+    """Write a crop file; ``imencode`` + ``tofile`` supports Unicode paths on Windows."""
+    ext = osp.splitext(path)[1].lower()
+    if ext == ".png":
+        ok, buf = cv2.imencode(".png", image)
+    else:
+        ok, buf = cv2.imencode(
+            ".jpg",
+            image,
+            [int(cv2.IMWRITE_JPEG_QUALITY), int(jpeg_quality)],
+        )
+    if not ok:
+        raise OSError(f"Failed to encode crop image: {path}")
+    buf.tofile(path)
+

@@ -10,8 +10,6 @@ import uuid
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
-import cv2
-
 from anylabeling.config import get_work_directory
 from anylabeling.views.labeling.classifier.utils import get_label_file_path
 from anylabeling.views.labeling.logger import logger
@@ -22,6 +20,7 @@ from anylabeling.views.labeling.advanced.batch_annotation_check.cropper import (
     make_shape_key,
     read_image_bgr,
     shape_to_bbox,
+    write_crop_image,
 )
 
 
@@ -551,24 +550,14 @@ class InspectorCache:
                         continue
                     fn = f"{base}__{idx:06d}.png"
                     out_path = osp.join(self.crops_dir, fn)
-                    # PNG + alpha, use imencode to support Unicode paths.
-                    try:
-                        enc = cv2.imencode(".png", crop)[1]
-                        enc.tofile(out_path)
-                    except Exception:
-                        cv2.imwrite(out_path, crop)
+                    write_crop_image(out_path, crop)
                 else:
                     crop = crop_image_bgr(img_bgr, bbox)
-                if crop.size == 0:
-                    continue
-                if shape_type != "polygon":
+                    if crop.size == 0:
+                        continue
                     fn = f"{base}__{idx:06d}.jpg"
                     out_path = osp.join(self.crops_dir, fn)
-                    cv2.imwrite(
-                        out_path,
-                        crop,
-                        [int(cv2.IMWRITE_JPEG_QUALITY), int(jpeg_quality)],
-                    )
+                    write_crop_image(out_path, crop, jpeg_quality=jpeg_quality)
                 shape_key = make_shape_key(
                     label=label,
                     shape_type=shape_type,
@@ -686,29 +675,11 @@ class InspectorCache:
             if shape_type == "polygon":
                 fn = f"{base}__{idx:06d}.png"
                 out_path = osp.join(self.crops_dir, fn)
-                try:
-                    enc = cv2.imencode(".png", crop)[1]
-                    enc.tofile(out_path)
-                except Exception:
-                    cv2.imwrite(out_path, crop)
+                write_crop_image(out_path, crop)
             else:
                 fn = f"{base}__{idx:06d}.jpg"
                 out_path = osp.join(self.crops_dir, fn)
-                # cv2.imwrite may fail on Windows Unicode paths; use tofile instead.
-                try:
-                    enc = cv2.imencode(
-                        ".jpg",
-                        crop,
-                        [int(cv2.IMWRITE_JPEG_QUALITY), int(jpeg_quality)],
-                    )[1]
-                    enc.tofile(out_path)
-                except Exception:
-                    # Fallback to imwrite (best effort)
-                    cv2.imwrite(
-                        out_path,
-                        crop,
-                        [int(cv2.IMWRITE_JPEG_QUALITY), int(jpeg_quality)],
-                    )
+                write_crop_image(out_path, crop, jpeg_quality=jpeg_quality)
             shape_key = make_shape_key(
                 label=label,
                 shape_type=shape_type,

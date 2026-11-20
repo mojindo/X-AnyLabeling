@@ -11638,6 +11638,82 @@ Label files updated: {files}</source>
       <source>No labels available for phrase mapping.</source>
       <translation>没有可用于短语映射的标签。</translation>
     </message>
+    <message>
+      <source>Crop mode: HBB = axis-aligned box; OBB = rotated box (PNG); SEG = polygon mask (PNG).</source>
+      <translation>裁图模式：HBB = 水平框；OBB = 旋转框（PNG）；SEG = 分割多边形（PNG）。</translation>
+    </message>
+    <message>
+      <source>HBB (horizontal box)</source>
+      <translation>HBB（水平框）</translation>
+    </message>
+    <message>
+      <source>OBB (oriented box)</source>
+      <translation>OBB（旋转框）</translation>
+    </message>
+    <message>
+      <source>SEG (segmentation)</source>
+      <translation>SEG（分割）</translation>
+    </message>
+    <message>
+      <source>OBB: rectify to upright (0°/180°, HBB-like)</source>
+      <translation>OBB：二次矫正为竖直（0°/180°，近似 HBB）</translation>
+    </message>
+    <message>
+      <source>When enabled, warped OBB crops are deskewed. When off, crops keep the original rotation with transparency.</source>
+      <translation>开启时透视矫正旋转框；关闭时保留原始角度的透明 PNG。</translation>
+    </message>
+    <message>
+      <source>Export crop thumbnails</source>
+      <translation>导出裁剪小图</translation>
+    </message>
+    <message>
+      <source>Failed to export crops: %s</source>
+      <translation>导出小图失败：%s</translation>
+    </message>
+    <message>
+      <source>Exported %d crop file(s) to:\n%s</source>
+      <translation>已导出 %d 个小图到：\n%s</translation>
+    </message>
+    <message>
+      <source>Delete all crop thumbnails built in this session? The cache folder will be kept but the grid will be cleared.</source>
+      <translation>删除本次批量检查生成的全部小图？缓存目录保留，列表将清空。</translation>
+    </message>
+    <message>
+      <source>Failed to clear crops: %s</source>
+      <translation>清除小图失败：%s</translation>
+    </message>
+    <message>
+      <source>Image index range (1 = first in folder, inclusive). Only images in this range are included when building the cache.</source>
+      <translation>图片索引范围（1 表示文件夹中第一张，含首尾）。构建缓存时仅处理该范围内的图片。</translation>
+    </message>
+    <message>
+      <source>From:</source>
+      <translation>从：</translation>
+    </message>
+    <message>
+      <source>To:</source>
+      <translation>到：</translation>
+    </message>
+    <message>
+      <source>First image index (1-based).</source>
+      <translation>起始图片索引（从 1 开始）。</translation>
+    </message>
+    <message>
+      <source>Last image index (1-based).</source>
+      <translation>结束图片索引（从 1 开始）。</translation>
+    </message>
+    <message>
+      <source>Total: {n}</source>
+      <translation>共 {n} 张</translation>
+    </message>
+    <message>
+      <source>Invalid image range: start index must not be greater than end.</source>
+      <translation>图片范围无效：起始索引不能大于结束索引。</translation>
+    </message>
+    <message>
+      <source>No images in the selected index range.</source>
+      <translation>所选索引范围内没有图片。</translation>
+    </message>
   </context>
   <context>
     <name>FpLabelPromptDialog</name>
@@ -11699,6 +11775,30 @@ Label files updated: {files}</source>
     <message>
       <source>Annotation deleted (crop kept for reference)</source>
       <translation>标注已删除（裁剪图保留供参考）</translation>
+    </message>
+    <message>
+      <source>Export crops…</source>
+      <translation>导出小图…</translation>
+    </message>
+    <message>
+      <source>Copy all session crop thumbnails to a folder.</source>
+      <translation>将本次会话全部裁剪小图复制到指定文件夹。</translation>
+    </message>
+    <message>
+      <source>Clear session crops</source>
+      <translation>一键清除小图</translation>
+    </message>
+    <message>
+      <source>Delete all thumbnails generated in this batch-check session.</source>
+      <translation>删除本次批量标注检查生成的全部小图。</translation>
+    </message>
+    <message>
+      <source>End Batch Check</source>
+      <translation>结束批量检查</translation>
+    </message>
+    <message>
+      <source>Close batch annotation check (you can also use the Advanced menu toggle).</source>
+      <translation>关闭批量标注检查（仍可通过「高级功能」菜单开关进入/退出）。</translation>
     </message>
   </context>
   <context>

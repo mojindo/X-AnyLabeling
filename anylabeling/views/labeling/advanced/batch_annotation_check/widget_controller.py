@@ -12,6 +12,11 @@ from anylabeling.views.labeling.advanced.batch_annotation_check.cache import (
     InspectorCache,
     new_session_cache_dir,
 )
+from anylabeling.views.labeling.advanced.batch_annotation_check.cropper import (
+    CROP_MODE_HBB,
+    CROP_MODE_OBB,
+    CROP_MODE_SEG,
+)
 from anylabeling.views.labeling.advanced.batch_annotation_check.dock import (
     AnnotationInspectorDock,
 )
@@ -29,12 +34,16 @@ class InspectorBuildWorker(QtCore.QObject):
         image_paths: list,
         output_dir: Optional[str],
         labels_filter: list,
+        crop_mode: str = CROP_MODE_HBB,
+        obb_rectify: bool = False,
     ) -> None:
         super().__init__()
         self._cache = cache
         self._image_paths = image_paths
         self._output_dir = output_dir
         self._labels_filter = labels_filter
+        self._crop_mode = str(crop_mode or CROP_MODE_HBB)
+        self._obb_rectify = bool(obb_rectify)
         self._cancel = False
 
     def request_cancel(self) -> None:
@@ -51,6 +60,8 @@ class InspectorBuildWorker(QtCore.QObject):
                 output_dir=self._output_dir,
                 labels_filter=self._labels_filter,
                 force=True,
+                crop_mode=self._crop_mode,
+                obb_rectify=self._obb_rectify,
                 on_progress=lambda i, n, p: self.progress.emit(i, n, p),
                 should_cancel=self._should_cancel,
             )
@@ -205,10 +216,15 @@ class _BatchCheckWidgetMethods:
             )
             self.actions.batch_annotation_check.setChecked(False)
             return
-        labels = self._prompt_select_inspector_labels()
-        if not labels:
+        picked = self._prompt_select_inspector_labels()
+        if not picked:
             self.actions.batch_annotation_check.setChecked(False)
             return
+        labels, crop_mode, obb_rectify, range_start, range_end = picked
+        self._inspector_crop_mode = crop_mode
+        self._inspector_obb_rectify = obb_rectify
+        self._inspector_range_start = int(range_start)
+        self._inspector_range_end = int(range_end)
 
         # Choose: import existing cache dir or build a new session cache.
         choice = QMessageBox(self)
@@ -264,6 +280,12 @@ class _BatchCheckWidgetMethods:
             self._inspector_labels_filter = (
                 [x for x in lf if isinstance(x, str) and x] if isinstance(lf, list) else list(labels)
             )
+            self._inspector_crop_mode = str(
+                idx.get("crop_mode") if isinstance(idx, dict) else CROP_MODE_HBB
+            ) or CROP_MODE_HBB
+            self._inspector_obb_rectify = bool(
+                idx.get("obb_rectify") if isinstance(idx, dict) else False
+            )
             self._inspector_enabled = True
             dock = self._ensure_inspector_dock()
             dock.show()
@@ -310,7 +332,37 @@ class _BatchCheckWidgetMethods:
             pass
 
 
-    def _prompt_select_inspector_labels(self) -> list:
+    def _inspector_image_index_bounds(self) -> tuple:
+        """Return (current 1-based index, total image count)."""
+        total = len(self.image_list or [])
+        if total <= 0:
+            return 1, 0
+        idx0 = 0
+        if self.filename:
+            try:
+                idx0 = int(self.fn_to_index.get(str(self.filename), 0))
+            except Exception:
+                idx0 = 0
+        if idx0 < 0:
+            idx0 = 0
+        if idx0 >= total:
+            idx0 = total - 1
+        return idx0 + 1, total
+
+    def _inspector_image_paths_in_range(
+        self, start_1: int, end_1: int
+    ) -> list:
+        paths = list(self.image_list or [])
+        n = len(paths)
+        if n == 0:
+            return []
+        start = max(1, min(int(start_1), n))
+        end = max(1, min(int(end_1), n))
+        if start > end:
+            start, end = end, start
+        return paths[start - 1 : end]
+
+    def _prompt_select_inspector_labels(self) -> Optional[tuple]:
         dlg = QtWidgets.QDialog(self)
         dlg.setWindowTitle(self.tr("Select labels"))
         dlg.setModal(True)
@@ -321,6 +373,75 @@ class _BatchCheckWidgetMethods:
             self.tr("Select one or more labels to inspect.")
         )
         layout.addWidget(hint)
+
+        mode_hint = QtWidgets.QLabel(
+            self.tr(
+                "Crop mode: HBB = axis-aligned box; OBB = rotated box (PNG); "
+                "SEG = polygon mask (PNG)."
+            )
+        )
+        mode_hint.setWordWrap(True)
+        mode_hint.setStyleSheet("color: #666;")
+        layout.addWidget(mode_hint)
+
+        mode_row = QtWidgets.QHBoxLayout()
+        rb_hbb = QtWidgets.QRadioButton(self.tr("HBB (horizontal box)"))
+        rb_obb = QtWidgets.QRadioButton(self.tr("OBB (oriented box)"))
+        rb_seg = QtWidgets.QRadioButton(self.tr("SEG (segmentation)"))
+        rb_hbb.setChecked(True)
+        mode_row.addWidget(rb_hbb)
+        mode_row.addWidget(rb_obb)
+        mode_row.addWidget(rb_seg)
+        mode_row.addStretch(1)
+        layout.addLayout(mode_row)
+
+        obb_rectify_cb = QtWidgets.QCheckBox(
+            self.tr("OBB: rectify to upright (0°/180°, HBB-like)")
+        )
+        obb_rectify_cb.setEnabled(False)
+        obb_rectify_cb.setToolTip(
+            self.tr(
+                "When enabled, warped OBB crops are deskewed. "
+                "When off, crops keep the original rotation with transparency."
+            )
+        )
+        layout.addWidget(obb_rectify_cb)
+
+        def _sync_obb_rectify() -> None:
+            obb_rectify_cb.setEnabled(rb_obb.isChecked())
+
+        rb_obb.toggled.connect(_sync_obb_rectify)
+
+        cur_idx, img_total = self._inspector_image_index_bounds()
+        range_hint = QtWidgets.QLabel(
+            self.tr(
+                "Image index range (1 = first in folder, inclusive). "
+                "Only images in this range are included when building the cache."
+            )
+        )
+        range_hint.setWordWrap(True)
+        range_hint.setStyleSheet("color: #666;")
+        layout.addWidget(range_hint)
+
+        range_row = QtWidgets.QHBoxLayout()
+        range_row.addWidget(QtWidgets.QLabel(self.tr("From:")))
+        spin_from = QtWidgets.QSpinBox()
+        spin_from.setRange(1, max(1, img_total))
+        spin_from.setValue(max(1, cur_idx))
+        spin_from.setToolTip(self.tr("First image index (1-based)."))
+        range_row.addWidget(spin_from)
+        range_row.addWidget(QtWidgets.QLabel(self.tr("To:")))
+        spin_to = QtWidgets.QSpinBox()
+        spin_to.setRange(1, max(1, img_total))
+        spin_to.setValue(max(1, img_total))
+        spin_to.setToolTip(self.tr("Last image index (1-based)."))
+        range_row.addWidget(spin_to)
+        total_lbl = QtWidgets.QLabel(
+            self.tr("Total: {n}").format(n=img_total)
+        )
+        range_row.addWidget(total_lbl)
+        range_row.addStretch(1)
+        layout.addLayout(range_row)
 
         lw = QtWidgets.QListWidget()
         lw.setSelectionMode(
@@ -345,16 +466,29 @@ class _BatchCheckWidgetMethods:
         btn_row = QtWidgets.QHBoxLayout()
         ok = QtWidgets.QPushButton(self.tr("OK"))
         cancel = QtWidgets.QPushButton(self.tr("Cancel"))
-        ok.clicked.connect(dlg.accept)
+
+        def _try_accept() -> None:
+            if spin_from.value() > spin_to.value():
+                QMessageBox.warning(
+                    dlg,
+                    self.tr("Batch Annotation Check"),
+                    self.tr(
+                        "Invalid image range: start index must not be greater than end."
+                    ),
+                )
+                return
+            dlg.accept()
+
+        ok.clicked.connect(_try_accept)
         cancel.clicked.connect(dlg.reject)
         btn_row.addStretch(1)
         btn_row.addWidget(ok)
         btn_row.addWidget(cancel)
         layout.addLayout(btn_row)
 
-        dlg.setMinimumSize(420, 360)
+        dlg.setMinimumSize(420, 440)
         if dlg.exec() != QtWidgets.QDialog.DialogCode.Accepted:
-            return []
+            return None
         selected = [it.text() for it in lw.selectedItems()]
         selected = [s for s in selected if s]
         if not selected:
@@ -363,8 +497,21 @@ class _BatchCheckWidgetMethods:
                 self.tr("Batch Annotation Check"),
                 self.tr("No labels selected."),
             )
-            return []
-        return selected
+            return None
+        if rb_obb.isChecked():
+            crop_mode = CROP_MODE_OBB
+        elif rb_seg.isChecked():
+            crop_mode = CROP_MODE_SEG
+        else:
+            crop_mode = CROP_MODE_HBB
+        obb_rectify = bool(obb_rectify_cb.isChecked() and crop_mode == CROP_MODE_OBB)
+        return (
+            selected,
+            crop_mode,
+            obb_rectify,
+            int(spin_from.value()),
+            int(spin_to.value()),
+        )
 
 
     def _ensure_inspector_dock(self) -> AnnotationInspectorDock:
@@ -374,6 +521,11 @@ class _BatchCheckWidgetMethods:
         dock.inspectorItemClicked.connect(self._on_inspector_item_clicked)
         dock.dockAboutToClose.connect(self._on_inspector_dock_close)
         dock.fnItemClicked.connect(self._on_inspector_fn_item_clicked)
+        dock.exportCropsRequested.connect(self._on_inspector_export_crops)
+        dock.clearSessionCropsRequested.connect(
+            self._on_inspector_clear_session_crops
+        )
+        dock.endBatchCheckRequested.connect(self._on_inspector_end_from_dock)
         # Chinese-CLIP FP UI is hidden for now; handlers kept for a later VLM phase.
         host = self._find_dock_host()
         if host is not None:
@@ -697,11 +849,28 @@ class _BatchCheckWidgetMethods:
         if self._inspector_cache is None:
             return
 
+        range_start = int(getattr(self, "_inspector_range_start", 1) or 1)
+        range_end = int(
+            getattr(self, "_inspector_range_end", len(self.image_list))
+            or len(self.image_list)
+        )
+        image_paths = self._inspector_image_paths_in_range(
+            range_start, range_end
+        )
+        if not image_paths:
+            QMessageBox.warning(
+                self,
+                self.tr("Batch Annotation Check"),
+                self.tr("No images in the selected index range."),
+            )
+            self.actions.batch_annotation_check.setChecked(False)
+            return
+
         progress = QtWidgets.QProgressDialog(
             self.tr("Building Batch Annotation Check cache..."),
             self.tr("Cancel"),
             0,
-            max(1, len(self.image_list)),
+            max(1, len(image_paths)),
             self,
         )
         progress.setWindowModality(Qt.WindowModality.WindowModal)
@@ -711,9 +880,13 @@ class _BatchCheckWidgetMethods:
 
         worker = InspectorBuildWorker(
             cache=self._inspector_cache,
-            image_paths=list(self.image_list),
+            image_paths=image_paths,
             output_dir=self.output_dir,
             labels_filter=list(self._inspector_labels_filter),
+            crop_mode=str(
+                getattr(self, "_inspector_crop_mode", None) or CROP_MODE_HBB
+            ),
+            obb_rectify=bool(getattr(self, "_inspector_obb_rectify", False)),
         )
         thread = QtCore.QThread(self)
         worker.moveToThread(thread)
@@ -928,6 +1101,65 @@ class _BatchCheckWidgetMethods:
         # Intentionally do NOT call _refresh_inspector_for_current_image /
         # _inspector_live_rebuild_current_image — list rebuild is too costly.
 
+
+    def _on_inspector_export_crops(self) -> None:
+        if not self._inspector_enabled or self._inspector_cache is None:
+            return
+        dst_dir = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            self.tr("Export crop thumbnails"),
+            "",
+            QtWidgets.QFileDialog.Option.ShowDirsOnly
+            | QtWidgets.QFileDialog.Option.DontResolveSymlinks,
+        )
+        if not dst_dir:
+            return
+        try:
+            n = self._inspector_cache.export_crops_to(dst_dir)
+        except Exception as e:
+            QMessageBox.warning(
+                self,
+                self.tr("Batch Annotation Check"),
+                self.tr("Failed to export crops: %s") % e,
+            )
+            return
+        QMessageBox.information(
+            self,
+            self.tr("Batch Annotation Check"),
+            self.tr("Exported %d crop file(s) to:\n%s") % (n, dst_dir),
+        )
+
+    def _on_inspector_clear_session_crops(self) -> None:
+        if not self._inspector_enabled or self._inspector_cache is None:
+            return
+        reply = QMessageBox.question(
+            self,
+            self.tr("Batch Annotation Check"),
+            self.tr(
+                "Delete all crop thumbnails built in this session? "
+                "The cache folder will be kept but the grid will be cleared."
+            ),
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            self._inspector_cache.clear_session_crops()
+        except Exception as e:
+            QMessageBox.warning(
+                self,
+                self.tr("Batch Annotation Check"),
+                self.tr("Failed to clear crops: %s") % e,
+            )
+            return
+        self._refresh_inspector_for_current_image()
+
+    def _on_inspector_end_from_dock(self) -> None:
+        """End batch check from the dock (same as closing the panel)."""
+        dock = getattr(self, "_inspector_dock", None)
+        if dock is not None:
+            dock.close()
 
     def _on_inspector_dock_close(self) -> None:
         if self._inspector_cache is not None and osp.isdir(

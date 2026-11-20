@@ -64,6 +64,9 @@ class AnnotationInspectorDock(QtWidgets.QDockWidget):
     # image_path, label_json_path, shape_index, shape_key
     inspectorItemClicked = QtCore.pyqtSignal(str, str, int, str)
     dockAboutToClose = QtCore.pyqtSignal()
+    exportCropsRequested = QtCore.pyqtSignal()
+    clearSessionCropsRequested = QtCore.pyqtSignal()
+    endBatchCheckRequested = QtCore.pyqtSignal()
     runFalsePositiveClipRequested = QtCore.pyqtSignal(float)
     editFpLabelPromptsRequested = QtCore.pyqtSignal()
     fnItemClicked = QtCore.pyqtSignal(str, str, object)  # (image_path, label, bbox01)
@@ -227,6 +230,40 @@ class AnnotationInspectorDock(QtWidgets.QDockWidget):
         self._lists_splitter.setSizes([340, 260])
 
         root_layout.addWidget(self._lists_splitter, 1)
+
+        session_row = QtWidgets.QHBoxLayout()
+        self._export_crops_btn = QtWidgets.QPushButton(self.tr("Export crops…"))
+        self._export_crops_btn.setToolTip(
+            self.tr("Copy all session crop thumbnails to a folder.")
+        )
+        self._export_crops_btn.clicked.connect(
+            self.exportCropsRequested.emit
+        )
+        session_row.addWidget(self._export_crops_btn)
+
+        self._clear_crops_btn = QtWidgets.QPushButton(
+            self.tr("Clear session crops")
+        )
+        self._clear_crops_btn.setToolTip(
+            self.tr("Delete all thumbnails generated in this batch-check session.")
+        )
+        self._clear_crops_btn.clicked.connect(
+            self.clearSessionCropsRequested.emit
+        )
+        session_row.addWidget(self._clear_crops_btn)
+
+        self._end_check_btn = QtWidgets.QPushButton(
+            self.tr("End Batch Check")
+        )
+        self._end_check_btn.setToolTip(
+            self.tr(
+                "Close batch annotation check (you can also use the Advanced menu toggle)."
+            )
+        )
+        self._end_check_btn.clicked.connect(self.endBatchCheckRequested.emit)
+        session_row.addWidget(self._end_check_btn)
+        session_row.addStretch(1)
+        root_layout.addLayout(session_row)
 
         self.setWidget(root)
 

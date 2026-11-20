@@ -163,6 +163,89 @@ def crop_image_bgr(image_bgr: np.ndarray, bbox: BBox) -> np.ndarray:
     return image_bgr[bbox.ymin : bbox.ymax, bbox.xmin : bbox.xmax].copy()
 
 
+CROP_MODE_HBB = "hbb"
+CROP_MODE_OBB = "obb"
+CROP_MODE_SEG = "seg"
+
+
+def shape_eligible_for_crop_mode(shape_type: str, crop_mode: str) -> bool:
+    st = str(shape_type or "").strip().lower()
+    mode = str(crop_mode or CROP_MODE_HBB).strip().lower()
+    if mode == CROP_MODE_HBB:
+        return st in ("rectangle", "rotation", "quadrilateral")
+    if mode == CROP_MODE_OBB:
+        return st == "rotation"
+    if mode == CROP_MODE_SEG:
+        return st == "polygon"
+    return False
+
+
+def _quad_points_as_float(points: List[List[float]]) -> Optional[np.ndarray]:
+    pts: List[List[float]] = []
+    for p in points or []:
+        if not isinstance(p, (list, tuple)) or len(p) < 2:
+            continue
+        try:
+            pts.append([float(p[0]), float(p[1])])
+        except Exception:
+            continue
+    if len(pts) != 4:
+        return None
+    return np.asarray(pts, dtype=np.float32)
+
+
+def crop_rotation_masked_bgra(
+    image_bgr: np.ndarray,
+    points: List[List[float]],
+    *,
+    img_w: int,
+    img_h: int,
+    padding_px: int = 4,
+) -> Optional[np.ndarray]:
+    """Oriented box: axis-aligned crop window + quad alpha mask (keeps rotation)."""
+    bbox = shape_to_bbox(points, img_w, img_h, padding_px=padding_px)
+    if bbox is None:
+        return None
+    out = crop_polygon_bgra(image_bgr, bbox=bbox, polygon_points=points)
+    return out if out.size else None
+
+
+def crop_rotation_rectified_bgra(
+    image_bgr: np.ndarray,
+    points: List[List[float]],
+) -> Optional[np.ndarray]:
+    """Perspective-rectify OBB using annotation point order for width/height."""
+    quad = _quad_points_as_float(points)
+    if quad is None:
+        return None
+
+    edge01 = float(np.linalg.norm(quad[1] - quad[0]))
+    edge12 = float(np.linalg.norm(quad[2] - quad[1]))
+    if edge01 < 1.0 or edge12 < 1.0:
+        return None
+    width = max(1, int(round(edge01)))
+    height = max(1, int(round(edge12)))
+
+    dst = np.array(
+        [[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]],
+        dtype=np.float32,
+    )
+    matrix = cv2.getPerspectiveTransform(quad, dst)
+    warped = cv2.warpPerspective(
+        image_bgr,
+        matrix,
+        (width, height),
+        flags=cv2.INTER_LINEAR,
+        borderMode=cv2.BORDER_CONSTANT,
+        borderValue=(0, 0, 0),
+    )
+    if warped.size == 0:
+        return None
+    bgra = cv2.cvtColor(warped, cv2.COLOR_BGR2BGRA)
+    bgra[:, :, 3] = 255
+    return bgra
+
+
 def crop_polygon_bgra(
     image_bgr: np.ndarray, *, bbox: BBox, polygon_points: List[List[float]]
 ) -> np.ndarray:
@@ -196,6 +279,48 @@ def crop_polygon_bgra(
     bgra = cv2.cvtColor(crop_bgr, cv2.COLOR_BGR2BGRA)
     bgra[:, :, 3] = alpha
     return bgra
+
+
+def crop_shape_to_array(
+    image_bgr: np.ndarray,
+    *,
+    shape_type: str,
+    points: List[List[float]],
+    img_w: int,
+    img_h: int,
+    crop_mode: str = CROP_MODE_HBB,
+    obb_rectify: bool = False,
+    padding_px: int = 4,
+) -> Optional[np.ndarray]:
+    """Return crop (BGR or BGRA) for one shape under the selected crop mode."""
+    mode = str(crop_mode or CROP_MODE_HBB).lower()
+    st = str(shape_type or "")
+    if not shape_eligible_for_crop_mode(st, mode):
+        return None
+    if mode == CROP_MODE_SEG:
+        bbox = shape_to_bbox(points, img_w, img_h, padding_px=padding_px)
+        if bbox is None:
+            return None
+        out = crop_polygon_bgra(image_bgr, bbox=bbox, polygon_points=points)
+        return out if out.size else None
+    if mode == CROP_MODE_OBB:
+        if obb_rectify:
+            return crop_rotation_rectified_bgra(image_bgr, points)
+        return crop_rotation_masked_bgra(
+            image_bgr, points, img_w=img_w, img_h=img_h, padding_px=padding_px
+        )
+    bbox = shape_to_bbox(points, img_w, img_h, padding_px=padding_px)
+    if bbox is None:
+        return None
+    out = crop_image_bgr(image_bgr, bbox)
+    return out if out.size else None
+
+
+def crop_output_extension(crop_mode: str, shape_type: str = "") -> str:
+    mode = str(crop_mode or CROP_MODE_HBB).lower()
+    if mode in (CROP_MODE_OBB, CROP_MODE_SEG):
+        return ".png"
+    return ".jpg"
 
 
 def write_crop_image(

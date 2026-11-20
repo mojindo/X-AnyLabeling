@@ -57,6 +57,10 @@ def _install_widget_controllers(widget) -> None:
     widget._inspector_dock = None
     widget._inspector_cache = None
     widget._inspector_labels_filter = []
+    widget._inspector_crop_mode = "hbb"
+    widget._inspector_obb_rectify = False
+    widget._inspector_range_start = 1
+    widget._inspector_range_end = 1
     widget._inspector_progress = None
     widget._inspector_thread = None
     widget._inspector_worker = None

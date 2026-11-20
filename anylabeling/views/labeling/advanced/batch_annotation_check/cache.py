@@ -14,11 +14,12 @@ from anylabeling.config import get_work_directory
 from anylabeling.views.labeling.classifier.utils import get_label_file_path
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.advanced.batch_annotation_check.cropper import (
-    BBox,
-    crop_polygon_bgra,
-    crop_image_bgr,
+    CROP_MODE_HBB,
+    crop_output_extension,
+    crop_shape_to_array,
     make_shape_key,
     read_image_bgr,
+    shape_eligible_for_crop_mode,
     shape_to_bbox,
     write_crop_image,
 )
@@ -469,6 +470,64 @@ class InspectorCache:
             raise ValueError("Destination directory is not empty.")
         shutil.copytree(self.root_dir, dst_dir, dirs_exist_ok=True)
 
+    def export_crops_to(self, dst_dir: str) -> int:
+        """Copy crop thumbnails from this session into ``dst_dir``. Returns file count."""
+        if not dst_dir:
+            return 0
+        os.makedirs(dst_dir, exist_ok=True)
+        self.load_index()
+        copied = 0
+        seen: set[str] = set()
+        for it in self._index.get("items") or []:
+            if not isinstance(it, dict):
+                continue
+            cp = str(it.get("crop_path") or "")
+            if not cp or cp in seen or not osp.isfile(cp):
+                continue
+            seen.add(cp)
+            dest = osp.join(dst_dir, osp.basename(cp))
+            if osp.abspath(cp) == osp.abspath(dest):
+                continue
+            shutil.copy2(cp, dest)
+            copied += 1
+        fn_dir = osp.join(self.root_dir, "crops_fn")
+        if osp.isdir(fn_dir):
+            for fn in os.listdir(fn_dir):
+                src = osp.join(fn_dir, fn)
+                if not osp.isfile(src):
+                    continue
+                dest = osp.join(dst_dir, fn)
+                if osp.abspath(src) != osp.abspath(dest):
+                    shutil.copy2(src, dest)
+                    copied += 1
+        return copied
+
+    def clear_session_crops(self) -> None:
+        """Remove all crop files and index entries for this session (keep cache folder)."""
+        self.load_index()
+        for it in self._index.get("items") or []:
+            if not isinstance(it, dict):
+                continue
+            cp = it.get("crop_path")
+            if isinstance(cp, str) and cp and osp.isfile(cp):
+                try:
+                    os.remove(cp)
+                except Exception:
+                    pass
+        fn_dir = osp.join(self.root_dir, "crops_fn")
+        if osp.isdir(fn_dir):
+            for fn in os.listdir(fn_dir):
+                try:
+                    os.remove(osp.join(fn_dir, fn))
+                except Exception:
+                    pass
+        if isinstance(self._index, dict):
+            self._index["items"] = []
+            if isinstance(self._index.get("fn_results"), dict):
+                self._index["fn_results"] = {}
+            self._index.setdefault("errors", [])
+        self.save_index()
+
     def build_index(
         self,
         image_paths: Sequence[str],
@@ -478,11 +537,14 @@ class InspectorCache:
         force: bool = False,
         padding_px: int = 4,
         jpeg_quality: int = 85,
+        crop_mode: str = CROP_MODE_HBB,
+        obb_rectify: bool = False,
         on_progress: Optional[Callable[[int, int, str], None]] = None,
         should_cancel: Optional[Callable[[], bool]] = None,
     ) -> None:
         """Build crops for all images for selected labels."""
         labels_set = {l for l in labels_filter if isinstance(l, str) and l}
+        mode = str(crop_mode or CROP_MODE_HBB).lower()
         if force or not self._index:
             self._index = {"version": 1, "items": [], "errors": []}
         items: List[Dict[str, Any]] = []
@@ -540,24 +602,32 @@ class InspectorCache:
                         continue
                 except Exception:
                     continue
+                shape_type = str(s.get("shape_type", "") or "")
+                if not shape_eligible_for_crop_mode(shape_type, mode):
+                    continue
+                crop = crop_shape_to_array(
+                    img_bgr,
+                    shape_type=shape_type,
+                    points=points,
+                    img_w=iw,
+                    img_h=ih,
+                    crop_mode=mode,
+                    obb_rectify=bool(obb_rectify),
+                    padding_px=padding_px,
+                )
+                if crop is None or crop.size == 0:
+                    continue
+                ext = crop_output_extension(mode, shape_type)
+                fn = f"{base}__{idx:06d}{ext}"
+                out_path = osp.join(self.crops_dir, fn)
+                write_crop_image(
+                    out_path,
+                    crop,
+                    jpeg_quality=jpeg_quality,
+                )
                 bbox = shape_to_bbox(points, iw, ih, padding_px=padding_px)
                 if bbox is None:
                     continue
-                shape_type = str(s.get("shape_type", "") or "")
-                if shape_type == "polygon":
-                    crop = crop_polygon_bgra(img_bgr, bbox=bbox, polygon_points=points)
-                    if crop.size == 0:
-                        continue
-                    fn = f"{base}__{idx:06d}.png"
-                    out_path = osp.join(self.crops_dir, fn)
-                    write_crop_image(out_path, crop)
-                else:
-                    crop = crop_image_bgr(img_bgr, bbox)
-                    if crop.size == 0:
-                        continue
-                    fn = f"{base}__{idx:06d}.jpg"
-                    out_path = osp.join(self.crops_dir, fn)
-                    write_crop_image(out_path, crop, jpeg_quality=jpeg_quality)
                 shape_key = make_shape_key(
                     label=label,
                     shape_type=shape_type,
@@ -585,6 +655,8 @@ class InspectorCache:
         self._index["items"] = items
         self._index["errors"] = errors
         self._index["labels_filter"] = list(labels_set)
+        self._index["crop_mode"] = mode
+        self._index["obb_rectify"] = bool(obb_rectify)
         self.save_index()
 
     def update_for_image(
@@ -594,9 +666,15 @@ class InspectorCache:
         output_dir: Optional[str],
         labels_filter: Sequence[str],
         padding_px: int = 4,
+        crop_mode: Optional[str] = None,
+        obb_rectify: Optional[bool] = None,
     ) -> None:
         """Rebuild cache entries for a single image."""
         self.load_index()
+        if crop_mode is None:
+            crop_mode = str(self._index.get("crop_mode") or CROP_MODE_HBB)
+        if obb_rectify is None:
+            obb_rectify = bool(self._index.get("obb_rectify"))
         snapshot = list(self._index.get("items") or [])
         self.build_index(
             [image_path],
@@ -604,6 +682,8 @@ class InspectorCache:
             labels_filter=labels_filter,
             force=False,
             padding_px=padding_px,
+            crop_mode=crop_mode,
+            obb_rectify=bool(obb_rectify),
         )
         new_items = list(self._index.get("items") or [])
         self._index["items"] = _replace_items_for_image_keep_order(
@@ -622,9 +702,19 @@ class InspectorCache:
         image_h: int,
         padding_px: int = 4,
         jpeg_quality: int = 85,
+        crop_mode: Optional[str] = None,
+        obb_rectify: Optional[bool] = None,
     ) -> None:
         """Update crops for a single image from in-memory shapes (unsaved)."""
         self.load_index()
+        mode = str(
+            crop_mode if crop_mode is not None else self._index.get("crop_mode") or CROP_MODE_HBB
+        )
+        rectify = (
+            bool(obb_rectify)
+            if obb_rectify is not None
+            else bool(self._index.get("obb_rectify"))
+        )
         snapshot = list(self._index.get("items") or [])
         labels_set = {l for l in labels_filter if isinstance(l, str) and l}
         label_json_path = get_label_file_path(image_path, output_dir)
@@ -662,24 +752,30 @@ class InspectorCache:
                     continue
             except Exception:
                 continue
-            bbox = shape_to_bbox(points, int(image_w), int(image_h), padding_px=padding_px)
+            shape_type = str(s.get("shape_type", "") or "")
+            if not shape_eligible_for_crop_mode(shape_type, mode):
+                continue
+            crop = crop_shape_to_array(
+                img_bgr,
+                shape_type=shape_type,
+                points=points,
+                img_w=int(image_w),
+                img_h=int(image_h),
+                crop_mode=mode,
+                obb_rectify=rectify,
+                padding_px=padding_px,
+            )
+            if crop is None or crop.size == 0:
+                continue
+            ext = crop_output_extension(mode, shape_type)
+            fn = f"{base}__{idx:06d}{ext}"
+            out_path = osp.join(self.crops_dir, fn)
+            write_crop_image(out_path, crop, jpeg_quality=jpeg_quality)
+            bbox = shape_to_bbox(
+                points, int(image_w), int(image_h), padding_px=padding_px
+            )
             if bbox is None:
                 continue
-            shape_type = str(s.get("shape_type", "") or "")
-            if shape_type == "polygon":
-                crop = crop_polygon_bgra(img_bgr, bbox=bbox, polygon_points=points)
-            else:
-                crop = crop_image_bgr(img_bgr, bbox)
-            if crop.size == 0:
-                continue
-            if shape_type == "polygon":
-                fn = f"{base}__{idx:06d}.png"
-                out_path = osp.join(self.crops_dir, fn)
-                write_crop_image(out_path, crop)
-            else:
-                fn = f"{base}__{idx:06d}.jpg"
-                out_path = osp.join(self.crops_dir, fn)
-                write_crop_image(out_path, crop, jpeg_quality=jpeg_quality)
             shape_key = make_shape_key(
                 label=label,
                 shape_type=shape_type,
@@ -708,6 +804,8 @@ class InspectorCache:
             snapshot, image_path, new_items
         )
         self._index["labels_filter"] = list(labels_set)
+        self._index["crop_mode"] = mode
+        self._index["obb_rectify"] = rectify
         self.save_index()
 
     def get_items_for_image(self, image_path: str) -> List[CropItem]:

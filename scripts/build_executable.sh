@@ -30,6 +30,13 @@ require_file() {
     [ -f "$1" ] || fail "Required file '$1' was not found."
 }
 
+compile_translations() {
+    require_command python
+    require_file "${ROOT_DIR}/scripts/compile_languages.py"
+    echo "Compiling translations (scripts/compile_languages.py)..."
+    python "${ROOT_DIR}/scripts/compile_languages.py"
+}
+
 build_with_spec() {
     local label device spec_path
 
@@ -37,6 +44,7 @@ build_with_spec() {
     device=$2
     spec_path=$3
 
+    compile_translations
     require_command pyinstaller
     require_file "${spec_path}"
 

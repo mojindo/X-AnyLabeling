@@ -1,4 +1,5 @@
 import os
+import os.path as osp
 
 # Temporary fix for: bus error
 # Source: https://stackoverflow.com/questions/73072612/
@@ -78,6 +79,17 @@ def build_startup_banner(colorize):
     return "\n".join(
         f"{logo_line} {detail}" for logo_line, detail in zip(logo, details)
     )
+
+
+def _load_translation_file(translator: QtCore.QTranslator, language: str) -> bool:
+    """Load ``language``.qm; prefer on-disk files over embedded ``resources.py``."""
+    lang = str(language or "en_US")
+    pkg_dir = osp.dirname(osp.abspath(__file__))
+    disk_qm = osp.join(pkg_dir, "resources", "translations", f"{lang}.qm")
+    if osp.isfile(disk_qm):
+        if translator.load(disk_qm):
+            return True
+    return translator.load(f":/languages/translations/{lang}.qm")
 
 
 def main():
@@ -386,9 +398,7 @@ def main():
 
     language = config.get("language", QtCore.QLocale.system().name())
     translator = QtCore.QTranslator()
-    loaded_language = translator.load(
-        ":/languages/translations/" + language + ".qm"
-    )
+    loaded_language = _load_translation_file(translator, language)
     QtCore.QCoreApplication.setAttribute(
         QtCore.Qt.ApplicationAttribute.AA_ShareOpenGLContexts
     )

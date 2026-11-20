@@ -44,6 +44,12 @@ $env:X_ANYLABELING_ROOT = $Root
 $env:X_ANYLABELING_PACKAGE_MODE = "onedir"
 $env:X_ANYLABELING_DEVICE = "CPU"
 
+Write-Host "Compiling translations (scripts/compile_languages.py)..."
+& $Python (Join-Path $Root "scripts\compile_languages.py")
+if ($LASTEXITCODE -ne 0) {
+    throw "compile_languages.py failed with exit code $LASTEXITCODE"
+}
+
 Write-Host "Building with PyInstaller..."
 & $PyInstaller --noconfirm --clean $Spec
 if ($LASTEXITCODE -ne 0) {

@@ -5,10 +5,10 @@ from __future__ import annotations
 import functools
 from typing import Any
 
+from PyQt6.QtCore import QCoreApplication
 from PyQt6.QtWidgets import QMessageBox
 
 from anylabeling.views.labeling import utils
-
 
 def install_canvas_hooks(canvas) -> None:
     """Install sticker + compare/inspector canvas helpers (idempotent)."""
@@ -30,6 +30,14 @@ def install_canvas_hooks(canvas) -> None:
         install_compare_canvas_hooks(canvas)
     except Exception:
         pass
+    try:
+        from anylabeling.views.labeling.advanced.desensitize.canvas_controller import (
+            install_desensitize_support,
+        )
+
+        install_desensitize_support(canvas)
+    except Exception:
+        pass
     canvas._advanced_hooks_installed = True
 
 
@@ -48,10 +56,14 @@ def _install_widget_controllers(widget) -> None:
     from anylabeling.views.labeling.advanced.sticker.widget_controller import (
         install as install_sticker,
     )
+    from anylabeling.views.labeling.advanced.desensitize.widget_controller import (
+        install as install_desensitize,
+    )
 
     install_compare(widget)
     install_batch(widget)
     install_sticker(widget)
+    install_desensitize(widget)
 
     widget._inspector_enabled = False
     widget._inspector_dock = None
@@ -98,8 +110,8 @@ def _open_dataset_statistics(widget) -> None:
     if not getattr(widget, "image_list", None):
         QMessageBox.information(
             widget,
-            widget.tr("Dataset Statistics"),
-            widget.tr("No images loaded."),
+            QCoreApplication.translate("LabelingWidget","Dataset Statistics"),
+            QCoreApplication.translate("LabelingWidget","No images loaded."),
         )
         return
     try:
@@ -109,8 +121,8 @@ def _open_dataset_statistics(widget) -> None:
     except Exception as e:
         QMessageBox.warning(
             widget,
-            widget.tr("Dataset Statistics"),
-            widget.tr("Failed to open dialog: %s") % str(e),
+            QCoreApplication.translate("LabelingWidget","Dataset Statistics"),
+            QCoreApplication.translate("LabelingWidget","Failed to open dialog: %s") % str(e),
         )
         return
     open_dataset_analysis_dialog(widget)
@@ -120,8 +132,8 @@ def _guarded(widget, title: str, opener, need_images: bool = True) -> None:
     if need_images and not getattr(widget, "image_list", None):
         QMessageBox.information(
             widget,
-            widget.tr(title),
-            widget.tr("Please open an image folder first."),
+            QCoreApplication.translate("LabelingWidget",title),
+            QCoreApplication.translate("LabelingWidget","Please open an image folder first."),
         )
         return
     try:
@@ -129,8 +141,8 @@ def _guarded(widget, title: str, opener, need_images: bool = True) -> None:
     except Exception as e:
         QMessageBox.warning(
             widget,
-            widget.tr(title),
-            widget.tr("Failed to open: %s") % str(e),
+            QCoreApplication.translate("LabelingWidget",title),
+            QCoreApplication.translate("LabelingWidget","Failed to open: %s") % str(e),
         )
 
 
@@ -138,8 +150,8 @@ def _open_annotation_compare(widget) -> None:
     if not getattr(widget, "image_list", None):
         QMessageBox.information(
             widget,
-            widget.tr("Annotation Compare"),
-            widget.tr("No images loaded."),
+            QCoreApplication.translate("LabelingWidget","Annotation Compare"),
+            QCoreApplication.translate("LabelingWidget","No images loaded."),
         )
         return
     from anylabeling.views.labeling.advanced.compare.annotation_compare_dialog import (
@@ -153,8 +165,8 @@ def _open_model_eval(widget) -> None:
     if not getattr(widget, "image_list", None):
         QMessageBox.information(
             widget,
-            widget.tr("Model Evaluation"),
-            widget.tr("No images loaded."),
+            QCoreApplication.translate("LabelingWidget","Model Evaluation"),
+            QCoreApplication.translate("LabelingWidget","No images loaded."),
         )
         return
     from anylabeling.views.labeling.advanced.compare.model_eval_dialog import (
@@ -168,8 +180,8 @@ def _open_clear_compare(widget) -> None:
     if not widget.filename:
         QMessageBox.information(
             widget,
-            widget.tr("Clear Compare Results"),
-            widget.tr("Please load an image folder before proceeding!"),
+            QCoreApplication.translate("LabelingWidget","Clear Compare Results"),
+            QCoreApplication.translate("LabelingWidget","Please load an image folder before proceeding!"),
         )
         return
     from anylabeling.views.labeling.advanced.compare.annotation_compare_dialog import (
@@ -183,8 +195,8 @@ def _open_label_jump(widget) -> None:
     if not getattr(widget, "image_list", None):
         QMessageBox.information(
             widget,
-            widget.tr("Jump by Labels"),
-            widget.tr("Please open an image folder first."),
+            QCoreApplication.translate("LabelingWidget","Jump by Labels"),
+            QCoreApplication.translate("LabelingWidget","Please open an image folder first."),
         )
         return
     from anylabeling.views.labeling.advanced.ops.label_jump_dialog import (
@@ -212,12 +224,12 @@ def register_advanced_menu(widget: Any) -> None:
     action = functools.partial(utils.new_action, widget)
 
     open_stats = action(
-        widget.tr("Dataset Statistics"),
+        QCoreApplication.translate("LabelingWidget","Dataset Statistics"),
         lambda: _open_dataset_statistics(widget),
-        tip=widget.tr("Batch image quality metrics and annotation distribution"),
+        tip=QCoreApplication.translate("LabelingWidget","Batch image quality metrics and annotation distribution"),
     )
     dataset_split = action(
-        widget.tr("Dataset Split…"),
+        QCoreApplication.translate("LabelingWidget","Dataset Split…"),
         lambda: _guarded(
             widget,
             "Dataset Split",
@@ -227,19 +239,19 @@ def register_advanced_menu(widget: Any) -> None:
             ).open_dataset_split_dialog(w),
             need_images=False,
         ),
-        tip=widget.tr("Write train/val/test/all.txt lists by ratio"),
+        tip=QCoreApplication.translate("LabelingWidget","Write train/val/test/all.txt lists by ratio"),
     )
     batch_check = action(
-        widget.tr("Batch Annotation Check"),
+        QCoreApplication.translate("LabelingWidget","Batch Annotation Check"),
         widget.toggle_annotation_inspector,
-        tip=widget.tr(
+        tip=QCoreApplication.translate("LabelingWidget",
             "Build/browse crop cache and highlight annotations (batch QA)"
         ),
         checkable=True,
         enabled=True,
     )
     label_dedup = action(
-        widget.tr("Label Deduplication…"),
+        QCoreApplication.translate("LabelingWidget","Label Deduplication…"),
         lambda: _guarded(
             widget,
             "Label Deduplication",
@@ -248,10 +260,10 @@ def register_advanced_menu(widget: Any) -> None:
                 fromlist=["open_label_dedup_dialog"],
             ).open_label_dedup_dialog(w),
         ),
-        tip=widget.tr("Remove same-class high-IoU duplicate boxes"),
+        tip=QCoreApplication.translate("LabelingWidget","Remove same-class high-IoU duplicate boxes"),
     )
     dataset_rename = action(
-        widget.tr("Dataset Rename…"),
+        QCoreApplication.translate("LabelingWidget","Dataset Rename…"),
         lambda: _guarded(
             widget,
             "Dataset Rename",
@@ -260,30 +272,37 @@ def register_advanced_menu(widget: Any) -> None:
                 fromlist=["open_dataset_rename_dialog"],
             ).open_dataset_rename_dialog(w),
         ),
-        tip=widget.tr("Batch-rename images and sync JSON / imagePath"),
+        tip=QCoreApplication.translate("LabelingWidget","Batch-rename images and sync JSON / imagePath"),
     )
     annotation_compare = action(
-        widget.tr("Annotation Compare…"),
+        QCoreApplication.translate("LabelingWidget","Annotation Compare…"),
         widget.open_annotation_compare,
-        tip=widget.tr("Compare GT JSON with YOLO predictions"),
+        tip=QCoreApplication.translate("LabelingWidget","Compare GT JSON with YOLO predictions"),
     )
     model_eval = action(
-        widget.tr("Model Evaluation…"),
+        QCoreApplication.translate("LabelingWidget","Model Evaluation…"),
         widget.open_model_eval,
-        tip=widget.tr("Mark false negatives / false positives vs GT"),
+        tip=QCoreApplication.translate("LabelingWidget","Mark false negatives / false positives vs GT"),
     )
     clear_compare = action(
-        widget.tr("Clear Compare Results…"),
+        QCoreApplication.translate("LabelingWidget","Clear Compare Results…"),
         widget.open_clear_annotation_compare_results,
-        tip=widget.tr("Clear annotation-compare and model-eval marks"),
+        tip=QCoreApplication.translate("LabelingWidget","Clear annotation-compare and model-eval marks"),
     )
     sticker = action(
-        widget.tr("Sticker"),
+        QCoreApplication.translate("LabelingWidget","Sticker"),
         widget.open_sticker_mode,
-        tip=widget.tr("Auto overlay materials to address insufficient samples"),
+        tip=QCoreApplication.translate("LabelingWidget","Auto overlay materials to address insufficient samples"),
+    )
+    desensitize = action(
+        QCoreApplication.translate("LabelingWidget","Dataset Desensitization"),
+        widget.open_desensitize_mode,
+        tip=QCoreApplication.translate("LabelingWidget",
+            "Pixelate masked regions on the current image for dataset privacy"
+        ),
     )
     anno_filter = action(
-        widget.tr("Annotation Filter…"),
+        QCoreApplication.translate("LabelingWidget","Annotation Filter…"),
         lambda: _guarded(
             widget,
             "Annotation Filter",
@@ -292,10 +311,10 @@ def register_advanced_menu(widget: Any) -> None:
                 fromlist=["AnnotationFilterDialog"],
             ).AnnotationFilterDialog(w, image_paths=list(w.image_list)).exec(),
         ),
-        tip=widget.tr("Move images/JSON by bounding-box size thresholds"),
+        tip=QCoreApplication.translate("LabelingWidget","Move images/JSON by bounding-box size thresholds"),
     )
     dataset_filter = action(
-        widget.tr("Dataset Filter…"),
+        QCoreApplication.translate("LabelingWidget","Dataset Filter…"),
         lambda: _guarded(
             widget,
             "Dataset Filter",
@@ -304,14 +323,14 @@ def register_advanced_menu(widget: Any) -> None:
                 fromlist=["open_dataset_filter_dialog"],
             ).open_dataset_filter_dialog(w),
         ),
-        tip=widget.tr(
+        tip=QCoreApplication.translate("LabelingWidget",
             "Copy or move images/JSON by selected labels or empty annotations"
         ),
     )
     label_jump = action(
-        widget.tr("Jump by Labels…"),
+        QCoreApplication.translate("LabelingWidget","Jump by Labels…"),
         lambda: _open_label_jump(widget),
-        tip=widget.tr(
+        tip=QCoreApplication.translate("LabelingWidget",
             "Select labels and jump to previous/next image containing any of them"
         ),
     )
@@ -333,6 +352,7 @@ def register_advanced_menu(widget: Any) -> None:
             model_eval,
             clear_compare,
             sticker,
+            desensitize,
             dataset_filter,
             anno_filter,
             label_jump,

@@ -225,6 +225,14 @@ def _advanced_paint_overlays(self, painter: QtGui.QPainter) -> None:
     except Exception:
         pass
 
+    # Desensitize mask preview
+    try:
+        paint_des = getattr(self, "_desensitize_paint_overlay", None)
+        if callable(paint_des):
+            paint_des(painter)
+    except Exception:
+        pass
+
 
 def install_compare_canvas_hooks(canvas) -> None:
     if getattr(canvas, "_advanced_compare_hooks_installed", False):

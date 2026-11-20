@@ -1,0 +1,23 @@
+{
+  "Browse…": "浏览…",
+  "Close": "关闭",
+  "Cancel": "取消",
+  "Done.": "完成。",
+  "Previous": "上一张",
+  "Generate": "生成",
+  "No images loaded.": "未加载图片。",
+  "No image loaded.": "未加载图片。",
+  "Please open an image folder first.": "请先打开图片文件夹。",
+  "Batch Annotation Check": "批量标注检查",
+  "Dataset Desensitization": "数据脱敏",
+  "Sticker": "素材自动贴图",
+  "Center ": "中心 ",
+  "Enable mask tools": "启用蒙版工具",
+  "When enabled: draw masks only (no label edit or canvas pan). When disabled: normal labeling.": "开启后仅能涂抹/矩形/多边形绘制蒙版（不可编辑标注、不可平移画布）；关闭后恢复正常标注。",
+  "Effect": "效果",
+  "Mosaic": "马赛克",
+  "Solid gray fill": "纯色灰块",
+  "Gray level (0–255):": "灰度值 (0–255)：",
+  "Apply solid gray fill (level {level}) to the marked regions and overwrite the current image file?\n{path}": "对标记区域应用灰度 {level} 纯色填充并覆盖当前图像文件？\n{path}",
+  "Apply mosaic to the marked regions and overwrite the current image file?\n{path}": "对标记区域应用马赛克并覆盖当前图像文件？\n{path}"
+}

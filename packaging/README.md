@@ -2,6 +2,23 @@
 
 Build from the repository root on the target operating system with the matching Python dependencies installed. Use Bash, or Git Bash on Windows.
 
+## Before every executable build (required)
+
+Compile Qt translations so new docks, menus, and dialogs are not English-only in release builds:
+
+```bash
+python scripts/compile_languages.py
+```
+
+- Updates `anylabeling/resources/translations/*.qm` from the `.ts` files (needs **lrelease** on PATH).
+- Rebuilds `anylabeling/resources/resources.py` when **pyrcc** / `PyQt6.pyrcc_main` is available.
+
+The app prefers on-disk `.qm` files, then embedded resources (`anylabeling/app.py`). Run this step **after any UI string or `.ts` changes** and **immediately before PyInstaller**. The Mojindo and upstream build scripts run it automatically; if you invoke `pyinstaller` by hand, do not skip this step.
+
+If you forget: the build still succeeds, but **new** UI text appears in English until you compile and rebuild.
+
+See also `.cursor/rules/packaging-compile-translations.mdc`.
+
 ## Build
 
 ```bash

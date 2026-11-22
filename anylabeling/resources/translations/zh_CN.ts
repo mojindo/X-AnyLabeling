@@ -4837,6 +4837,980 @@ Original images backed up to:
         <translation>更新群组编号时发生错误。</translation>
     </message>
 </context><context>
+    <name>ImageAugmentationDialog</name>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="594" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="586" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="569" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="565" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="561" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="556" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="86" />
+        <source>Image Augmentation</source>
+        <translation>数据增强</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="105" />
+        <source>Each source image receives exactly one enabled method, chosen in turn. Methods are not stacked. The output folder receives only the augmented image and its JSON.</source>
+        <translation>每张原图按顺序只分配一种已启用的增强，多种方法不会叠加。输出目录里只写入增强后的图片及其 JSON。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="113" />
+        <source>Augmentation output</source>
+        <translation>增强输出</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="115" />
+        <source>Overwrite original images</source>
+        <translation>覆盖原图</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="116" />
+        <source>Write augmented images and JSON to an output folder</source>
+        <translation>把增强后的图片和 JSON 写到输出目录</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="119" />
+        <source>Select output folder...</source>
+        <translation>选择输出目录…</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="121" />
+        <source>Browse...</source>
+        <translation>浏览…</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="129" />
+        <source>Original images are not copied. A missed probability also writes nothing.</source>
+        <translation>原图不会被复制。应用概率未命中时也不会写出文件。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="165" />
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="167" />
+        <source>Start augmentation</source>
+        <translation>开始增强</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="185" />
+        <source>Enable</source>
+        <translation>启用</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="192" />
+        <source>Chance this method runs when it is the one assigned to an image. Below 1, some assigned images are skipped and not copied.</source>
+        <translation>该图被分配到此方法后，按这个概率真正执行。小于 1 时，部分被分配的图片会被跳过，不会复制。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="196" />
+        <source>Apply chance</source>
+        <translation>应用概率</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="222" />
+        <source>Fog</source>
+        <translation>雾</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="222" />
+        <source>Blends the image toward white. Higher fog and alpha make the scene milkier. Annotations stay in place.</source>
+        <translation>把画面往白色混合。雾强度和混合量越大，画面越发白。标注位置不变。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="224" />
+        <source>Lower bound of fog strength, 0 to 1. Must be less than or equal to the upper bound.</source>
+        <translation>雾强度下限，范围 0 到 1，应小于或等于上限。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="225" />
+        <source>Upper bound of fog strength, 0 to 1.</source>
+        <translation>雾强度上限，范围 0 到 1。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="226" />
+        <source>How much of that fog is mixed in. 0 keeps the original colors; 1 is a strong white veil.</source>
+        <translation>雾的混入比例。0 保持原色，1 接近一层浓白雾。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="227" />
+        <source>Fog low</source>
+        <translation>雾强度下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="228" />
+        <source>Fog high</source>
+        <translation>雾强度上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="229" />
+        <source>Mix amount</source>
+        <translation>混合量</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="234" />
+        <source>Rain</source>
+        <translation>雨</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="234" />
+        <source>Draws slanted streaks, then darkens the frame. Negative slant leans one way, positive the other.</source>
+        <translation>画倾斜雨丝，再压暗画面。负倾斜向一侧，正倾斜向另一侧。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="236" />
+        <source>Most leftward streak slant. Keep this less than or equal to slant high.</source>
+        <translation>雨丝最左的倾斜量，应小于或等于倾斜上限。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="237" />
+        <source>Most rightward streak slant.</source>
+        <translation>雨丝最右的倾斜量。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="238" />
+        <source>Streak length in pixels.</source>
+        <translation>雨丝长度，单位像素。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="239" />
+        <source>Streak thickness in pixels.</source>
+        <translation>雨丝粗细，单位像素。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="240" />
+        <source>Extra blur on the streaks. 0 leaves them sharp.</source>
+        <translation>雨丝额外模糊。0 表示保持清晰。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="241" />
+        <source>Brightness kept after rain. 1 is unchanged; smaller values look darker.</source>
+        <translation>雨后保留的亮度。1 不变，越小越暗。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="242" />
+        <source>Slant low</source>
+        <translation>倾斜下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="243" />
+        <source>Slant high</source>
+        <translation>倾斜上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="244" />
+        <source>Drop length</source>
+        <translation>雨丝长度</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="245" />
+        <source>Drop width</source>
+        <translation>雨丝宽度</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="246" />
+        <source>Streak blur</source>
+        <translation>雨丝模糊</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="247" />
+        <source>Brightness kept</source>
+        <translation>保留亮度</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="252" />
+        <source>Snow</source>
+        <translation>雪</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="252" />
+        <source>Sprinkles white points and lifts brightness. A higher snow range means more flakes.</source>
+        <translation>撒白色雪点并提高亮度。密度范围越大，雪点越多。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="254" />
+        <source>Lower snow density, 0 to 1.</source>
+        <translation>雪点密度下限，范围 0 到 1。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="255" />
+        <source>Upper snow density, 0 to 1.</source>
+        <translation>雪点密度上限，范围 0 到 1。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="256" />
+        <source>How much the snowy frame is brightened. 1 is mild.</source>
+        <translation>雪景提亮倍数。1 表示轻微提亮。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="257" />
+        <source>Density low</source>
+        <translation>密度下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="258" />
+        <source>Density high</source>
+        <translation>密度上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="259" />
+        <source>Brightness gain</source>
+        <translation>提亮倍数</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="264" />
+        <source>Shadow</source>
+        <translation>阴影</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="264" />
+        <source>Darkens a few random patches. Intensity 0 is invisible; 1 replaces the patch with black.</source>
+        <translation>随机压暗几块区域。强度 0 看不出，1 会把该块变成黑色。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="266" />
+        <source>Fewest shadow patches.</source>
+        <translation>阴影块数量下限。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="267" />
+        <source>Most shadow patches.</source>
+        <translation>阴影块数量上限。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="268" />
+        <source>Lightest shadow, 0 to 1.</source>
+        <translation>最浅阴影强度，范围 0 到 1。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="269" />
+        <source>Darkest shadow, 0 to 1.</source>
+        <translation>最深阴影强度，范围 0 到 1。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="270" />
+        <source>Count low</source>
+        <translation>数量下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="271" />
+        <source>Count high</source>
+        <translation>数量上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="387" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="272" />
+        <source>Intensity low</source>
+        <translation>强度下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="388" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="273" />
+        <source>Intensity high</source>
+        <translation>强度上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="278" />
+        <source>Sun flare</source>
+        <translation>眩光</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="278" />
+        <source>Places a short chain of bright circles inside a region of the frame. Coordinates are fractions of width and height.</source>
+        <translation>在画面某一区域内排一串亮斑。坐标是宽和高的比例。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="280" />
+        <source>Left edge of the flare region, 0 to 1.</source>
+        <translation>眩光区域左边界，范围 0 到 1。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="281" />
+        <source>Top edge of the flare region, 0 to 1.</source>
+        <translation>眩光区域上边界，范围 0 到 1。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="282" />
+        <source>Right edge of the flare region, 0 to 1.</source>
+        <translation>眩光区域右边界，范围 0 到 1。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="283" />
+        <source>Bottom edge of the flare region, 0 to 1.</source>
+        <translation>眩光区域下边界，范围 0 到 1。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="284" />
+        <source>Fewest flare circles.</source>
+        <translation>亮斑数量下限。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="285" />
+        <source>Most flare circles.</source>
+        <translation>亮斑数量上限。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="286" />
+        <source>Spacing and size of the flare circles, in pixels.</source>
+        <translation>亮斑间距和大小，单位像素。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="287" />
+        <source>Region left</source>
+        <translation>区域左</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="288" />
+        <source>Region top</source>
+        <translation>区域上</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="289" />
+        <source>Region right</source>
+        <translation>区域右</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="290" />
+        <source>Region bottom</source>
+        <translation>区域下</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="291" />
+        <source>Circles low</source>
+        <translation>亮斑下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="292" />
+        <source>Circles high</source>
+        <translation>亮斑上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="293" />
+        <source>Flare size</source>
+        <translation>眩光尺寸</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="298" />
+        <source>Brightness and contrast</source>
+        <translation>亮度与对比度</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="298" />
+        <source>Shifts brightness and contrast by a random amount inside the limits. 0 means no change; 1 is a strong swing.</source>
+        <translation>在上下限内随机改变亮度和对比度。0 表示不变，1 表示变化很大。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="300" />
+        <source>Largest brightness change, as a fraction of full white.</source>
+        <translation>最大亮度变化，按全白的比例计算。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="301" />
+        <source>Largest contrast change. 0.2 allows about ±20%.</source>
+        <translation>最大对比度变化。0.2 大约是 ±20%。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="302" />
+        <source>Brightness limit</source>
+        <translation>亮度幅度</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="303" />
+        <source>Contrast limit</source>
+        <translation>对比度幅度</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="308" />
+        <source>Color shift</source>
+        <translation>色彩偏移</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="308" />
+        <source>Moves hue, saturation, and brightness by a random amount within each limit. Boxes are not moved.</source>
+        <translation>在各自幅度内随机偏移色相、饱和度和明度。标注框不会移动。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="310" />
+        <source>Largest hue shift. Hue wraps around the color wheel.</source>
+        <translation>最大色相偏移。色相会在色环上循环。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="311" />
+        <source>Largest saturation shift. 0 is gray, 255 is fully saturated.</source>
+        <translation>最大饱和度偏移。0 接近灰，255 是最饱和。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="312" />
+        <source>Largest brightness shift in the color model.</source>
+        <translation>色彩模型里的最大明度偏移。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="313" />
+        <source>Hue limit</source>
+        <translation>色相幅度</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="314" />
+        <source>Saturation limit</source>
+        <translation>饱和度幅度</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="315" />
+        <source>Value limit</source>
+        <translation>明度幅度</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="323" />
+        <source>Motion blur</source>
+        <translation>运动模糊</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="324" />
+        <source>Blurs along a straight streak. Direction is degrees: 0 is horizontal, 90 is vertical, positive angles turn counterclockwise. The low and high bounds pick a random direction; set them equal to keep one direction. Kernel size must be odd.</source>
+        <translation>沿一条直线模糊。方向用角度表示：0 是水平，90 是垂直，正角度逆时针旋转。下限和上限之间随机取一个方向；两者相等时方向固定。核大小须为奇数。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="329" />
+        <source>Blur length in pixels. Larger values look like faster motion. Even values are rounded up.</source>
+        <translation>模糊长度，单位像素。越大越像更快的运动。偶数会向上取整。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="330" />
+        <source>Smallest motion direction in degrees. 0 is horizontal.</source>
+        <translation>最小运动方向，单位度。0 表示水平。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="331" />
+        <source>Largest motion direction in degrees. Keep this greater than or equal to the low value.</source>
+        <translation>最大运动方向，单位度。应大于或等于下限。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="332" />
+        <source>Blur length</source>
+        <translation>模糊长度</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="333" />
+        <source>Direction low</source>
+        <translation>方向下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="334" />
+        <source>Direction high</source>
+        <translation>方向上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="339" />
+        <source>Gaussian blur</source>
+        <translation>高斯模糊</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="339" />
+        <source>Soft focus. A random odd kernel between the two limits is used.</source>
+        <translation>柔焦。会在两个上下限之间随机取一个奇数核。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="341" />
+        <source>Smallest blur kernel. Use an odd number.</source>
+        <translation>最小模糊核，请使用奇数。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="342" />
+        <source>Largest blur kernel. Keep this greater than or equal to the minimum.</source>
+        <translation>最大模糊核，应大于或等于最小值。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="437" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="427" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="343" />
+        <source>Kernel min</source>
+        <translation>核最小值</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="438" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="428" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="344" />
+        <source>Kernel max</source>
+        <translation>核最大值</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="349" />
+        <source>Defocus</source>
+        <translation>失焦</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="349" />
+        <source>Out-of-focus blur. Radius is in pixels; a larger radius spreads each point farther.</source>
+        <translation>离焦模糊。半径单位是像素，越大每个点扩散得越远。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="351" />
+        <source>Smallest defocus radius.</source>
+        <translation>最小失焦半径。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="352" />
+        <source>Largest defocus radius.</source>
+        <translation>最大失焦半径。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="353" />
+        <source>Radius min</source>
+        <translation>半径下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="354" />
+        <source>Radius max</source>
+        <translation>半径上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="359" />
+        <source>Gaussian noise</source>
+        <translation>高斯噪声</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="359" />
+        <source>Adds random grain. Variance is the spread of the noise; a higher value looks grainier.</source>
+        <translation>加入随机颗粒。方差是噪声的散布，越大越粗糙。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="361" />
+        <source>Smallest noise variance.</source>
+        <translation>噪声方差下限。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="362" />
+        <source>Largest noise variance.</source>
+        <translation>噪声方差上限。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="363" />
+        <source>Variance min</source>
+        <translation>方差下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="364" />
+        <source>Variance max</source>
+        <translation>方差上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="369" />
+        <source>JPEG compression</source>
+        <translation>JPEG 压缩</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="369" />
+        <source>Re-saves the image as JPEG. Quality 100 is clean; lower values add block artifacts.</source>
+        <translation>按 JPEG 重新编码。质量 100 较干净，越低块状伪影越明显。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="371" />
+        <source>Lowest JPEG quality. Smaller means stronger artifacts.</source>
+        <translation>最低 JPEG 质量。越小伪影越强。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="372" />
+        <source>Highest JPEG quality.</source>
+        <translation>最高 JPEG 质量。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="373" />
+        <source>Quality low</source>
+        <translation>质量下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="374" />
+        <source>Quality high</source>
+        <translation>质量上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="379" />
+        <source>ISO noise</source>
+        <translation>ISO 噪声</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="379" />
+        <source>Camera-sensor noise from Albumentations ISONoise. Color shift is a fraction of the hue wheel. Intensity scales the grain. Annotations stay in place.</source>
+        <translation>来自 Albumentations ISONoise 的传感器噪声。色彩偏移是色相环的比例，强度控制颗粒大小。标注位置不变。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="381" />
+        <source>Smallest hue shift, as a fraction of the color wheel.</source>
+        <translation>最小色相偏移，按色相环的比例计算。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="382" />
+        <source>Largest hue shift. Keep this greater than or equal to the low value.</source>
+        <translation>最大色相偏移，应大于或等于下限。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="383" />
+        <source>Smallest noise intensity. About 0.5 is clearly visible.</source>
+        <translation>最小噪声强度。大约 0.5 就比较明显。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="384" />
+        <source>Largest noise intensity.</source>
+        <translation>最大噪声强度。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="385" />
+        <source>Color shift low</source>
+        <translation>色彩偏移下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="386" />
+        <source>Color shift high</source>
+        <translation>色彩偏移上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="393" />
+        <source>RGB shift</source>
+        <translation>RGB 偏移</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="393" />
+        <source>Albumentations RGBShift. Each channel moves by a random amount inside ±limit. Boxes do not move.</source>
+        <translation>来自 Albumentations RGBShift。每个通道在 ±上限内随机偏移。标注框不移动。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="395" />
+        <source>Maximum channel shift. 0 leaves the colors unchanged.</source>
+        <translation>通道最大偏移。0 表示颜色不变。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="396" />
+        <source>Shift limit</source>
+        <translation>偏移上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="401" />
+        <source>Random gamma</source>
+        <translation>随机伽马</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="401" />
+        <source>Albumentations RandomGamma. Values are percentages: 100 is unchanged, below 100 brightens midtones, above 100 darkens them.</source>
+        <translation>来自 Albumentations RandomGamma。数值是百分比：100 不变，低于 100 提亮中间调，高于 100 压暗中间调。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="403" />
+        <source>Lowest gamma, in percent. 80 means gamma 0.8.</source>
+        <translation>最低伽马，按百分比。80 表示伽马 0.8。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="404" />
+        <source>Highest gamma, in percent. Keep this greater than or equal to the low value.</source>
+        <translation>最高伽马，按百分比。应大于或等于下限。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="405" />
+        <source>Gamma low</source>
+        <translation>伽马下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="406" />
+        <source>Gamma high</source>
+        <translation>伽马上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="411" />
+        <source>CLAHE</source>
+        <translation>CLAHE</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="411" />
+        <source>Albumentations CLAHE. Contrast is equalized on the lightness channel. A higher clip limit gives stronger local contrast. Tile size is the grid in pixels.</source>
+        <translation>来自 Albumentations CLAHE。在亮度通道上做对比度均衡。裁剪上限越大，局部对比越强。瓦片大小是网格边长。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="413" />
+        <source>Smallest clip limit. 1 is mild.</source>
+        <translation>最小裁剪上限。1 表示较轻。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="414" />
+        <source>Largest clip limit.</source>
+        <translation>最大裁剪上限。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="415" />
+        <source>Tile grid size. 8 means an 8 by 8 grid.</source>
+        <translation>瓦片网格大小。8 表示 8×8 网格。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="416" />
+        <source>Clip low</source>
+        <translation>裁剪下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="417" />
+        <source>Clip high</source>
+        <translation>裁剪上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="418" />
+        <source>Tile size</source>
+        <translation>瓦片大小</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="423" />
+        <source>Blur</source>
+        <translation>模糊</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="423" />
+        <source>Albumentations Blur, a plain box blur. This is separate from Gaussian blur. An odd kernel between the two limits is chosen.</source>
+        <translation>来自 Albumentations Blur，即方框模糊，和高斯模糊不同。会在两个上下限之间取一个奇数核。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="425" />
+        <source>Smallest box kernel. Use an odd number.</source>
+        <translation>最小方框核，请使用奇数。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="426" />
+        <source>Largest box kernel.</source>
+        <translation>最大方框核。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="433" />
+        <source>Median blur</source>
+        <translation>中值模糊</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="433" />
+        <source>Albumentations MedianBlur. Replaces each pixel with the median of its neighborhood, which removes salt-and-pepper noise.</source>
+        <translation>来自 Albumentations MedianBlur。用邻域中值替换每个像素，可去掉椒盐噪声。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="435" />
+        <source>Smallest median kernel. Must be odd.</source>
+        <translation>最小中值核，必须是奇数。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="436" />
+        <source>Largest median kernel.</source>
+        <translation>最大中值核。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="443" />
+        <source>Coarse dropout</source>
+        <translation>粗粒度丢弃</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="443" />
+        <source>Albumentations CoarseDropout. Paints random rectangles with a fill value. Hole size is a fraction of the image. Boxes stay where they were.</source>
+        <translation>来自 Albumentations CoarseDropout。用填充值涂掉随机矩形。孔洞尺寸是图像宽高的比例。标注框留在原处。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="445" />
+        <source>Fewest rectangles to erase.</source>
+        <translation>最少擦除矩形数。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="446" />
+        <source>Most rectangles to erase.</source>
+        <translation>最多擦除矩形数。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="447" />
+        <source>Smallest hole height, as a fraction of the image height.</source>
+        <translation>最小孔洞高度，按图像高度的比例。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="448" />
+        <source>Largest hole height, as a fraction of the image height.</source>
+        <translation>最大孔洞高度，按图像高度的比例。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="449" />
+        <source>Smallest hole width, as a fraction of the image width.</source>
+        <translation>最小孔洞宽度，按图像宽度的比例。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="450" />
+        <source>Largest hole width, as a fraction of the image width.</source>
+        <translation>最大孔洞宽度，按图像宽度的比例。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="451" />
+        <source>Gray fill written into each hole. 0 is black.</source>
+        <translation>写入孔洞的灰度。0 是黑色。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="452" />
+        <source>Holes low</source>
+        <translation>孔洞数下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="453" />
+        <source>Holes high</source>
+        <translation>孔洞数上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="454" />
+        <source>Height low</source>
+        <translation>高度下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="455" />
+        <source>Height high</source>
+        <translation>高度上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="456" />
+        <source>Width low</source>
+        <translation>宽度下限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="457" />
+        <source>Width high</source>
+        <translation>宽度上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="458" />
+        <source>Fill value</source>
+        <translation>填充值</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="463" />
+        <source>Elastic transform</source>
+        <translation>弹性变换</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="463" />
+        <source>Albumentations ElasticTransform. Alpha is the pixel shift, sigma smooths that shift, and affine jitter moves three anchor points. Polygon points follow the warp. Rectangles become the axis-aligned box of the warped corners.</source>
+        <translation>来自 Albumentations ElasticTransform。Alpha 是像素位移，Sigma 让位移更平滑，仿射抖动移动三个锚点。多边形顶点跟着变形。矩形会改成变形后四角的水平包围盒。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="465" />
+        <source>Displacement magnitude in pixels. 1 is a very small ripple; 40 is a visible bend.</source>
+        <translation>位移幅度，单位像素。1 只是很轻的波纹，40 能看出弯曲。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="466" />
+        <source>Smoothness of the displacement. Larger values make broader waves.</source>
+        <translation>位移平滑程度。越大，波浪越宽。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="467" />
+        <source>Random affine jitter in pixels. 0 disables that part.</source>
+        <translation>随机仿射抖动，单位像素。0 表示关闭这一部分。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="468" />
+        <source>Alpha</source>
+        <translation>Alpha</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="469" />
+        <source>Sigma</source>
+        <translation>Sigma</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="470" />
+        <source>Affine jitter</source>
+        <translation>仿射抖动</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="475" />
+        <source>Grid distortion</source>
+        <translation>网格畸变</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="475" />
+        <source>Albumentations GridDistortion. The image is split into a grid and each step is scaled. Distort limit must stay below 1. Annotation points move with the grid.</source>
+        <translation>来自 Albumentations GridDistortion。图像被分成网格，每段按比例缩放。畸变上限须小于 1。标注点随网格移动。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="477" />
+        <source>Number of grid steps on each axis. More steps make smaller cells.</source>
+        <translation>每个方向的网格段数。段数越多，格子越小。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="478" />
+        <source>How far each grid step can shrink or stretch. 0.3 means about ±30%.</source>
+        <translation>每一段可以收缩或拉伸的幅度。0.3 大约是 ±30%。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="479" />
+        <source>Grid steps</source>
+        <translation>网格段数</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="480" />
+        <source>Distort limit</source>
+        <translation>畸变上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="485" />
+        <source>Optical distortion</source>
+        <translation>光学畸变</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="485" />
+        <source>Albumentations OpticalDistortion. Distort limit is the lens coefficient; shift limit moves the optical center as a fraction of width and height. Annotation points follow the lens.</source>
+        <translation>来自 Albumentations OpticalDistortion。畸变上限是镜头系数，中心偏移是宽高的比例。标注点随镜头变形移动。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="487" />
+        <source>Lens distortion magnitude. 0 is no bend. The sign is chosen at random.</source>
+        <translation>镜头畸变强度。0 表示不弯曲。正负号会随机选取。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="488" />
+        <source>How far the optical center may move, as a fraction of the image size.</source>
+        <translation>光心最多偏移多少，按图像尺寸的比例。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="489" />
+        <source>Lens limit</source>
+        <translation>镜头上限</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="490" />
+        <source>Center shift</source>
+        <translation>中心偏移</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="495" />
+        <source>Select output folder</source>
+        <translation>选择输出目录</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="556" />
+        <source>Open an image folder first.</source>
+        <translation>请先打开图片文件夹。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="561" />
+        <source>Select an output folder, or choose overwrite.</source>
+        <translation>请选择输出目录，或改为覆盖原图。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="565" />
+        <source>Enable at least one augmentation.</source>
+        <translation>请至少启用一种增强。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="568" />
+        <source>Augmenting images...</source>
+        <translation>正在增强图片…</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="568" />
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="595" />
+        <source>Checked {total} images. Wrote {ok} augmented images.</source>
+        <translation>已检查 {total} 张图片，写出 {ok} 张增强图。</translation>
+    </message>
+</context><context>
     <name>ImageTagChip</name>
     <message>
         <location filename="..\..\views\labeling\widgets\image_tags_widget.py" line="157" />
@@ -7902,11 +8876,21 @@ This warning will only be shown once. Do you want to continue?</source>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\bootstrap.py" line="346" />
+        <source>Image Augmentation…</source>
+        <translation>数据增强…</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="355" />
+        <source>Apply one photometric augmentation per image and save images with JSON</source>
+        <translation>每张原图只做一种图像增强，并保存增强后的图片和标注</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="361" />
         <source>Jump by Labels…</source>
         <translation>按标签跳转…</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="348" />
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="363" />
         <source>Select labels and jump to previous/next image containing any of them</source>
         <translation>选择标签并跳到包含任一类别的上一张/下一张图片</translation>
     </message>

@@ -342,6 +342,21 @@ def register_advanced_menu(widget: Any) -> None:
             "Find near-duplicate images in the open folder and delete extras",
         ),
     )
+    dataset_augment = action(
+        QCoreApplication.translate("LabelingWidget", "Image Augmentation…"),
+        lambda: _guarded(
+            widget,
+            "Image Augmentation",
+            lambda w: __import__(
+                "anylabeling.views.labeling.advanced.augment.dialog",
+                fromlist=["open_image_augmentation_dialog"],
+            ).open_image_augmentation_dialog(w),
+        ),
+        tip=QCoreApplication.translate(
+            "LabelingWidget",
+            "Apply one photometric augmentation per image and save images with JSON",
+        ),
+    )
     label_jump = action(
         QCoreApplication.translate("LabelingWidget","Jump by Labels…"),
         lambda: _open_label_jump(widget),
@@ -371,6 +386,7 @@ def register_advanced_menu(widget: Any) -> None:
             dataset_filter,
             anno_filter,
             dataset_dedup,
+            dataset_augment,
             label_jump,
         ),
     )

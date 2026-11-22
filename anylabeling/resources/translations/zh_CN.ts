@@ -1890,7 +1890,7 @@ Example: person.car.bicycle</source>
     <message>
         <location filename="..\..\views\labeling\widgets\classes_filter_dialog.py" line="159" />
         <source>Deselect All</source>
-        <translation>取消全选</translation>
+        <translation>全不选</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\widgets\classes_filter_dialog.py" line="161" />
@@ -3103,6 +3103,190 @@ pip install "x-anylabeling-cvhub[advance]"</translation>
         <translation>分辨率</translation>
     </message>
 </context><context>
+    <name>DatasetDedupDialog</name>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="479" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="471" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="449" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="443" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="411" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="336" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="316" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="308" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="301" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="117" />
+        <source>Dataset Dedup</source>
+        <translation>数据集去重</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="139" />
+        <source>Scan the images currently open in this folder. A duplicate group keeps the pictures you choose and deletes the rest, with their JSON files.</source>
+        <translation>扫描当前已打开文件夹中的图片。每个重复组保留勾选的图片，删除其余图片及其 JSON 标注。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="244" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="148" />
+        <source>Collapse settings</source>
+        <translation>收起参数</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="161" />
+        <source>Conditions</source>
+        <translation>去重条件</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="170" />
+        <source>Require similar brightness and sharpness</source>
+        <translation>要求亮度和清晰度接近</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="172" />
+        <source>Max scene shift:</source>
+        <translation>场景最大平移：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="173" />
+        <source>Max scene scale change:</source>
+        <translation>场景最大缩放变化：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="174" />
+        <source>Max scene rotation (rad):</source>
+        <translation>场景最大旋转（弧度）：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="175" />
+        <source>Max instance shift:</source>
+        <translation>实例最大位移：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="176" />
+        <source>Max box scale change:</source>
+        <translation>框尺度最大变化：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="177" />
+        <source>Max pose change:</source>
+        <translation>姿态最大变化：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="178" />
+        <source>Min scene overlap:</source>
+        <translation>场景最小重叠：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="182" />
+        <source>Labels</source>
+        <translation>标签</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="185" />
+        <source>Loaded from Label Manager. Checked labels take part in the instance check.</source>
+        <translation>标签来自标签管理器。勾选的类别参与实例判定，未勾选的类别不参与。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="201" />
+        <source>Select All</source>
+        <translation>全选</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="203" />
+        <source>Deselect All</source>
+        <translation>全不选</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="214" />
+        <source>Scan</source>
+        <translation>扫描</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="217" />
+        <source>Default dedup</source>
+        <translation>默认去重</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="220" />
+        <source>Confirm reviewed dedup</source>
+        <translation>确认审核去重</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="229" />
+        <source>No scan yet.</source>
+        <translation>尚未扫描。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="244" />
+        <source>Expand settings</source>
+        <translation>展开参数</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="284" />
+        <source>No labels in Label Manager.</source>
+        <translation>标签管理器中没有标签。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="302" />
+        <source>Select at least one label.</source>
+        <translation>请至少勾选一个标签。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="309" />
+        <source>Open a folder with at least two images first.</source>
+        <translation>请先打开至少包含两张图片的文件夹。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="317" />
+        <source>Scanning…</source>
+        <translation>正在扫描…</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="345" />
+        <source>Images: {images}. Exact groups: {exact}. Candidates: {candidates}. Scene matches: {scene}. Small camera motion: {view}. Same instance: {instance}. Pairs without boxes (kept): {nobox}. Groups to review: {groups}.</source>
+        <translation>图片：{images}。精确重复组：{exact}。候选对：{candidates}。场景匹配：{scene}。相机运动很小：{view}。实例相同：{instance}。无标注框因而保留的对：{nobox}。待审核组：{groups}。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="375" />
+        <source>No duplicate groups with 2 or more images.</source>
+        <translation>没有数量不少于 2 的重复组。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="379" />
+        <source>Group {index} ({count})</source>
+        <translation>第 {index} 组（{count} 张）</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="412" />
+        <source>Each group must keep at least one checked image.</source>
+        <translation>每一组至少要勾选一张保留的图片。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="444" />
+        <source>Nothing to delete.</source>
+        <translation>没有需要删除的文件。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="450" />
+        <source>Delete {count} image(s) and their annotation files? This cannot be undone.</source>
+        <translation>删除 {count} 张图片及其标注文件？此操作无法撤销。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="472" />
+        <source>Deleted {count}. Some files could not be removed:
+{errors}</source>
+        <translation>已删除 {count} 张。部分文件删除失败：
+{errors}</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="480" />
+        <source>Deleted {count} image(s).</source>
+        <translation>已删除 {count} 张图片。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="486" />
+        <source>Dedup finished. Scan again if the folder changed.</source>
+        <translation>去重已完成。若文件夹有变化，请重新扫描。</translation>
+    </message>
+</context><context>
     <name>DatasetFilterDialog</name>
     <message>
         <location filename="..\..\views\labeling\advanced\ops\dataset_filter_dialog.py" line="489" />
@@ -3694,14 +3878,10 @@ Output: %s</source>
     <message>
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="199" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="23" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="199" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="23" />
         <source>Dataset Desensitization</source>
         <translation>数据脱敏</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="201" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="36" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="201" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="36" />
         <source>Mark regions to pixelate on the current image. Changes are written to the image file when you apply.</source>
@@ -3710,14 +3890,10 @@ Output: %s</source>
     <message>
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="206" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="46" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="206" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="46" />
         <source>Enable mask tools</source>
         <translation>启用蒙版工具</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="208" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="53" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="208" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="53" />
         <source>When enabled: draw masks only (no label edit or canvas pan). When disabled: normal labeling.</source>
@@ -3726,14 +3902,10 @@ Output: %s</source>
     <message>
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="213" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="62" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="213" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="62" />
         <source>Tool</source>
         <translation>工具</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="214" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="64" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="214" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="64" />
         <source>Brush</source>
@@ -3742,14 +3914,10 @@ Output: %s</source>
     <message>
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="215" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="65" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="215" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="65" />
         <source>Rectangle</source>
         <translation>矩形</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="216" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="66" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="216" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="66" />
         <source>Polygon</source>
@@ -3758,14 +3926,10 @@ Output: %s</source>
     <message>
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="217" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="79" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="217" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="79" />
         <source>Brush radius:</source>
         <translation>笔刷半径：</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="219" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="85" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="219" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="85" />
         <source>Brush size in image pixels. Alt + mouse wheel on canvas to adjust.</source>
@@ -3774,14 +3938,10 @@ Output: %s</source>
     <message>
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="223" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="93" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="223" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="93" />
         <source>Effect</source>
         <translation>效果</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="224" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="95" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="224" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="95" />
         <source>Mosaic</source>
@@ -3790,14 +3950,10 @@ Output: %s</source>
     <message>
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="225" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="96" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="225" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="96" />
         <source>Solid gray fill</source>
         <translation>纯色灰块</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="226" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="107" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="226" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="107" />
         <source>Mosaic block:</source>
@@ -3806,14 +3962,10 @@ Output: %s</source>
     <message>
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="227" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="117" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="227" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="117" />
         <source>Gray level (0–255):</source>
         <translation>灰度值 (0–255)：</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="229" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="127" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="229" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="127" />
         <source>Polygon: left-click vertices, right-click or Enter to finish. Esc cancels the current shape.</source>
@@ -3822,22 +3974,16 @@ Output: %s</source>
     <message>
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="234" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="137" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="234" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="137" />
         <source>Apply to image…</source>
         <translation>应用到图像…</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="235" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="138" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="235" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="138" />
         <source>Clear mask</source>
         <translation>清除蒙版</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="236" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="139" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="236" />
         <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="139" />
         <source>Close</source>
@@ -4741,7 +4887,7 @@ Original images backed up to:
         <location filename="..\..\views\labeling\widgets\image_tags_widget.py" line="813" />
         <location filename="..\..\views\labeling\widgets\image_tags_widget.py" line="479" />
         <source>Deselect All</source>
-        <translation>取消全选</translation>
+        <translation>全不选</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\widgets\image_tags_widget.py" line="576" />
@@ -5002,7 +5148,7 @@ Original images backed up to:
     <message>
         <location filename="..\..\views\labeling\widgets\label_filter_dialog.py" line="53" />
         <source>Deselect All</source>
-        <translation>取消全选</translation>
+        <translation>全不选</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\widgets\label_filter_dialog.py" line="63" />
@@ -5112,7 +5258,7 @@ Original images backed up to:
     <message>
         <location filename="..\..\views\labeling\advanced\ops\label_jump_dialog.py" line="196" />
         <source>Select at least one label.</source>
-        <translation>请至少选择一个标签。</translation>
+        <translation>请至少勾选一个标签。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\ops\label_jump_dialog.py" line="246" />
@@ -5244,7 +5390,7 @@ Original images backed up to:
     <message>
         <location filename="..\..\views\labeling\widgets\label_dialog.py" line="1080" />
         <source>Deselect All</source>
-        <translation>取消全选</translation>
+        <translation>全不选</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\widgets\label_dialog.py" line="1225" />
@@ -7746,11 +7892,21 @@ This warning will only be shown once. Do you want to continue?</source>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\bootstrap.py" line="331" />
+        <source>Dataset Dedup…</source>
+        <translation>数据集去重…</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="340" />
+        <source>Find near-duplicate images in the open folder and delete extras</source>
+        <translation>在当前打开的文件夹中查找近重复图片并删除多余项</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="346" />
         <source>Jump by Labels…</source>
         <translation>按标签跳转…</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="333" />
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="348" />
         <source>Select labels and jump to previous/next image containing any of them</source>
         <translation>选择标签并跳到包含任一类别的上一张/下一张图片</translation>
     </message>
@@ -16153,12 +16309,6 @@ Label files updated: {files}</source>
         <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="210" />
         <source>Mosaic applied to the current image.</source>
         <translation>已对当前图片应用马赛克。</translation>
-    </message>
-    <message>
-        <source>Apply mosaic to the marked regions and overwrite the current image file?
-%s</source>
-        <translation>对标记区域打马赛克并覆盖当前图片文件？
-%s</translation>
     </message>
 </context><context>
     <name>_PointCloudGLWidget</name>

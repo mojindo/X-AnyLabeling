@@ -327,6 +327,21 @@ def register_advanced_menu(widget: Any) -> None:
             "Copy or move images/JSON by selected labels or empty annotations"
         ),
     )
+    dataset_dedup = action(
+        QCoreApplication.translate("LabelingWidget", "Dataset Dedup…"),
+        lambda: _guarded(
+            widget,
+            "Dataset Dedup",
+            lambda w: __import__(
+                "anylabeling.views.labeling.advanced.dedup.dialog",
+                fromlist=["open_dataset_dedup_dialog"],
+            ).open_dataset_dedup_dialog(w),
+        ),
+        tip=QCoreApplication.translate(
+            "LabelingWidget",
+            "Find near-duplicate images in the open folder and delete extras",
+        ),
+    )
     label_jump = action(
         QCoreApplication.translate("LabelingWidget","Jump by Labels…"),
         lambda: _open_label_jump(widget),
@@ -355,6 +370,7 @@ def register_advanced_menu(widget: Any) -> None:
             desensitize,
             dataset_filter,
             anno_filter,
+            dataset_dedup,
             label_jump,
         ),
     )

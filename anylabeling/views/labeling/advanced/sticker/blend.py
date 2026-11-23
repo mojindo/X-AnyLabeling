@@ -7,6 +7,9 @@ from typing import Tuple
 import cv2
 import numpy as np
 
+from anylabeling.views.labeling.advanced.sticker.appearance import (
+    adapt_sticker_rgba_to_background,
+)
 from anylabeling.views.labeling.label_converter import LabelConverter
 
 logger = logging.getLogger(__name__)
@@ -78,6 +81,7 @@ def apply_sticker_overwrite(
     material_path: str,
     quad: Tuple[object, ...],
     blend_mode: str = "alpha",
+    appearance_match: bool = True,
 ) -> np.ndarray:
     """
     Warp material (RGBA) to quad and blend into base image. Overwrite base file.
@@ -86,6 +90,9 @@ def apply_sticker_overwrite(
     """
     base = _read_image_bgr(base_image_path)
     rgba = _read_image_rgba(material_path)
+    rgba = adapt_sticker_rgba_to_background(
+        rgba, base, quad, enabled=bool(appearance_match)
+    )
     h, w = base.shape[:2]
 
     def _alpha_compose(dst_bgra: np.ndarray, src_bgra: np.ndarray) -> np.ndarray:

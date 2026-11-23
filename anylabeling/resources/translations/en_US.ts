@@ -3085,6 +3085,310 @@ pip install "x-anylabeling-cvhub[advance]"</source>
         <translation type="unfinished" />
     </message>
 </context><context>
+    <name>DatasetDedupDialog</name>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="665" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="657" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="635" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="629" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="597" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="522" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="502" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="494" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="487" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="128" />
+        <source>Dataset Dedup</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="150" />
+        <source>Scan the images currently open in this folder. A duplicate group keeps the pictures you choose and deletes the rest, with their JSON files.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="387" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="159" />
+        <source>Collapse settings</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="172" />
+        <source>Conditions</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="175" />
+        <source>Scan runs in stages: scene match (overlap), then camera motion, then instances, then optional quality. Loosening a limit keeps more pairs as duplicates. Tightening drops more pairs. Scene motion limits apply only after a pair already passes scene matching.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="194" />
+        <source>Max scene shift:</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="238" />
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="196" />
+        <source>of shorter image side</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="197" />
+        <source>Gate 2. After scene match, center displacement from the background homography, divided by the shorter image side. Raise to allow more camera pan as still duplicate (default 0.02 = 2% of min width/height). Lower to treat small pans as diversity.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="205" />
+        <source>Max scene scale change:</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="207" />
+        <source>absolute scale delta</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="208" />
+        <source>Gate 2. Absolute zoom change between views (|scale factor − 1|). Default 0.02 ≈ ±2% zoom. Raise to merge different zoom levels; lower to keep zoom variants.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="215" />
+        <source>Max scene rotation (rad):</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="217" />
+        <source>radians</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="218" />
+        <source>Gate 2. Absolute rotation from the homography, in radians (0.03 ≈ 1.7°). Raise to allow rotated duplicates; lower to split rotated views.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="225" />
+        <source>Min scene overlap:</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="227" />
+        <source>area ratio 0–1</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="228" />
+        <source>Gate 1 (scene match). Overlap of warped view vs the other image: intersection area divided by the smaller image area. Default 0.35 = 35%. Lower admits more crop/partial views; higher requires almost the same framing. Not the same as camera motion limits above.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="236" />
+        <source>Max instance shift:</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="239" />
+        <source>Gate 3. After compensating scene motion, max box-center residual between matched instances, divided by the shorter side. Default 0.03 = 3%. Raise if subjects may move slightly; lower to require nearly fixed objects.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="246" />
+        <source>Max box scale change:</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="248" />
+        <source>|ln(area ratio)|</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="249" />
+        <source>Gate 3. Log ratio of matched box areas. 0.20 ≈ 22% area change (e^0.2). Raise to allow size changes; lower to require same box size.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="256" />
+        <source>Max pose change:</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="258" />
+        <source>|ln(aspect ratio)|</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="259" />
+        <source>Gate 3. Log ratio of matched box aspect ratios (shape proxy). Default 0.20. Raise to allow pose/shape drift; lower to require similar box shape.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="267" />
+        <source>Quality gate (G4)</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="270" />
+        <source>After instance match, optional photometric checks on thumbnails. Each enabled metric compares two values; pass when |a−b| / max(|a|,|b|) is at or below the relative limit. Raise limits to allow more blur, exposure, or color change as still duplicate.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="279" />
+        <source>Enable quality gate</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="286" />
+        <source>Laplacian variance (log1p) on thumbnail. Lower limit rejects blur vs sharp pairs.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="289" />
+        <source>Mean LAB L (0–255). Relative limit is vs the brighter of the two images.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="292" />
+        <source>Gray RMS contrast. Catches flat vs punchy tone mapping.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="293" />
+        <source>Mean HSV saturation. Default relative limit 25%.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="294" />
+        <source>Mean HSV value (overall lightness in HSV).</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="295" />
+        <source>Median absolute deviation of denoise residual. High noise vs clean shots.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="304" />
+        <source>Max relative difference allowed for this metric. Example: 20 means up to 20% vs the larger of the two values.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="310" />
+        <source>% vs larger value</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="325" />
+        <source>Labels</source>
+        <translation type="unfinished">Labels</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="328" />
+        <source>Loaded from Label Manager. Checked labels take part in the instance check.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="344" />
+        <source>Select All</source>
+        <translation type="unfinished">Select All</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="346" />
+        <source>Deselect All</source>
+        <translation type="unfinished">Deselect All</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="357" />
+        <source>Scan</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="360" />
+        <source>Default dedup</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="363" />
+        <source>Confirm reviewed dedup</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="372" />
+        <source>No scan yet.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="387" />
+        <source>Expand settings</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="470" />
+        <source>No labels in Label Manager.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="488" />
+        <source>Select at least one label.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="495" />
+        <source>Open a folder with at least two images first.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="503" />
+        <source>Scanning…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="531" />
+        <source>Images: {images}. Exact groups: {exact}. Candidates: {candidates}. Scene matches: {scene}. Small camera motion: {view}. Same instance: {instance}. Pairs without boxes (kept): {nobox}. Groups to review: {groups}.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="561" />
+        <source>No duplicate groups with 2 or more images.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="565" />
+        <source>Group {index} ({count})</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="598" />
+        <source>Each group must keep at least one checked image.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="630" />
+        <source>Nothing to delete.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="636" />
+        <source>Delete {count} image(s) and their annotation files? This cannot be undone.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="658" />
+        <source>Deleted {count}. Some files could not be removed:
+{errors}</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="666" />
+        <source>Deleted {count} image(s).</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="672" />
+        <source>Dedup finished. Scan again if the folder changed.</source>
+        <translation type="unfinished" />
+    </message>
+</context><context>
     <name>DatasetFilterDialog</name>
     <message>
         <location filename="..\..\views\labeling\advanced\ops\dataset_filter_dialog.py" line="489" />
@@ -3659,93 +3963,116 @@ Output: %s</source>
 </context><context>
     <name>DesensitizeDock</name>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="167" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="110" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="20" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="199" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="23" />
         <source>Dataset Desensitization</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="169" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="112" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="33" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="201" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="36" />
         <source>Mark regions to pixelate on the current image. Changes are written to the image file when you apply.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="174" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="117" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="42" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="206" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="46" />
+        <source>Enable mask tools</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="208" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="53" />
+        <source>When enabled: draw masks only (no label edit or canvas pan). When disabled: normal labeling.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="213" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="62" />
         <source>Tool</source>
         <translation type="unfinished">Tool</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="175" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="118" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="44" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="214" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="64" />
         <source>Brush</source>
         <translation type="unfinished">Brush</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="176" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="119" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="45" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="215" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="65" />
         <source>Rectangle</source>
         <translation type="unfinished">Rectangle</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="177" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="120" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="46" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="216" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="66" />
         <source>Polygon</source>
         <translation type="unfinished">Polygon</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="178" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="121" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="59" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="217" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="79" />
         <source>Brush radius:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="180" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="123" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="65" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="219" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="85" />
         <source>Brush size in image pixels. Alt + mouse wheel on canvas to adjust.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="184" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="127" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="72" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="223" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="93" />
+        <source>Effect</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="224" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="95" />
+        <source>Mosaic</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="225" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="96" />
+        <source>Solid gray fill</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="226" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="107" />
         <source>Mosaic block:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="186" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="129" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="82" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="227" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="117" />
+        <source>Gray level (0–255):</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="229" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="127" />
         <source>Polygon: left-click vertices, right-click or Enter to finish. Esc cancels the current shape.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="191" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="134" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="92" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="234" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="137" />
         <source>Apply to image…</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="192" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="135" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="93" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="235" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="138" />
         <source>Clear mask</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="193" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="136" />
-        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="94" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="236" />
+        <location filename="..\..\views\labeling\advanced\desensitize\dock.py" line="139" />
         <source>Close</source>
         <translation type="unfinished">Close</translation>
     </message>
@@ -4595,6 +4922,980 @@ Original images backed up to:
         <location filename="..\..\views\labeling\widgets\label_dialog.py" line="675" />
         <source>An error occurred while updating the Group IDs.</source>
         <translation>An error occurred while updating the Group IDs.</translation>
+    </message>
+</context><context>
+    <name>ImageAugmentationDialog</name>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="611" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="603" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="586" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="582" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="578" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="573" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="87" />
+        <source>Image Augmentation</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="106" />
+        <source>Each source image receives exactly one enabled method, chosen in turn. Methods are not stacked. The output folder receives only the augmented image and its JSON.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="114" />
+        <source>Augmentation output</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="116" />
+        <source>Overwrite original images</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="117" />
+        <source>Write augmented images and JSON to an output folder</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="120" />
+        <source>Select output folder...</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="122" />
+        <source>Browse...</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="130" />
+        <source>Original images are not copied. A missed probability also writes nothing.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="175" />
+        <source>Close</source>
+        <translation type="unfinished">Close</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="177" />
+        <source>Start augmentation</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="203" />
+        <source>Enable</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="210" />
+        <source>Chance this method runs when it is the one assigned to an image. Below 1, some assigned images are skipped and not copied.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="214" />
+        <source>Apply chance</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="240" />
+        <source>Fog</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="240" />
+        <source>Blends the image toward white. Higher fog and alpha make the scene milkier. Annotations stay in place.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="242" />
+        <source>Lower bound of fog strength, 0 to 1. Must be less than or equal to the upper bound.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="243" />
+        <source>Upper bound of fog strength, 0 to 1.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="244" />
+        <source>How much of that fog is mixed in. 0 keeps the original colors; 1 is a strong white veil.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="245" />
+        <source>Fog low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="246" />
+        <source>Fog high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="247" />
+        <source>Mix amount</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="252" />
+        <source>Rain</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="252" />
+        <source>Draws slanted streaks, then darkens the frame. Negative slant leans one way, positive the other.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="254" />
+        <source>Most leftward streak slant. Keep this less than or equal to slant high.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="255" />
+        <source>Most rightward streak slant.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="256" />
+        <source>Streak length in pixels.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="257" />
+        <source>Streak thickness in pixels.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="258" />
+        <source>Extra blur on the streaks. 0 leaves them sharp.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="259" />
+        <source>Brightness kept after rain. 1 is unchanged; smaller values look darker.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="260" />
+        <source>Slant low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="261" />
+        <source>Slant high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="262" />
+        <source>Drop length</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="263" />
+        <source>Drop width</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="264" />
+        <source>Streak blur</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="265" />
+        <source>Brightness kept</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="270" />
+        <source>Snow</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="270" />
+        <source>Sprinkles white points and lifts brightness. A higher snow range means more flakes.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="272" />
+        <source>Lower snow density, 0 to 1.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="273" />
+        <source>Upper snow density, 0 to 1.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="274" />
+        <source>How much the snowy frame is brightened. 1 is mild.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="275" />
+        <source>Density low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="276" />
+        <source>Density high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="277" />
+        <source>Brightness gain</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="282" />
+        <source>Shadow</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="282" />
+        <source>Darkens a few random patches. Intensity 0 is invisible; 1 replaces the patch with black.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="284" />
+        <source>Fewest shadow patches.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="285" />
+        <source>Most shadow patches.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="286" />
+        <source>Lightest shadow, 0 to 1.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="287" />
+        <source>Darkest shadow, 0 to 1.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="288" />
+        <source>Count low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="289" />
+        <source>Count high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="404" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="290" />
+        <source>Intensity low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="405" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="291" />
+        <source>Intensity high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="296" />
+        <source>Sun flare</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="296" />
+        <source>Places a short chain of bright circles inside a region of the frame. Coordinates are fractions of width and height.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="298" />
+        <source>Left edge of the flare region, 0 to 1.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="299" />
+        <source>Top edge of the flare region, 0 to 1.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="300" />
+        <source>Right edge of the flare region, 0 to 1.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="301" />
+        <source>Bottom edge of the flare region, 0 to 1.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="302" />
+        <source>Fewest flare circles.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="303" />
+        <source>Most flare circles.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="304" />
+        <source>Spacing and size of the flare circles, in pixels.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="305" />
+        <source>Region left</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="306" />
+        <source>Region top</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="307" />
+        <source>Region right</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="308" />
+        <source>Region bottom</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="309" />
+        <source>Circles low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="310" />
+        <source>Circles high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="311" />
+        <source>Flare size</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="316" />
+        <source>Brightness and contrast</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="316" />
+        <source>Shifts brightness and contrast by a random amount inside the limits. 0 means no change; 1 is a strong swing.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="318" />
+        <source>Largest brightness change, as a fraction of full white.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="319" />
+        <source>Largest contrast change. 0.2 allows about ±20%.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="320" />
+        <source>Brightness limit</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="321" />
+        <source>Contrast limit</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="326" />
+        <source>Color shift</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="326" />
+        <source>Moves hue, saturation, and brightness by a random amount within each limit. Boxes are not moved.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="328" />
+        <source>Largest hue shift. Hue wraps around the color wheel.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="329" />
+        <source>Largest saturation shift. 0 is gray, 255 is fully saturated.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="330" />
+        <source>Largest brightness shift in the color model.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="331" />
+        <source>Hue limit</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="332" />
+        <source>Saturation limit</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="333" />
+        <source>Value limit</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="340" />
+        <source>Motion blur</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="341" />
+        <source>Blurs along a straight streak. Direction is degrees: 0 is horizontal, 90 is vertical, positive angles turn counterclockwise. The low and high bounds pick a random direction; set them equal to keep one direction. Kernel size must be odd.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="346" />
+        <source>Blur length in pixels. Larger values look like faster motion. Even values are rounded up.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="347" />
+        <source>Smallest motion direction in degrees. 0 is horizontal.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="348" />
+        <source>Largest motion direction in degrees. Keep this greater than or equal to the low value.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="349" />
+        <source>Blur length</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="350" />
+        <source>Direction low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="351" />
+        <source>Direction high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="356" />
+        <source>Gaussian blur</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="356" />
+        <source>Soft focus. A random odd kernel between the two limits is used.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="358" />
+        <source>Smallest blur kernel. Use an odd number.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="359" />
+        <source>Largest blur kernel. Keep this greater than or equal to the minimum.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="454" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="444" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="360" />
+        <source>Kernel min</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="455" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="445" />
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="361" />
+        <source>Kernel max</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="366" />
+        <source>Defocus</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="366" />
+        <source>Out-of-focus blur. Radius is in pixels; a larger radius spreads each point farther.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="368" />
+        <source>Smallest defocus radius.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="369" />
+        <source>Largest defocus radius.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="370" />
+        <source>Radius min</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="371" />
+        <source>Radius max</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="376" />
+        <source>Gaussian noise</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="376" />
+        <source>Adds random grain. Variance is the spread of the noise; a higher value looks grainier.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="378" />
+        <source>Smallest noise variance.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="379" />
+        <source>Largest noise variance.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="380" />
+        <source>Variance min</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="381" />
+        <source>Variance max</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="386" />
+        <source>JPEG compression</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="386" />
+        <source>Re-saves the image as JPEG. Quality 100 is clean; lower values add block artifacts.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="388" />
+        <source>Lowest JPEG quality. Smaller means stronger artifacts.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="389" />
+        <source>Highest JPEG quality.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="390" />
+        <source>Quality low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="391" />
+        <source>Quality high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="396" />
+        <source>ISO noise</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="396" />
+        <source>Camera-sensor noise from Albumentations ISONoise. Color shift is a fraction of the hue wheel. Intensity scales the grain. Annotations stay in place.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="398" />
+        <source>Smallest hue shift, as a fraction of the color wheel.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="399" />
+        <source>Largest hue shift. Keep this greater than or equal to the low value.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="400" />
+        <source>Smallest noise intensity. About 0.5 is clearly visible.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="401" />
+        <source>Largest noise intensity.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="402" />
+        <source>Color shift low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="403" />
+        <source>Color shift high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="410" />
+        <source>RGB shift</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="410" />
+        <source>Albumentations RGBShift. Each channel moves by a random amount inside ±limit. Boxes do not move.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="412" />
+        <source>Maximum channel shift. 0 leaves the colors unchanged.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="413" />
+        <source>Shift limit</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="418" />
+        <source>Random gamma</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="418" />
+        <source>Albumentations RandomGamma. Values are percentages: 100 is unchanged, below 100 brightens midtones, above 100 darkens them.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="420" />
+        <source>Lowest gamma, in percent. 80 means gamma 0.8.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="421" />
+        <source>Highest gamma, in percent. Keep this greater than or equal to the low value.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="422" />
+        <source>Gamma low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="423" />
+        <source>Gamma high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="428" />
+        <source>CLAHE</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="428" />
+        <source>Albumentations CLAHE. Contrast is equalized on the lightness channel. A higher clip limit gives stronger local contrast. Tile size is the grid in pixels.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="430" />
+        <source>Smallest clip limit. 1 is mild.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="431" />
+        <source>Largest clip limit.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="432" />
+        <source>Tile grid size. 8 means an 8 by 8 grid.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="433" />
+        <source>Clip low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="434" />
+        <source>Clip high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="435" />
+        <source>Tile size</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="440" />
+        <source>Blur</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="440" />
+        <source>Albumentations Blur, a plain box blur. This is separate from Gaussian blur. An odd kernel between the two limits is chosen.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="442" />
+        <source>Smallest box kernel. Use an odd number.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="443" />
+        <source>Largest box kernel.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="450" />
+        <source>Median blur</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="450" />
+        <source>Albumentations MedianBlur. Replaces each pixel with the median of its neighborhood, which removes salt-and-pepper noise.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="452" />
+        <source>Smallest median kernel. Must be odd.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="453" />
+        <source>Largest median kernel.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="460" />
+        <source>Coarse dropout</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="460" />
+        <source>Albumentations CoarseDropout. Paints random rectangles with a fill value. Hole size is a fraction of the image. Boxes stay where they were.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="462" />
+        <source>Fewest rectangles to erase.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="463" />
+        <source>Most rectangles to erase.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="464" />
+        <source>Smallest hole height, as a fraction of the image height.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="465" />
+        <source>Largest hole height, as a fraction of the image height.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="466" />
+        <source>Smallest hole width, as a fraction of the image width.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="467" />
+        <source>Largest hole width, as a fraction of the image width.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="468" />
+        <source>Gray fill written into each hole. 0 is black.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="469" />
+        <source>Holes low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="470" />
+        <source>Holes high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="471" />
+        <source>Height low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="472" />
+        <source>Height high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="473" />
+        <source>Width low</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="474" />
+        <source>Width high</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="475" />
+        <source>Fill value</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="480" />
+        <source>Elastic transform</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="480" />
+        <source>Albumentations ElasticTransform. Alpha is the pixel shift, sigma smooths that shift, and affine jitter moves three anchor points. Polygon points follow the warp. Rectangles become the axis-aligned box of the warped corners.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="482" />
+        <source>Displacement magnitude in pixels. 1 is a very small ripple; 40 is a visible bend.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="483" />
+        <source>Smoothness of the displacement. Larger values make broader waves.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="484" />
+        <source>Random affine jitter in pixels. 0 disables that part.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="485" />
+        <source>Alpha</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="486" />
+        <source>Sigma</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="487" />
+        <source>Affine jitter</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="492" />
+        <source>Grid distortion</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="492" />
+        <source>Albumentations GridDistortion. The image is split into a grid and each step is scaled. Distort limit must stay below 1. Annotation points move with the grid.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="494" />
+        <source>Number of grid steps on each axis. More steps make smaller cells.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="495" />
+        <source>How far each grid step can shrink or stretch. 0.3 means about ±30%.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="496" />
+        <source>Grid steps</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="497" />
+        <source>Distort limit</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="502" />
+        <source>Optical distortion</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="502" />
+        <source>Albumentations OpticalDistortion. Distort limit is the lens coefficient; shift limit moves the optical center as a fraction of width and height. Annotation points follow the lens.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="504" />
+        <source>Lens distortion magnitude. 0 is no bend. The sign is chosen at random.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="505" />
+        <source>How far the optical center may move, as a fraction of the image size.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="506" />
+        <source>Lens limit</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="507" />
+        <source>Center shift</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="512" />
+        <source>Select output folder</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="573" />
+        <source>Open an image folder first.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="578" />
+        <source>Select an output folder, or choose overwrite.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="582" />
+        <source>Enable at least one augmentation.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="585" />
+        <source>Augmenting images...</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="585" />
+        <source>Cancel</source>
+        <translation type="unfinished">Cancel</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="612" />
+        <source>Checked {total} images. Wrote {ok} augmented images.</source>
+        <translation type="unfinished" />
     </message>
 </context><context>
     <name>ImageTagChip</name>
@@ -7471,6 +8772,206 @@ This warning will only be shown once. Do you want to continue?</translation>
         <location filename="..\..\views\labeling\label_widget.py" line="8745" />
         <source>Object Description</source>
         <translation>Object Description</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="227" />
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="124" />
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="113" />
+        <source>Dataset Statistics</source>
+        <translation type="unfinished">Dataset Statistics</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="169" />
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="154" />
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="114" />
+        <source>No images loaded.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="125" />
+        <source>Failed to open dialog: %s</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="199" />
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="136" />
+        <source>Please open an image folder first.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="145" />
+        <source>Failed to open: %s</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="153" />
+        <source>Annotation Compare</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="168" />
+        <source>Model Evaluation</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="183" />
+        <source>Clear Compare Results</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="184" />
+        <source>Please load an image folder before proceeding!</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="198" />
+        <source>Jump by Labels</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="229" />
+        <source>Batch image quality metrics and annotation distribution</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="232" />
+        <source>Dataset Split…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="242" />
+        <source>Write train/val/test/all.txt lists by ratio</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="245" />
+        <source>Batch Annotation Check</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="247" />
+        <source>Build/browse crop cache and highlight annotations (batch QA)</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="254" />
+        <source>Label Deduplication…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="263" />
+        <source>Remove same-class high-IoU duplicate boxes</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="266" />
+        <source>Dataset Rename…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="275" />
+        <source>Batch-rename images and sync JSON / imagePath</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="278" />
+        <source>Annotation Compare…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="280" />
+        <source>Compare GT JSON with YOLO predictions</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="283" />
+        <source>Model Evaluation…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="285" />
+        <source>Mark false negatives / false positives vs GT</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="288" />
+        <source>Clear Compare Results…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="290" />
+        <source>Clear annotation-compare and model-eval marks</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="293" />
+        <source>Sticker</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="295" />
+        <source>Auto overlay materials to address insufficient samples</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="298" />
+        <source>Dataset Desensitization</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="300" />
+        <source>Pixelate masked regions on the current image for dataset privacy</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="305" />
+        <source>Annotation Filter…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="314" />
+        <source>Move images/JSON by bounding-box size thresholds</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="317" />
+        <source>Dataset Filter…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="326" />
+        <source>Copy or move images/JSON by selected labels or empty annotations</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="331" />
+        <source>Dataset Dedup…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="340" />
+        <source>Find near-duplicate images in the open folder and delete extras</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="346" />
+        <source>Image Augmentation…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="355" />
+        <source>Apply one photometric augmentation per image and save images with JSON</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="361" />
+        <source>Jump by Labels…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="363" />
+        <source>Select labels and jump to previous/next image containing any of them</source>
+        <translation type="unfinished" />
     </message>
     <message>
         <location filename="..\..\views\labeling\utils\export.py" line="116" />
@@ -13788,98 +15289,138 @@ Changes will not be saved until you click Save.</translation>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="66" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="63" />
         <source>Blend:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="70" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="65" />
+        <source>How the warped sticker is combined with the base image.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="76" />
         <source>Detection (HBB)</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="71" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="77" />
         <source>Detection (OBB)</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="72" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="78" />
         <source>Segmentation (Polygon)</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="74" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="80" />
         <source>Annotation:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="79" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="91" />
         <source>Quick apply</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="80" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="92" />
         <source>Click on image to apply sticker at that position</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="87" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="100" />
+        <source>Match surrounding appearance</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="103" />
+        <source>Adjust sticker colors to match the background ring around the placement quad before blending.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="114" />
         <source>Rotate:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="88" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="115" />
         <source>-5°</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="89" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="116" />
         <source>+5°</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="98" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="125" />
         <source>Move:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="105" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="132" />
         <source>px</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="107" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="134" />
         <source>↑</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="108" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="135" />
         <source>↓</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="109" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="136" />
         <source>←</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="110" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="137" />
         <source>→</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="127" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="154" />
         <source>Cancel</source>
         <translation type="unfinished">Cancel</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="129" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="156" />
         <source>Apply</source>
         <translation type="unfinished">Apply</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="226" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="253" />
         <source>Select materials folder</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="284" />
+        <source>Default: standard transparency overlay. Best for typical PNG stickers with clean alpha.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="287" />
+        <source>Darkens the background under the sticker. Good for shadows, stains, or dark printed marks.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="290" />
+        <source>Lightens the background under the sticker. Good for highlights, glow, or light markings.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="293" />
+        <source>Increases local contrast (dark stays darker, bright stays brighter). Often looks more like ink on textured surfaces.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="297" />
+        <source>Seamless clone: blends gradients at the boundary for a softer join. Can look more natural but may ignore fine alpha; falls back to alpha if it fails.</source>
         <translation type="unfinished" />
     </message>
 </context><context>
@@ -15801,11 +17342,11 @@ Label files updated: {files}</source>
 </context><context>
     <name>_DesensitizeWidgetMethods</name>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="183" />
-        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="177" />
-        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="166" />
+        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="209" />
+        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="203" />
+        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="192" />
+        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="172" />
         <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="145" />
-        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="133" />
         <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="40" />
         <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="23" />
         <source>Dataset Desensitization</source>
@@ -15822,28 +17363,34 @@ Label files updated: {files}</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="134" />
+        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="146" />
         <source>Draw a mask region before applying.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="146" />
-        <source>Apply mosaic to the marked regions and overwrite the current image file?
-%s</source>
+        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="160" />
+        <source>Apply solid gray fill (level {level}) to the marked regions and overwrite the current image file?
+{path}</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="167" />
+        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="165" />
+        <source>Apply mosaic to the marked regions and overwrite the current image file?
+{path}</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="193" />
         <source>Failed to apply mosaic: %s</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="178" />
+        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="204" />
         <source>Mosaic saved, but reload failed: %s</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="184" />
+        <location filename="..\..\views\labeling\advanced\desensitize\widget_controller.py" line="210" />
         <source>Mosaic applied to the current image.</source>
         <translation type="unfinished" />
     </message>
@@ -15857,7 +17404,7 @@ Label files updated: {files}</source>
 </context><context>
     <name>_StickerWidgetMethods</name>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="113" />
+        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="116" />
         <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="94" />
         <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="38" />
         <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="22" />
@@ -15880,7 +17427,7 @@ Label files updated: {files}</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="114" />
+        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="117" />
         <source>Failed to apply sticker: %s</source>
         <translation type="unfinished" />
     </message>

@@ -96,13 +96,16 @@ class _StickerWidgetMethods:
             )
 
 
-    def _on_sticker_commit_requested(self, blend_mode: str, anno_mode: str, warp_mode: str) -> None:
+    def _on_sticker_commit_requested(
+        self, blend_mode: str, anno_mode: str, warp_mode: str, appearance_match: bool
+    ) -> None:
         try:
             self.canvas.sticker_commit(
                 blend_mode=str(blend_mode or "alpha"),
                 anno_mode=str(anno_mode or "hbb"),
                 output_dir=self.output_dir,
                 warp_mode=str(warp_mode or "4"),
+                appearance_match=bool(appearance_match),
             )
             # reload current image after overwrite
             if self.filename:
@@ -132,14 +135,20 @@ class _StickerWidgetMethods:
             pass
 
 
-    def _on_sticker_settings_changed(self, blend: str, anno: str, warp: str) -> None:
+    def _on_sticker_settings_changed(
+        self, blend: str, anno: str, warp: str, appearance_match: bool
+    ) -> None:
         try:
             self.canvas.sticker_set_quick_apply_settings(
                 blend_mode=str(blend or "alpha"),
                 anno_mode=str(anno or "hbb"),
                 warp_mode=str(warp or "4"),
                 output_dir=self.output_dir,
+                appearance_match=bool(appearance_match),
             )
+            mark = getattr(self.canvas, "_sticker_mark_dirty", None)
+            if callable(mark):
+                mark()
         except Exception:
             pass
 

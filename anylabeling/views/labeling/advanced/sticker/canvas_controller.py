@@ -53,6 +53,8 @@ def _sticker_build_preview_bgra(
     preview_max: int,
     points8: Tuple[QtCore.QPointF, ...],
     warp_mode: str,
+    base_bgr: Optional[np.ndarray] = None,
+    appearance_match: bool = True,
 ) -> Tuple[Optional[np.ndarray], Tuple[int, int]]:
     """
     Build a BGRA preview image (ph,pw,4) for sticker overlay.
@@ -65,13 +67,29 @@ def _sticker_build_preview_bgra(
     if not points8 or len(points8) < 4:
         return None, (0, 0)
 
+    work_bgra = material_bgra
+    if appearance_match and base_bgr is not None and cv2 is not None:
+        from anylabeling.views.labeling.advanced.sticker.appearance import (
+            adapt_sticker_rgba_to_background,
+        )
+
+        try:
+            work_bgra = adapt_sticker_rgba_to_background(
+                work_bgra,
+                base_bgr,
+                tuple(points8)[0:4],
+                enabled=True,
+            )
+        except Exception:
+            work_bgra = material_bgra
+
     max_dim = max(1, int(max(base_w, base_h)))
     target_max = max(64, int(preview_max))
     s = 1.0 if max_dim <= target_max else (float(target_max) / float(max_dim))
     pw = max(1, int(round(base_w * s)))
     ph = max(1, int(round(base_h * s)))
 
-    mh, mw = material_bgra.shape[:2]
+    mh, mw = work_bgra.shape[:2]
     mode = str(warp_mode or "4")
     corners = list(points8)[0:4]
     sx = float(pw) / float(base_w)
@@ -93,7 +111,7 @@ def _sticker_build_preview_bgra(
         )
         M = cv2.getPerspectiveTransform(src, dst)
         warped = cv2.warpPerspective(
-            material_bgra,
+            work_bgra,
             M,
             (pw, ph),
             flags=cv2.INTER_LINEAR,
@@ -137,7 +155,7 @@ def _sticker_build_preview_bgra(
             iy0, iy1 = int(round(sy0)), int(round(sy1))
             ix1 = max(ix1, ix0 + 1)
             iy1 = max(iy1, iy0 + 1)
-            cell = material_bgra[iy0:iy1, ix0:ix1]
+            cell = work_bgra[iy0:iy1, ix0:ix1]
             ch, cw = cell.shape[:2]
             if ch <= 1 or cw <= 1:
                 continue
@@ -364,11 +382,13 @@ class _StickerMethods:
         anno_mode: str,
         warp_mode: str,
         output_dir: Optional[str],
+        appearance_match: bool = True,
     ) -> None:
         self._sticker_quick_blend_mode = str(blend_mode or "alpha")
         self._sticker_quick_anno_mode = str(anno_mode or "hbb")
         self._sticker_quick_warp_mode = str(warp_mode or "4")
         self._sticker_quick_output_dir = output_dir
+        self._sticker_quick_appearance_match = bool(appearance_match)
         self.update()
 
     def _sticker_translate_to(self, pos: QtCore.QPointF) -> None:
@@ -473,6 +493,17 @@ class _StickerMethods:
 
             base_w = int(self.pixmap.width())
             base_h = int(self.pixmap.height())
+            base_bgr = None
+            appearance = bool(getattr(self, "_sticker_quick_appearance_match", True))
+            if appearance and cv2 is not None and getattr(self.parent, "filename", None):
+                try:
+                    from anylabeling.views.labeling.label_converter import LabelConverter
+
+                    base_bgr, _ = LabelConverter.imread_unicode(
+                        str(self.parent.filename), cv2.IMREAD_COLOR
+                    )
+                except Exception:
+                    base_bgr = None
             warped, (pw, ph) = _sticker_build_preview_bgra(
                 material_bgra=st.rgba,
                 base_w=base_w,
@@ -480,6 +511,8 @@ class _StickerMethods:
                 preview_max=1200,
                 points8=st.points,
                 warp_mode=str(getattr(st, "warp_mode", "4") or "4"),
+                base_bgr=base_bgr,
+                appearance_match=appearance,
             )
             st.preview_size = (pw, ph)
             if warped is None:
@@ -523,6 +556,7 @@ class _StickerMethods:
         anno_mode: str,
         output_dir: Optional[str],
         warp_mode: str = "4",
+        appearance_match: bool = True,
         keep_overlay: bool = False,
         reload_after: bool = False,
     ) -> None:
@@ -555,6 +589,7 @@ class _StickerMethods:
             material_path=mat_path,
             quad=pts_for_apply,
             blend_mode=blend_mode,
+            appearance_match=bool(appearance_match),
         )
         write_annotation_for_sticker(
             base_image_path=base_image_path,
@@ -637,6 +672,9 @@ class _StickerMethods:
                     anno_mode=self._sticker_quick_anno_mode,
                     output_dir=self._sticker_quick_output_dir,
                     warp_mode=self._sticker_quick_warp_mode,
+                    appearance_match=bool(
+                        getattr(self, "_sticker_quick_appearance_match", True)
+                    ),
                     keep_overlay=True,
                     reload_after=True,
                 )
@@ -773,6 +811,7 @@ def install_sticker_support(canvas) -> None:
     canvas._sticker_quick_blend_mode = "alpha"
     canvas._sticker_quick_anno_mode = "hbb"
     canvas._sticker_quick_warp_mode = "4"
+    canvas._sticker_quick_appearance_match = True
     canvas._sticker_quick_output_dir = None
     canvas._sticker_preview_timer = QtCore.QTimer(canvas)
     canvas._sticker_preview_timer.setSingleShot(True)

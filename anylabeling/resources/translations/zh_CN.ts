@@ -15337,99 +15337,139 @@ Changes will not be saved until you click Save.</source>
         <translation>变形:</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="66" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="63" />
         <source>Blend:</source>
         <translation>融合:</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="70" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="65" />
+        <source>How the warped sticker is combined with the base image.</source>
+        <translation>变形后的素材如何与底图合成。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="76" />
         <source>Detection (HBB)</source>
         <translation>检测（水平框 HBB）</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="71" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="77" />
         <source>Detection (OBB)</source>
         <translation>检测（旋转框 OBB）</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="72" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="78" />
         <source>Segmentation (Polygon)</source>
         <translation>分割（多边形）</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="74" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="80" />
         <source>Annotation:</source>
         <translation>标注:</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="79" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="91" />
         <source>Quick apply</source>
         <translation>快速贴图</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="80" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="92" />
         <source>Click on image to apply sticker at that position</source>
         <translation>点击图像指定位置应用贴图</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="87" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="100" />
+        <source>Match surrounding appearance</source>
+        <translation>匹配周围外观</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="103" />
+        <source>Adjust sticker colors to match the background ring around the placement quad before blending.</source>
+        <translation>在合成前根据贴图四边形外环区域的背景统计，调整素材颜色。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="114" />
         <source>Rotate:</source>
         <translation>旋转:</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="88" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="115" />
         <source>-5°</source>
         <translation>-5°</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="89" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="116" />
         <source>+5°</source>
         <translation>+5°</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="98" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="125" />
         <source>Move:</source>
         <translation>移动:</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="105" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="132" />
         <source>px</source>
         <translation>像素</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="107" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="134" />
         <source>↑</source>
         <translation>↑</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="108" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="135" />
         <source>↓</source>
         <translation>↓</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="109" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="136" />
         <source>←</source>
         <translation>←</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="110" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="137" />
         <source>→</source>
         <translation>→</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="127" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="154" />
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="129" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="156" />
         <source>Apply</source>
         <translation>应用</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="226" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="253" />
         <source>Select materials folder</source>
         <translation>选择素材文件夹</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="284" />
+        <source>Default: standard transparency overlay. Best for typical PNG stickers with clean alpha.</source>
+        <translation>默认：按透明度叠在底图上。适合边缘干净的普通 PNG 贴纸。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="287" />
+        <source>Darkens the background under the sticker. Good for shadows, stains, or dark printed marks.</source>
+        <translation>使贴图下方变暗。适合阴影、污渍或深色印刷痕迹。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="290" />
+        <source>Lightens the background under the sticker. Good for highlights, glow, or light markings.</source>
+        <translation>使贴图下方变亮。适合高光、反光或浅色标记。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="293" />
+        <source>Increases local contrast (dark stays darker, bright stays brighter). Often looks more like ink on textured surfaces.</source>
+        <translation>提高局部对比（暗部更暗、亮部更亮）。在纹理背景上更像油墨效果。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="297" />
+        <source>Seamless clone: blends gradients at the boundary for a softer join. Can look more natural but may ignore fine alpha; falls back to alpha if it fails.</source>
+        <translation>泊松无缝克隆：在边界匹配梯度，过渡更柔和、更自然；可能弱化精细透明边，失败时回退为 alpha 合成。</translation>
     </message>
 </context><context>
     <name>TextInputDialog</name>
@@ -17425,7 +17465,7 @@ Label files updated: {files}</source>
 </context><context>
     <name>_StickerWidgetMethods</name>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="113" />
+        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="116" />
         <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="94" />
         <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="38" />
         <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="22" />
@@ -17448,7 +17488,7 @@ Label files updated: {files}</source>
         <translation>预览素材失败：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="114" />
+        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="117" />
         <source>Failed to apply sticker: %s</source>
         <translation>应用贴图失败：%s</translation>
     </message>

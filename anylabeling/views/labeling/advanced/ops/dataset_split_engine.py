@@ -9,6 +9,9 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence, Set, Tuple
 
+from anylabeling.views.labeling.advanced.ops.dataset_filter import (
+    transfer_image_and_label,
+)
 from anylabeling.views.labeling.classifier.utils import get_label_file_path
 
 UNLABELED = "__unlabeled__"
@@ -290,3 +293,41 @@ def run_split(
         shuffle=shuffle,
         seed=seed,
     )
+
+
+def paths_for_all_list(
+    all_paths: Sequence[str],
+    *,
+    part_train: Sequence[str],
+    part_val: Sequence[str],
+    part_test: Sequence[str],
+    exclude_test_from_all: bool,
+) -> List[str]:
+    """Build all.txt paths; optionally omit the test split."""
+    if not exclude_test_from_all:
+        return list(all_paths)
+    test_set = set(part_test)
+    return [p for p in all_paths if p not in test_set]
+
+
+def move_test_set_to_directory(
+    test_paths: Sequence[str],
+    dest_dir: str,
+    *,
+    label_output_dir: Optional[str] = None,
+) -> Tuple[int, List[str]]:
+    """Move test images and LabelMe JSON into ``dest_dir``."""
+    moved = 0
+    errors: List[str] = []
+    for image_path in test_paths:
+        ok, msg = transfer_image_and_label(
+            image_path,
+            target_dir=dest_dir,
+            mode="move",
+            output_dir=label_output_dir,
+        )
+        if ok:
+            moved += 1
+        else:
+            errors.append("%s: %s" % (osp.basename(image_path), msg))
+    return moved, errors

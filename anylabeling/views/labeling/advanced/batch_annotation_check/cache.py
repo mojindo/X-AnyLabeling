@@ -96,6 +96,14 @@ def _replace_items_for_image_keep_order(
     return filtered[:insert_pos] + list(new_items) + filtered[insert_pos:]
 
 
+def _clamp_padding_px(value: object, *, default: int = 4) -> int:
+    try:
+        n = int(value)
+    except (TypeError, ValueError):
+        n = int(default)
+    return max(0, min(256, n))
+
+
 class InspectorCache:
     def __init__(self, root_dir: str):
         self.root_dir = root_dir
@@ -104,6 +112,10 @@ class InspectorCache:
         self._index: Dict[str, Any] = {}
         self._index_mtime: Optional[float] = None
         os.makedirs(self.crops_dir, exist_ok=True)
+
+    def index_padding_px(self) -> int:
+        self.load_index()
+        return _clamp_padding_px(self._index.get("padding_px", 4))
 
     def load_index(self) -> Dict[str, Any]:
         try:
@@ -545,6 +557,7 @@ class InspectorCache:
         """Build crops for all images for selected labels."""
         labels_set = {l for l in labels_filter if isinstance(l, str) and l}
         mode = str(crop_mode or CROP_MODE_HBB).lower()
+        padding_px = _clamp_padding_px(padding_px)
         if force or not self._index:
             self._index = {"version": 1, "items": [], "errors": []}
         items: List[Dict[str, Any]] = []
@@ -657,6 +670,7 @@ class InspectorCache:
         self._index["labels_filter"] = list(labels_set)
         self._index["crop_mode"] = mode
         self._index["obb_rectify"] = bool(obb_rectify)
+        self._index["padding_px"] = int(padding_px)
         self.save_index()
 
     def update_for_image(
@@ -665,7 +679,7 @@ class InspectorCache:
         *,
         output_dir: Optional[str],
         labels_filter: Sequence[str],
-        padding_px: int = 4,
+        padding_px: Optional[int] = None,
         crop_mode: Optional[str] = None,
         obb_rectify: Optional[bool] = None,
     ) -> None:
@@ -675,6 +689,10 @@ class InspectorCache:
             crop_mode = str(self._index.get("crop_mode") or CROP_MODE_HBB)
         if obb_rectify is None:
             obb_rectify = bool(self._index.get("obb_rectify"))
+        if padding_px is None:
+            padding_px = self.index_padding_px()
+        else:
+            padding_px = _clamp_padding_px(padding_px)
         snapshot = list(self._index.get("items") or [])
         self.build_index(
             [image_path],
@@ -700,7 +718,7 @@ class InspectorCache:
         shapes: Sequence[Dict[str, Any]],
         image_w: int,
         image_h: int,
-        padding_px: int = 4,
+        padding_px: Optional[int] = None,
         jpeg_quality: int = 85,
         crop_mode: Optional[str] = None,
         obb_rectify: Optional[bool] = None,
@@ -715,6 +733,10 @@ class InspectorCache:
             if obb_rectify is not None
             else bool(self._index.get("obb_rectify"))
         )
+        if padding_px is None:
+            padding_px = self.index_padding_px()
+        else:
+            padding_px = _clamp_padding_px(padding_px)
         snapshot = list(self._index.get("items") or [])
         labels_set = {l for l in labels_filter if isinstance(l, str) and l}
         label_json_path = get_label_file_path(image_path, output_dir)
@@ -806,6 +828,7 @@ class InspectorCache:
         self._index["labels_filter"] = list(labels_set)
         self._index["crop_mode"] = mode
         self._index["obb_rectify"] = rectify
+        self._index["padding_px"] = int(padding_px)
         self.save_index()
 
     def get_items_for_image(self, image_path: str) -> List[CropItem]:

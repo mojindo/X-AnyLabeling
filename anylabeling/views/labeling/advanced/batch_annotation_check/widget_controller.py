@@ -36,6 +36,7 @@ class InspectorBuildWorker(QtCore.QObject):
         labels_filter: list,
         crop_mode: str = CROP_MODE_HBB,
         obb_rectify: bool = False,
+        padding_px: int = 4,
     ) -> None:
         super().__init__()
         self._cache = cache
@@ -44,6 +45,7 @@ class InspectorBuildWorker(QtCore.QObject):
         self._labels_filter = labels_filter
         self._crop_mode = str(crop_mode or CROP_MODE_HBB)
         self._obb_rectify = bool(obb_rectify)
+        self._padding_px = max(0, min(256, int(padding_px)))
         self._cancel = False
 
     def request_cancel(self) -> None:
@@ -62,6 +64,7 @@ class InspectorBuildWorker(QtCore.QObject):
                 force=True,
                 crop_mode=self._crop_mode,
                 obb_rectify=self._obb_rectify,
+                padding_px=self._padding_px,
                 on_progress=lambda i, n, p: self.progress.emit(i, n, p),
                 should_cancel=self._should_cancel,
             )
@@ -220,11 +223,12 @@ class _BatchCheckWidgetMethods:
         if not picked:
             self.actions.batch_annotation_check.setChecked(False)
             return
-        labels, crop_mode, obb_rectify, range_start, range_end = picked
+        labels, crop_mode, obb_rectify, range_start, range_end, padding_px = picked
         self._inspector_crop_mode = crop_mode
         self._inspector_obb_rectify = obb_rectify
         self._inspector_range_start = int(range_start)
         self._inspector_range_end = int(range_end)
+        self._inspector_padding_px = int(padding_px)
 
         # Choose: import existing cache dir or build a new session cache.
         choice = QMessageBox(self)
@@ -285,6 +289,15 @@ class _BatchCheckWidgetMethods:
             ) or CROP_MODE_HBB
             self._inspector_obb_rectify = bool(
                 idx.get("obb_rectify") if isinstance(idx, dict) else False
+            )
+            try:
+                self._inspector_padding_px = int(
+                    idx.get("padding_px", 4) if isinstance(idx, dict) else 4
+                )
+            except (TypeError, ValueError):
+                self._inspector_padding_px = 4
+            self._inspector_padding_px = max(
+                0, min(256, int(self._inspector_padding_px))
             )
             self._inspector_enabled = True
             dock = self._ensure_inspector_dock()
@@ -443,6 +456,21 @@ class _BatchCheckWidgetMethods:
         range_row.addStretch(1)
         layout.addLayout(range_row)
 
+        pad_row = QtWidgets.QHBoxLayout()
+        pad_row.addWidget(QtWidgets.QLabel(self.tr("Crop padding (px):")))
+        spin_padding = QtWidgets.QSpinBox()
+        spin_padding.setRange(0, 256)
+        spin_padding.setValue(4)
+        spin_padding.setToolTip(
+            self.tr(
+                "Expand each crop rectangle by this many pixels on all sides "
+                "(clamped to the image border). Applies to HBB, OBB, and SEG."
+            )
+        )
+        pad_row.addWidget(spin_padding)
+        pad_row.addStretch(1)
+        layout.addLayout(pad_row)
+
         lw = QtWidgets.QListWidget()
         lw.setSelectionMode(
             QtWidgets.QAbstractItemView.SelectionMode.MultiSelection
@@ -511,6 +539,7 @@ class _BatchCheckWidgetMethods:
             obb_rectify,
             int(spin_from.value()),
             int(spin_to.value()),
+            int(spin_padding.value()),
         )
 
 
@@ -887,6 +916,7 @@ class _BatchCheckWidgetMethods:
                 getattr(self, "_inspector_crop_mode", None) or CROP_MODE_HBB
             ),
             obb_rectify=bool(getattr(self, "_inspector_obb_rectify", False)),
+            padding_px=int(getattr(self, "_inspector_padding_px", 4) or 4),
         )
         thread = QtCore.QThread(self)
         worker.moveToThread(thread)
@@ -987,6 +1017,7 @@ class _BatchCheckWidgetMethods:
                 shapes=shapes_live,
                 image_w=int(self.image.width()),
                 image_h=int(self.image.height()),
+                padding_px=int(getattr(self, "_inspector_padding_px", 4) or 4),
             )
             self._refresh_inspector_for_current_image()
         except Exception:

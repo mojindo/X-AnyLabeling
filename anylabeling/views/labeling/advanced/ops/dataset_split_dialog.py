@@ -12,6 +12,8 @@ from PyQt6.QtCore import Qt
 from anylabeling.views.labeling import utils
 from anylabeling.views.labeling.advanced.ops.dataset_split_engine import (
     compute_split_stats,
+    move_test_set_to_directory,
+    paths_for_all_list,
     run_split,
 )
 from anylabeling.views.labeling.utils.style import (
@@ -171,6 +173,49 @@ class DatasetSplitDialog(QtWidgets.QDialog):
         self._on_stratify_toggled(self.stratify_cb.isChecked())
         self.stratify_cb.toggled.connect(self._on_stratify_toggled)
 
+        self.isolate_test_cb = QtWidgets.QCheckBox(
+            self.tr("Isolate test set (move to separate folder)")
+        )
+        self.isolate_test_cb.setChecked(False)
+        self.isolate_test_cb.setToolTip(
+            self.tr(
+                "When enabled, images assigned to test are moved with their "
+                "LabelMe JSON into the folder below. all.txt lists train+val only."
+            )
+        )
+
+        self.isolate_test_hint = QtWidgets.QLabel(
+            self.tr(
+                "Test isolation: after the split, every test image and its "
+                "annotation JSON are moved to the output folder you choose. "
+                "train.txt / val.txt / test.txt are still written next to the "
+                "image folder's parent; test.txt is empty (test files live in "
+                "the output folder). all.txt contains only train and val images. "
+                "Use this when the test set must not appear in training or "
+                "full-dataset lists."
+            )
+        )
+        self.isolate_test_hint.setWordWrap(True)
+        self.isolate_test_hint.setStyleSheet("color: #666; font-size: 11px;")
+        self.isolate_test_hint.setVisible(False)
+
+        self.test_out_edit = QtWidgets.QLineEdit()
+        self.test_out_edit.setPlaceholderText(
+            self.tr("Folder to move test images and JSON into")
+        )
+        self.test_out_edit.setEnabled(False)
+        test_out_browse = QtWidgets.QPushButton(self.tr("Browse…"))
+        test_out_browse.setEnabled(False)
+        test_out_browse.clicked.connect(self._browse_test_out)
+
+        row_test_out = QtWidgets.QHBoxLayout()
+        row_test_out.addWidget(QtWidgets.QLabel(self.tr("Test output folder:")))
+        row_test_out.addWidget(self.test_out_edit, 1)
+        row_test_out.addWidget(test_out_browse)
+        self._test_out_browse_btn = test_out_browse
+
+        self.isolate_test_cb.toggled.connect(self._on_isolate_test_toggled)
+
         self.preview_label = QtWidgets.QLabel()
         self.preview_label.setWordWrap(True)
         self.preview_label.setTextInteractionFlags(
@@ -213,6 +258,9 @@ class DatasetSplitDialog(QtWidgets.QDialog):
         main.addLayout(row_folder)
         main.addLayout(ratio_form)
         main.addLayout(opt_row)
+        main.addWidget(self.isolate_test_cb)
+        main.addWidget(self.isolate_test_hint)
+        main.addLayout(row_test_out)
         main.addWidget(self.preview_label)
         main.addWidget(QtWidgets.QLabel(self.tr("Class distribution:")))
         main.addWidget(self._stats_hint)
@@ -231,6 +279,28 @@ class DatasetSplitDialog(QtWidgets.QDialog):
         self.stratify_cb.toggled.connect(lambda _: self._invalidate_preview())
         self.shuffle_cb.toggled.connect(lambda _: self._invalidate_preview())
         self.seed_spin.valueChanged.connect(lambda _: self._invalidate_preview())
+        self.isolate_test_cb.toggled.connect(lambda _: self._invalidate_preview())
+        self.test_out_edit.textChanged.connect(lambda _: self._refresh_output_hint())
+
+    def _on_isolate_test_toggled(self, on: bool) -> None:
+        self.isolate_test_hint.setVisible(bool(on))
+        self.test_out_edit.setEnabled(bool(on))
+        self._test_out_browse_btn.setEnabled(bool(on))
+        self._refresh_output_hint()
+
+    def _browse_test_out(self) -> None:
+        start = self.test_out_edit.text().strip()
+        if not start or not osp.isdir(start):
+            start = self.folder_edit.text().strip() or "."
+        path = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            self.tr("Select test set output folder"),
+            start,
+            QtWidgets.QFileDialog.Option.ShowDirsOnly
+            | QtWidgets.QFileDialog.Option.DontResolveSymlinks,
+        )
+        if path:
+            self.test_out_edit.setText(path)
 
     def _on_stratify_toggled(self, on: bool) -> None:
         self.shuffle_cb.setEnabled(not on)
@@ -266,10 +336,60 @@ class DatasetSplitDialog(QtWidgets.QDialog):
             )
             return
         parent_dir = osp.dirname(osp.normpath(osp.abspath(folder)))
+        if self.isolate_test_cb.isChecked():
+            test_dest = self.test_out_edit.text().strip() or self.tr("(not set)")
+            self.preview_label.setText(
+                self.tr(
+                    "Will write train.txt, val.txt, test.txt, all.txt to:\n%s\n\n"
+                    "Test isolation on: test files move to %s; all.txt = train + val only."
+                )
+                % (parent_dir, test_dest)
+            )
+            return
         self.preview_label.setText(
             self.tr("Will write train.txt, val.txt, test.txt, all.txt to:\n%s")
             % parent_dir
         )
+
+    def _test_isolation_enabled(self) -> bool:
+        return bool(self.isolate_test_cb.isChecked())
+
+    def _validate_test_output_dir(self) -> Optional[str]:
+        if not self._test_isolation_enabled():
+            return None
+        dest = self.test_out_edit.text().strip()
+        if not dest:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Dataset Split"),
+                self.tr("Please choose a folder for the isolated test set."),
+            )
+            return None
+        folder = self.folder_edit.text().strip()
+        try:
+            dest_abs = osp.normpath(osp.abspath(dest))
+            folder_abs = osp.normpath(osp.abspath(folder)) if folder else ""
+        except Exception:
+            dest_abs, folder_abs = dest, folder
+        if folder_abs and dest_abs == folder_abs:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Dataset Split"),
+                self.tr(
+                    "The test output folder must not be the same as the image folder."
+                ),
+            )
+            return None
+        try:
+            os.makedirs(dest_abs, exist_ok=True)
+        except OSError as e:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Dataset Split"),
+                self.tr("Cannot create test output folder:\n%s") % e,
+            )
+            return None
+        return dest_abs
 
     def _weights(self) -> Tuple[int, int, int] | None:
         w_tr = int(self.train_spin.value())
@@ -357,17 +477,32 @@ class DatasetSplitDialog(QtWidgets.QDialog):
         part_train, part_val, part_test, all_paths = computed
         self._cached_parts = (part_train, part_val, part_test)
         self._update_stats_tables(part_train, part_val, part_test)
+        all_n = len(
+            paths_for_all_list(
+                all_paths,
+                part_train=part_train,
+                part_val=part_val,
+                part_test=part_test,
+                exclude_test_from_all=self._test_isolation_enabled(),
+            )
+        )
+        extra = ""
+        if self._test_isolation_enabled():
+            extra = " " + self.tr("(all.txt would list %d train+val images.)") % all_n
         self._stats_hint.setText(
-            self.tr(
-                "Preview: %d images → train %d, val %d, test %d. "
-                "Images = files containing the class; Boxes = shape count."
+            (
+                self.tr(
+                    "Preview: %d images → train %d, val %d, test %d. "
+                    "Images = files containing the class; Boxes = shape count."
+                )
+                % (
+                    len(all_paths),
+                    len(part_train),
+                    len(part_val),
+                    len(part_test),
+                )
             )
-            % (
-                len(all_paths),
-                len(part_train),
-                len(part_val),
-                len(part_test),
-            )
+            + extra
         )
 
     def _on_generate(self):
@@ -401,12 +536,58 @@ class DatasetSplitDialog(QtWidgets.QDialog):
         self._cached_parts = (part_train, part_val, part_test)
         self._update_stats_tables(part_train, part_val, part_test)
 
+        test_dest = self._validate_test_output_dir()
+        if self._test_isolation_enabled() and test_dest is None:
+            return
+
+        isolate = self._test_isolation_enabled()
+        if isolate and part_test:
+            ret = QtWidgets.QMessageBox.question(
+                self,
+                self.tr("Move test set?"),
+                self.tr(
+                    "Move %d test image(s) and their JSON labels to:\n%s\n\nContinue?"
+                )
+                % (len(part_test), test_dest),
+                QtWidgets.QMessageBox.StandardButton.Yes
+                | QtWidgets.QMessageBox.StandardButton.No,
+                QtWidgets.QMessageBox.StandardButton.No,
+            )
+            if ret != QtWidgets.QMessageBox.StandardButton.Yes:
+                return
+
+        moved_test = 0
+        move_errors: List[str] = []
+        if isolate and part_test and test_dest:
+            moved_test, move_errors = move_test_set_to_directory(
+                part_test,
+                test_dest,
+                label_output_dir=self._label_dir,
+            )
+            if move_errors and moved_test == 0:
+                QtWidgets.QMessageBox.critical(
+                    self,
+                    self.tr("Dataset Split"),
+                    self.tr("Failed to move test set:\n%s")
+                    % "\n".join(move_errors[:20]),
+                )
+                return
+
+        all_list_paths = paths_for_all_list(
+            paths,
+            part_train=part_train,
+            part_val=part_val,
+            part_test=part_test,
+            exclude_test_from_all=isolate,
+        )
+
         out_dir = osp.dirname(osp.normpath(osp.abspath(folder)))
+        test_txt_paths: List[str] = [] if isolate else list(part_test)
         targets = {
             "train.txt": part_train,
             "val.txt": part_val,
-            "test.txt": part_test,
-            "all.txt": paths,
+            "test.txt": test_txt_paths,
+            "all.txt": all_list_paths,
         }
         existing = [name for name in targets if osp.isfile(osp.join(out_dir, name))]
         if existing:
@@ -436,20 +617,40 @@ class DatasetSplitDialog(QtWidgets.QDialog):
             )
             return
 
-        QtWidgets.QMessageBox.information(
-            self,
-            self.tr("Dataset Split"),
-            self.tr(
-                "Done. %d images → train %d, val %d, test %d; all.txt has %d.\nOutput: %s"
-            )
-            % (
+        if isolate:
+            done_msg = self.tr(
+                "Done. %d images → train %d, val %d, test %d; all.txt has %d "
+                "(train+val only).\nMoved %d test file(s) to:\n%s\nList output: %s"
+            ) % (
                 len(paths),
                 len(part_train),
                 len(part_val),
                 len(part_test),
-                len(paths),
+                len(all_list_paths),
+                moved_test,
+                test_dest or "",
                 out_dir,
-            ),
+            )
+        else:
+            done_msg = self.tr(
+                "Done. %d images → train %d, val %d, test %d; all.txt has %d.\nOutput: %s"
+            ) % (
+                len(paths),
+                len(part_train),
+                len(part_val),
+                len(part_test),
+                len(all_list_paths),
+                out_dir,
+            )
+        if move_errors:
+            done_msg += "\n\n" + self.tr("Some test files could not be moved:") + "\n"
+            done_msg += "\n".join(move_errors[:15])
+            if len(move_errors) > 15:
+                done_msg += "\n…"
+        QtWidgets.QMessageBox.information(
+            self,
+            self.tr("Dataset Split"),
+            done_msg,
         )
         # Keep dialog open so user can read class stats tabs
         self._stats_hint.setText(

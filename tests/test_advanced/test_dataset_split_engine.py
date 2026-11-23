@@ -5,6 +5,7 @@ import tempfile
 from anylabeling.views.labeling.advanced.ops.dataset_split_engine import (
     ImageLabelInfo,
     load_image_label_info,
+    paths_for_all_list,
     run_split,
     split_sizes,
     stratified_split_paths,
@@ -121,3 +122,22 @@ def test_run_split_stratify_is_deterministic():
             seed=99,
         )
         assert a == b
+
+
+def test_paths_for_all_list_excludes_test_when_isolated():
+    all_paths = ["a.jpg", "b.jpg", "c.jpg"]
+    tr, va, te = ["a.jpg"], ["b.jpg"], ["c.jpg"]
+    assert paths_for_all_list(
+        all_paths,
+        part_train=tr,
+        part_val=va,
+        part_test=te,
+        exclude_test_from_all=True,
+    ) == ["a.jpg", "b.jpg"]
+    assert paths_for_all_list(
+        all_paths,
+        part_train=tr,
+        part_val=va,
+        part_test=te,
+        exclude_test_from_all=False,
+    ) == all_paths

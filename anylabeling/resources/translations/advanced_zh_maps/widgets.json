@@ -27,6 +27,8 @@
   "To:": "到：",
   "Last image index (1-based).": "末张图片索引（从 1 起）。",
   "Total: {n}": "合计：{n}",
+  "Crop padding (px):": "裁图外扩（像素）：",
+  "Expand each crop rectangle by this many pixels on all sides (clamped to the image border). Applies to HBB, OBB, and SEG.": "裁切矩形四边各外扩指定像素（不超出图像边界）。适用于 HBB、OBB、SEG。",
   "Invalid image range: start index must not be greater than end.": "索引范围无效：起始不能大于结束。",
   "No labels selected.": "未选择标签。",
   "No labels available for phrase mapping.": "无可用标签用于短语映射。",

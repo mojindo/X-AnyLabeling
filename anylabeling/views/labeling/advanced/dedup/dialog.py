@@ -33,6 +33,17 @@ from anylabeling.views.labeling.utils.style import (
 )
 
 
+# G4 metric keys aligned with QualityConfig defaults (rel_tol as fraction).
+_G4_METRIC_UI: tuple[tuple[str, str, float], ...] = (
+    ("sharpness_laplacian_var_log1p", "Sharpness", 0.20),
+    ("brightness_l_mean", "Brightness (LAB L)", 0.20),
+    ("contrast_rms_gray", "Contrast", 0.20),
+    ("saturation_mean", "Saturation", 0.25),
+    ("value_mean", "Value (HSV V)", 0.20),
+    ("noise_mad_residual", "Noise", 0.20),
+)
+
+
 def _label_path(parent, image_path: str) -> Optional[str]:
     side = osp.splitext(image_path)[0] + ".json"
     output_dir = getattr(parent, "output_dir", None)
@@ -159,7 +170,18 @@ class DatasetDedupDialog(QDialog):
         settings_layout.setSpacing(8)
 
         cond = QGroupBox(self.tr("Conditions"))
-        form = QtWidgets.QFormLayout(cond)
+        cond_layout = QVBoxLayout(cond)
+        cond_intro = QLabel(
+            self.tr(
+                "Scan runs in stages: scene match (overlap), then camera motion, then instances, then optional quality. "
+                "Loosening a limit keeps more pairs as duplicates. Tightening drops more pairs. "
+                "Scene motion limits apply only after a pair already passes scene matching."
+            )
+        )
+        cond_intro.setWordWrap(True)
+        cond_intro.setStyleSheet("color: #666;")
+        cond_layout.addWidget(cond_intro)
+        form = QtWidgets.QFormLayout()
         self._shift = self._spin(0.02)
         self._scale = self._spin(0.02)
         self._rotation = self._spin(0.03)
@@ -167,17 +189,138 @@ class DatasetDedupDialog(QDialog):
         self._box_scale = self._spin(0.20)
         self._pose = self._spin(0.20)
         self._overlap = self._spin(0.35, maximum=1.0)
-        self._quality = QCheckBox(self.tr("Require similar brightness and sharpness"))
-        self._quality.setChecked(True)
-        form.addRow(self.tr("Max scene shift:"), self._shift)
-        form.addRow(self.tr("Max scene scale change:"), self._scale)
-        form.addRow(self.tr("Max scene rotation (rad):"), self._rotation)
-        form.addRow(self.tr("Max instance shift:"), self._true_shift)
-        form.addRow(self.tr("Max box scale change:"), self._box_scale)
-        form.addRow(self.tr("Max pose change:"), self._pose)
-        form.addRow(self.tr("Min scene overlap:"), self._overlap)
-        form.addRow(self._quality)
+        self._add_condition_row(
+            form,
+            self.tr("Max scene shift:"),
+            self._shift,
+            self.tr("of shorter image side"),
+            self.tr(
+                "Gate 2. After scene match, center displacement from the background homography, divided by the shorter image side. "
+                "Raise to allow more camera pan as still duplicate (default 0.02 = 2% of min width/height). "
+                "Lower to treat small pans as diversity."
+            ),
+        )
+        self._add_condition_row(
+            form,
+            self.tr("Max scene scale change:"),
+            self._scale,
+            self.tr("absolute scale delta"),
+            self.tr(
+                "Gate 2. Absolute zoom change between views (|scale factor − 1|). "
+                "Default 0.02 ≈ ±2% zoom. Raise to merge different zoom levels; lower to keep zoom variants."
+            ),
+        )
+        self._add_condition_row(
+            form,
+            self.tr("Max scene rotation (rad):"),
+            self._rotation,
+            self.tr("radians"),
+            self.tr(
+                "Gate 2. Absolute rotation from the homography, in radians (0.03 ≈ 1.7°). "
+                "Raise to allow rotated duplicates; lower to split rotated views."
+            ),
+        )
+        self._add_condition_row(
+            form,
+            self.tr("Min scene overlap:"),
+            self._overlap,
+            self.tr("area ratio 0–1"),
+            self.tr(
+                "Gate 1 (scene match). Overlap of warped view vs the other image: intersection area divided by the smaller image area. "
+                "Default 0.35 = 35%. Lower admits more crop/partial views; higher requires almost the same framing. "
+                "Not the same as camera motion limits above."
+            ),
+        )
+        self._add_condition_row(
+            form,
+            self.tr("Max instance shift:"),
+            self._true_shift,
+            self.tr("of shorter image side"),
+            self.tr(
+                "Gate 3. After compensating scene motion, max box-center residual between matched instances, divided by the shorter side. "
+                "Default 0.03 = 3%. Raise if subjects may move slightly; lower to require nearly fixed objects."
+            ),
+        )
+        self._add_condition_row(
+            form,
+            self.tr("Max box scale change:"),
+            self._box_scale,
+            self.tr("|ln(area ratio)|"),
+            self.tr(
+                "Gate 3. Log ratio of matched box areas. 0.20 ≈ 22% area change (e^0.2). "
+                "Raise to allow size changes; lower to require same box size."
+            ),
+        )
+        self._add_condition_row(
+            form,
+            self.tr("Max pose change:"),
+            self._pose,
+            self.tr("|ln(aspect ratio)|"),
+            self.tr(
+                "Gate 3. Log ratio of matched box aspect ratios (shape proxy). "
+                "Default 0.20. Raise to allow pose/shape drift; lower to require similar box shape."
+            ),
+        )
+        cond_layout.addLayout(form)
         settings_layout.addWidget(cond)
+
+        quality_box = QGroupBox(self.tr("Quality gate (G4)"))
+        quality_layout = QVBoxLayout(quality_box)
+        quality_intro = QLabel(
+            self.tr(
+                "After instance match, optional photometric checks on thumbnails. "
+                "Each enabled metric compares two values; pass when |a−b| / max(|a|,|b|) is at or below the relative limit. "
+                "Raise limits to allow more blur, exposure, or color change as still duplicate."
+            )
+        )
+        quality_intro.setWordWrap(True)
+        quality_intro.setStyleSheet("color: #666;")
+        quality_layout.addWidget(quality_intro)
+        self._quality_enable = QCheckBox(self.tr("Enable quality gate"))
+        self._quality_enable.setChecked(True)
+        self._quality_enable.toggled.connect(self._on_quality_gate_toggled)
+        quality_layout.addWidget(self._quality_enable)
+        g4_form = QtWidgets.QFormLayout()
+        self._quality_rows: list[tuple[str, QCheckBox, QDoubleSpinBox]] = []
+        metric_notes = {
+            "sharpness_laplacian_var_log1p": self.tr(
+                "Laplacian variance (log1p) on thumbnail. Lower limit rejects blur vs sharp pairs."
+            ),
+            "brightness_l_mean": self.tr(
+                "Mean LAB L (0–255). Relative limit is vs the brighter of the two images."
+            ),
+            "contrast_rms_gray": self.tr("Gray RMS contrast. Catches flat vs punchy tone mapping."),
+            "saturation_mean": self.tr("Mean HSV saturation. Default relative limit 25%."),
+            "value_mean": self.tr("Mean HSV value (overall lightness in HSV)."),
+            "noise_mad_residual": self.tr("Median absolute deviation of denoise residual. High noise vs clean shots."),
+        }
+        for key, title_key, default_rel in _G4_METRIC_UI:
+            cb = QCheckBox(self.tr(title_key))
+            cb.setChecked(True)
+            tol = self._percent_spin(default_rel * 100.0)
+            note = metric_notes.get(key, "")
+            cb.setToolTip(note)
+            tol.setToolTip(
+                self.tr(
+                    "Max relative difference allowed for this metric. "
+                    "Example: 20 means up to 20% vs the larger of the two values."
+                )
+                + (" " + note if note else "")
+            )
+            unit = QLabel(self.tr("% vs larger value"))
+            unit.setStyleSheet("color: #666;")
+            unit.setToolTip(tol.toolTip())
+            row = QWidget()
+            lay = QHBoxLayout(row)
+            lay.setContentsMargins(0, 0, 0, 0)
+            lay.addWidget(tol)
+            lay.addWidget(unit)
+            lay.addStretch(1)
+            g4_form.addRow(cb, row)
+            self._quality_rows.append((key, cb, tol))
+        quality_layout.addLayout(g4_form)
+        settings_layout.addWidget(quality_box)
+        self._on_quality_gate_toggled(self._quality_enable.isChecked())
 
         labels_box = QGroupBox(self.tr("Labels"))
         labels_layout = QVBoxLayout(labels_box)
@@ -253,6 +396,40 @@ class DatasetDedupDialog(QDialog):
         box.setStyleSheet(get_spinbox_style())
         return box
 
+    def _percent_spin(self, percent: float) -> QDoubleSpinBox:
+        box = QDoubleSpinBox()
+        box.setRange(1.0, 100.0)
+        box.setDecimals(0)
+        box.setSingleStep(5.0)
+        box.setValue(percent)
+        box.setStyleSheet(get_spinbox_style())
+        return box
+
+    def _on_quality_gate_toggled(self, enabled: bool) -> None:
+        for _key, cb, spin in self._quality_rows:
+            cb.setEnabled(enabled)
+            spin.setEnabled(enabled)
+
+    def _add_condition_row(
+        self,
+        form: QtWidgets.QFormLayout,
+        title: str,
+        spin: QDoubleSpinBox,
+        unit: str,
+        tooltip: str,
+    ) -> None:
+        spin.setToolTip(tooltip)
+        row = QWidget()
+        lay = QHBoxLayout(row)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.addWidget(spin)
+        unit_label = QLabel(unit)
+        unit_label.setStyleSheet("color: #666;")
+        unit_label.setToolTip(tooltip)
+        lay.addWidget(unit_label)
+        lay.addStretch(1)
+        form.addRow(title, row)
+
     def _config_from_ui(self) -> Config:
         cfg = Config()
         cfg.strict.gate2.max_translation = float(self._shift.value())
@@ -262,8 +439,17 @@ class DatasetDedupDialog(QDialog):
         cfg.strict.instance.max_scale_diff = float(self._box_scale.value())
         cfg.strict.instance.max_pose_diff = float(self._pose.value())
         cfg.verify.min_overlap = float(self._overlap.value())
-        cfg.strict.require_quality = self._quality.isChecked()
-        cfg.quality.enabled = self._quality.isChecked()
+        gate_on = bool(self._quality_enable.isChecked())
+        cfg.strict.require_quality = gate_on
+        cfg.quality.enabled = gate_on
+        by_key = {key: (cb, spin) for key, cb, spin in self._quality_rows}
+        for metric in cfg.quality.metrics:
+            row = by_key.get(metric.key)
+            if row is None:
+                continue
+            cb, spin = row
+            metric.enabled = gate_on and cb.isChecked()
+            metric.rel_tol = float(spin.value()) / 100.0
         cfg.feature.box_label_filter = tuple(
             name for name, box in self._label_checks if box.isChecked()
         )

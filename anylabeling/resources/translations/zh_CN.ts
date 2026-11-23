@@ -3019,7 +3019,7 @@ pip install "x-anylabeling-cvhub[advance]"</translation>
     <message>
         <location filename="..\..\views\labeling\advanced\dataset_analysis\dataset_analysis_report_dialog.py" line="505" />
         <source>Images</source>
-        <translation>图片</translation>
+        <translation>图片数</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\dataset_analysis\dataset_analysis_report_dialog.py" line="515" />
@@ -3764,122 +3764,193 @@ Warnings:
 </context><context>
     <name>DatasetSplitDialog</name>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="243" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="236" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="189" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="180" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="169" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="50" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="439" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="432" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="393" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="387" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="376" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="348" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="340" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="332" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="109" />
         <source>Dataset Split</source>
         <translation>数据集划分</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="60" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="119" />
         <source>Folder containing images (scanned recursively)</source>
         <translation>包含图片的文件夹（递归扫描）</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="62" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="121" />
         <source>Browse…</source>
         <translation>浏览…</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="80" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="139" />
         <source>Train weight:</source>
         <translation>训练集权重：</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="81" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="140" />
         <source>Val weight:</source>
         <translation>验证集权重：</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="82" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="141" />
         <source>Test weight:</source>
         <translation>测试集权重：</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="84" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="143" />
+        <source>Stratify by labels</source>
+        <translation>按标签分层划分</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="146" />
+        <source>Balance classes across splits: each image is assigned once, but every class on that image is counted when balancing.</source>
+        <translation>在各集合间均衡类别：每张图只划入一个集合，但图中出现的每个类别都会参与均衡计算。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="152" />
         <source>Shuffle before split</source>
         <translation>划分前随机打乱</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="96" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="155" />
+        <source>Used for non-stratified splits, or as tie-break order when stratifying.</source>
+        <translation>用于非分层随机划分，或作为分层时的随机次序。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="166" />
         <source>Random seed:</source>
         <translation>随机种子：</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="105" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="182" />
+        <source>Train</source>
+        <translation>训练</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="183" />
+        <source>Val</source>
+        <translation>验证集</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="184" />
+        <source>Test</source>
+        <translation>测试集</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="187" />
+        <source>Click Preview split to compute class counts per list (labels from JSON).</source>
+        <translation>点击「预览划分」按 JSON 标注统计各列表的类别数量。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="192" />
+        <source>Preview split</source>
+        <translation>预览划分</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="194" />
         <source>Generate</source>
         <translation>生成</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="108" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="197" />
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="120" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="210" />
         <source>Image folder:</source>
         <translation>图片文件夹：</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="143" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="215" />
+        <source>Class distribution:</source>
+        <translation>类别分布：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="237" />
+        <source>Stratified mode uses the random seed for assignment order only.</source>
+        <translation>分层模式下随机种子仅影响分配顺序。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="240" />
+        <source>Shuffle the image list before proportional split.</source>
+        <translation>按比例切分前先打乱图片列表。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="251" />
         <source>Select Image Folder</source>
         <translation>选择图片文件夹</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="155" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="263" />
         <source>List files will be written next to this folder (parent directory).</source>
         <translation>列表文件将写入该文件夹的上一级目录。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="160" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="268" />
         <source>Will write train.txt, val.txt, test.txt, all.txt to:
 %s</source>
         <translation>将写入 train.txt、val.txt、test.txt、all.txt 到：
 %s</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="170" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="377" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="333" />
         <source>Please choose a valid image folder.</source>
         <translation>请选择有效的图片文件夹。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="181" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="388" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="341" />
         <source>The sum of train / val / test weights must be greater than zero.</source>
         <translation>训练 / 验证 / 测试权重之和必须大于 0。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="190" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="394" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="349" />
         <source>No images found under this folder.</source>
         <translation>该文件夹下未找到图片。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="217" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="359" />
+        <source>Preview: %d images → train %d, val %d, test %d. Images = files containing the class; Boxes = shape count.</source>
+        <translation>预览：共 %d 张 → 训练 %d、验证 %d、测试 %d。图片数 = 含该类别的文件数；框数 = 标注形状数量。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="413" />
         <source>Overwrite?</source>
         <translation>覆盖？</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="218" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="414" />
         <source>These files already exist and will be replaced:
 %s</source>
         <translation>以下文件已存在并将被替换：
 %s</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="237" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="433" />
         <source>Failed to write list files:
 %s</source>
         <translation>写入列表文件失败：
 %s</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="244" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="440" />
         <source>Done. %d images → train %d, val %d, test %d; all.txt has %d.
 Output: %s</source>
         <translation>完成。共 %d 张图片 → 训练 %d、验证 %d、测试 %d；all.txt 含 %d 张。
 输出：%s</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="454" />
+        <source>List files written. Review class distribution in the tabs above.</source>
+        <translation>列表已写入，请在上方标签页查看各类别分布。</translation>
     </message>
 </context><context>
     <name>DeleteComponentDialog</name>
@@ -15312,162 +15383,162 @@ Changes will not be saved until you click Save.</source>
 </context><context>
     <name>StickerLibraryDock</name>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="35" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="36" />
         <source>Sticker</source>
         <translation>素材自动贴图</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="48" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="49" />
         <source>Import materials folder</source>
         <translation>导入素材文件夹</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="57" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="58" />
         <source>4-point (Perspective)</source>
         <translation>四点（透视）</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="58" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="59" />
         <source>8-point (Warp)</source>
         <translation>八点（网格变形）</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="60" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="61" />
         <source>Warp:</source>
         <translation>变形:</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="63" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="64" />
         <source>Blend:</source>
         <translation>融合:</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="65" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="66" />
         <source>How the warped sticker is combined with the base image.</source>
         <translation>变形后的素材如何与底图合成。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="76" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="77" />
         <source>Detection (HBB)</source>
         <translation>检测（水平框 HBB）</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="77" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="78" />
         <source>Detection (OBB)</source>
         <translation>检测（旋转框 OBB）</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="78" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="79" />
         <source>Segmentation (Polygon)</source>
         <translation>分割（多边形）</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="80" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="81" />
         <source>Annotation:</source>
         <translation>标注:</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="91" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="92" />
         <source>Quick apply</source>
         <translation>快速贴图</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="92" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="93" />
         <source>Click on image to apply sticker at that position</source>
         <translation>点击图像指定位置应用贴图</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="100" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="101" />
         <source>Match surrounding appearance</source>
         <translation>匹配周围外观</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="103" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="104" />
         <source>Adjust sticker colors to match the background ring around the placement quad before blending.</source>
         <translation>在合成前根据贴图四边形外环区域的背景统计，调整素材颜色。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="114" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="115" />
         <source>Rotate:</source>
         <translation>旋转:</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="115" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="116" />
         <source>-5°</source>
         <translation>-5°</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="116" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="117" />
         <source>+5°</source>
         <translation>+5°</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="125" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="126" />
         <source>Move:</source>
         <translation>移动:</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="132" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="133" />
         <source>px</source>
         <translation>像素</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="134" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="135" />
         <source>↑</source>
         <translation>↑</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="135" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="136" />
         <source>↓</source>
         <translation>↓</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="136" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="137" />
         <source>←</source>
         <translation>←</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="137" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="138" />
         <source>→</source>
         <translation>→</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="154" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="155" />
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="156" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="157" />
         <source>Apply</source>
         <translation>应用</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="253" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="254" />
         <source>Select materials folder</source>
         <translation>选择素材文件夹</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="284" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="285" />
         <source>Default: standard transparency overlay. Best for typical PNG stickers with clean alpha.</source>
         <translation>默认：按透明度叠在底图上。适合边缘干净的普通 PNG 贴纸。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="287" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="288" />
         <source>Darkens the background under the sticker. Good for shadows, stains, or dark printed marks.</source>
         <translation>使贴图下方变暗。适合阴影、污渍或深色印刷痕迹。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="290" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="291" />
         <source>Lightens the background under the sticker. Good for highlights, glow, or light markings.</source>
         <translation>使贴图下方变亮。适合高光、反光或浅色标记。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="293" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="294" />
         <source>Increases local contrast (dark stays darker, bright stays brighter). Often looks more like ink on textured surfaces.</source>
         <translation>提高局部对比（暗部更暗、亮部更亮）。在纹理背景上更像油墨效果。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="297" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="298" />
         <source>Seamless clone: blends gradients at the boundary for a softer join. Can look more natural but may ignore fine alpha; falls back to alpha if it fails.</source>
         <translation>泊松无缝克隆：在边界匹配梯度，过渡更柔和、更自然；可能弱化精细透明边，失败时回退为 alpha 合成。</translation>
     </message>
@@ -17465,8 +17536,8 @@ Label files updated: {files}</source>
 </context><context>
     <name>_StickerWidgetMethods</name>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="116" />
-        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="94" />
+        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="117" />
+        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="95" />
         <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="38" />
         <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="22" />
         <source>Sticker</source>
@@ -17483,12 +17554,12 @@ Label files updated: {files}</source>
         <translation>打开素材贴图面板失败：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="95" />
+        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="96" />
         <source>Failed to preview material: %s</source>
         <translation>预览素材失败：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="117" />
+        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="118" />
         <source>Failed to apply sticker: %s</source>
         <translation>应用贴图失败：%s</translation>
     </message>

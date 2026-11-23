@@ -3737,117 +3737,188 @@ Warnings:
 </context><context>
     <name>DatasetSplitDialog</name>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="243" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="236" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="189" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="180" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="169" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="50" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="439" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="432" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="393" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="387" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="376" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="348" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="340" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="332" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="109" />
         <source>Dataset Split</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="60" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="119" />
         <source>Folder containing images (scanned recursively)</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="62" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="121" />
         <source>Browse…</source>
         <translation type="unfinished">参照…</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="80" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="139" />
         <source>Train weight:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="81" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="140" />
         <source>Val weight:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="82" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="141" />
         <source>Test weight:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="84" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="143" />
+        <source>Stratify by labels</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="146" />
+        <source>Balance classes across splits: each image is assigned once, but every class on that image is counted when balancing.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="152" />
         <source>Shuffle before split</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="96" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="155" />
+        <source>Used for non-stratified splits, or as tie-break order when stratifying.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="166" />
         <source>Random seed:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="105" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="182" />
+        <source>Train</source>
+        <translation type="unfinished">訓練</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="183" />
+        <source>Val</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="184" />
+        <source>Test</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="187" />
+        <source>Click Preview split to compute class counts per list (labels from JSON).</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="192" />
+        <source>Preview split</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="194" />
         <source>Generate</source>
         <translation type="unfinished">生成</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="108" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="197" />
         <source>Cancel</source>
         <translation>キャンセル</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="120" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="210" />
         <source>Image folder:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="143" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="215" />
+        <source>Class distribution:</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="237" />
+        <source>Stratified mode uses the random seed for assignment order only.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="240" />
+        <source>Shuffle the image list before proportional split.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="251" />
         <source>Select Image Folder</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="155" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="263" />
         <source>List files will be written next to this folder (parent directory).</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="160" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="268" />
         <source>Will write train.txt, val.txt, test.txt, all.txt to:
 %s</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="170" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="377" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="333" />
         <source>Please choose a valid image folder.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="181" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="388" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="341" />
         <source>The sum of train / val / test weights must be greater than zero.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="190" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="394" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="349" />
         <source>No images found under this folder.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="217" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="359" />
+        <source>Preview: %d images → train %d, val %d, test %d. Images = files containing the class; Boxes = shape count.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="413" />
         <source>Overwrite?</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="218" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="414" />
         <source>These files already exist and will be replaced:
 %s</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="237" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="433" />
         <source>Failed to write list files:
 %s</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="244" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="440" />
         <source>Done. %d images → train %d, val %d, test %d; all.txt has %d.
 Output: %s</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="454" />
+        <source>List files written. Review class distribution in the tabs above.</source>
         <translation type="unfinished" />
     </message>
 </context><context>
@@ -15269,162 +15340,162 @@ Changes will not be saved until you click Save.</source>
 </context><context>
     <name>StickerLibraryDock</name>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="35" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="36" />
         <source>Sticker</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="48" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="49" />
         <source>Import materials folder</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="57" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="58" />
         <source>4-point (Perspective)</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="58" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="59" />
         <source>8-point (Warp)</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="60" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="61" />
         <source>Warp:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="63" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="64" />
         <source>Blend:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="65" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="66" />
         <source>How the warped sticker is combined with the base image.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="76" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="77" />
         <source>Detection (HBB)</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="77" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="78" />
         <source>Detection (OBB)</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="78" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="79" />
         <source>Segmentation (Polygon)</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="80" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="81" />
         <source>Annotation:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="91" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="92" />
         <source>Quick apply</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="92" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="93" />
         <source>Click on image to apply sticker at that position</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="100" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="101" />
         <source>Match surrounding appearance</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="103" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="104" />
         <source>Adjust sticker colors to match the background ring around the placement quad before blending.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="114" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="115" />
         <source>Rotate:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="115" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="116" />
         <source>-5°</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="116" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="117" />
         <source>+5°</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="125" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="126" />
         <source>Move:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="132" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="133" />
         <source>px</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="134" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="135" />
         <source>↑</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="135" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="136" />
         <source>↓</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="136" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="137" />
         <source>←</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="137" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="138" />
         <source>→</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="154" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="155" />
         <source>Cancel</source>
         <translation type="unfinished">キャンセル</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="156" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="157" />
         <source>Apply</source>
         <translation>適用</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="253" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="254" />
         <source>Select materials folder</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="284" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="285" />
         <source>Default: standard transparency overlay. Best for typical PNG stickers with clean alpha.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="287" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="288" />
         <source>Darkens the background under the sticker. Good for shadows, stains, or dark printed marks.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="290" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="291" />
         <source>Lightens the background under the sticker. Good for highlights, glow, or light markings.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="293" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="294" />
         <source>Increases local contrast (dark stays darker, bright stays brighter). Often looks more like ink on textured surfaces.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="297" />
+        <location filename="..\..\views\labeling\advanced\sticker\library_dock.py" line="298" />
         <source>Seamless clone: blends gradients at the boundary for a softer join. Can look more natural but may ignore fine alpha; falls back to alpha if it fails.</source>
         <translation type="unfinished" />
     </message>
@@ -17409,8 +17480,8 @@ Label files updated: {files}</source>
 </context><context>
     <name>_StickerWidgetMethods</name>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="116" />
-        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="94" />
+        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="117" />
+        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="95" />
         <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="38" />
         <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="22" />
         <source>Sticker</source>
@@ -17427,12 +17498,12 @@ Label files updated: {files}</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="95" />
+        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="96" />
         <source>Failed to preview material: %s</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="117" />
+        <location filename="..\..\views\labeling\advanced\sticker\widget_controller.py" line="118" />
         <source>Failed to apply sticker: %s</source>
         <translation type="unfinished" />
     </message>

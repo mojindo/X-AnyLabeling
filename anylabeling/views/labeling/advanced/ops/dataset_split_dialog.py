@@ -4,28 +4,22 @@ from __future__ import annotations
 
 import os
 import os.path as osp
-import random
+from typing import List, Optional, Tuple
 
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import Qt
 
 from anylabeling.views.labeling import utils
+from anylabeling.views.labeling.advanced.ops.dataset_split_engine import (
+    compute_split_stats,
+    run_split,
+)
 from anylabeling.views.labeling.utils.style import (
     get_cancel_btn_style,
     get_dialog_style,
     get_ok_btn_style,
     get_spinbox_style,
 )
-
-
-def _split_sizes(n: int, w_train: int, w_val: int, w_test: int) -> tuple[int, int, int]:
-    total_w = w_train + w_val + w_test
-    if total_w <= 0:
-        raise ValueError("invalid weights")
-    n_train = n * w_train // total_w
-    n_val = n * w_val // total_w
-    n_test = n - n_train - n_val
-    return n_train, n_val, n_test
 
 
 def open_dataset_split_dialog(parent):
@@ -44,12 +38,77 @@ def _default_image_folder(parent) -> str:
     return ""
 
 
+def _label_output_dir(parent) -> Optional[str]:
+    if parent is None:
+        return None
+    out = getattr(parent, "output_dir", None)
+    if out and osp.isdir(str(out)):
+        return str(out)
+    return None
+
+
+class _ClassStatsTable(QtWidgets.QTableWidget):
+    def __init__(
+        self,
+        tr_func,
+        parent: Optional[QtWidgets.QWidget] = None,
+    ) -> None:
+        super().__init__(parent)
+        self._tr = tr_func
+        self.setColumnCount(3)
+        self.setHorizontalHeaderLabels(
+            [
+                self._tr("Class"),
+                self._tr("Images"),
+                self._tr("Boxes"),
+            ]
+        )
+        self.horizontalHeader().setStretchLastSection(True)
+        self.horizontalHeader().setSectionResizeMode(
+            0, QtWidgets.QHeaderView.ResizeMode.Stretch
+        )
+        self.verticalHeader().setVisible(False)
+        self.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.NoSelection)
+        self.setAlternatingRowColors(True)
+
+    def fill(self, *, image_count: int, unlabeled: int, rows: List[Tuple[str, int, int]]) -> None:
+        self.setRowCount(len(rows) + (1 if unlabeled > 0 else 0) + 1)
+        summary = QtWidgets.QTableWidgetItem(
+            self._tr("Total images: %d (unlabeled: %d)") % (image_count, unlabeled)
+        )
+        summary.setFlags(Qt.ItemFlag.ItemIsEnabled)
+        self.setItem(0, 0, summary)
+        self.setSpan(0, 0, 1, 3)
+        row_idx = 1
+        if unlabeled > 0:
+            self._set_row(
+                row_idx,
+                self._tr("(no labels)"),
+                unlabeled,
+                0,
+            )
+            row_idx += 1
+        for name, img_n, box_n in rows:
+            self._set_row(row_idx, name, img_n, box_n)
+            row_idx += 1
+
+    def _set_row(self, row: int, name: str, images: int, boxes: int) -> None:
+        self.setItem(row, 0, QtWidgets.QTableWidgetItem(name))
+        self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(images)))
+        self.setItem(row, 2, QtWidgets.QTableWidgetItem(str(boxes)))
+
+
 class DatasetSplitDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self._parent = parent
+        self._label_dir = _label_output_dir(parent)
+        self._cached_parts: Optional[Tuple[List[str], List[str], List[str]]] = None
+
         self.setWindowTitle(self.tr("Dataset Split"))
         self.setModal(True)
-        self.setMinimumWidth(520)
+        self.setMinimumSize(620, 520)
         self.setWindowFlags(
             self.windowFlags() & ~Qt.WindowType.WindowContextHelpButtonHint
         )
@@ -81,20 +140,36 @@ class DatasetSplitDialog(QtWidgets.QDialog):
         ratio_form.addRow(self.tr("Val weight:"), self.val_spin)
         ratio_form.addRow(self.tr("Test weight:"), self.test_spin)
 
+        self.stratify_cb = QtWidgets.QCheckBox(self.tr("Stratify by labels"))
+        self.stratify_cb.setChecked(True)
+        self.stratify_cb.setToolTip(
+            self.tr(
+                "Balance classes across splits: each image is assigned once, "
+                "but every class on that image is counted when balancing. "
+                "Images without any label (no shapes/flags) are stratified "
+                "with the same train/val/test ratio in a separate pass."
+            )
+        )
+
         self.shuffle_cb = QtWidgets.QCheckBox(self.tr("Shuffle before split"))
         self.shuffle_cb.setChecked(True)
+        self.shuffle_cb.setToolTip(
+            self.tr("Used for non-stratified splits, or as tie-break order when stratifying.")
+        )
         self.seed_spin = QtWidgets.QSpinBox()
         self.seed_spin.setRange(0, 2_147_483_647)
         self.seed_spin.setValue(42)
         self.seed_spin.setStyleSheet(get_spinbox_style())
-        self.seed_spin.setEnabled(self.shuffle_cb.isChecked())
-        self.shuffle_cb.toggled.connect(self.seed_spin.setEnabled)
 
-        seed_row = QtWidgets.QHBoxLayout()
-        seed_row.addWidget(self.shuffle_cb)
-        seed_row.addStretch(1)
-        seed_row.addWidget(QtWidgets.QLabel(self.tr("Random seed:")))
-        seed_row.addWidget(self.seed_spin)
+        opt_row = QtWidgets.QHBoxLayout()
+        opt_row.addWidget(self.stratify_cb)
+        opt_row.addWidget(self.shuffle_cb)
+        opt_row.addStretch(1)
+        opt_row.addWidget(QtWidgets.QLabel(self.tr("Random seed:")))
+        opt_row.addWidget(self.seed_spin)
+
+        self._on_stratify_toggled(self.stratify_cb.isChecked())
+        self.stratify_cb.toggled.connect(self._on_stratify_toggled)
 
         self.preview_label = QtWidgets.QLabel()
         self.preview_label.setWordWrap(True)
@@ -102,6 +177,22 @@ class DatasetSplitDialog(QtWidgets.QDialog):
             Qt.TextInteractionFlag.TextSelectableByMouse
         )
 
+        self._stats_tabs = QtWidgets.QTabWidget()
+        self._table_train = _ClassStatsTable(self.tr, self)
+        self._table_val = _ClassStatsTable(self.tr, self)
+        self._table_test = _ClassStatsTable(self.tr, self)
+        self._stats_tabs.addTab(self._table_train, self.tr("Train"))
+        self._stats_tabs.addTab(self._table_val, self.tr("Val"))
+        self._stats_tabs.addTab(self._table_test, self.tr("Test"))
+
+        self._stats_hint = QtWidgets.QLabel(
+            self.tr("Click Preview split to compute class counts per list (labels from JSON).")
+        )
+        self._stats_hint.setWordWrap(True)
+        self._stats_hint.setStyleSheet("color: #666; font-size: 11px;")
+
+        btn_preview = QtWidgets.QPushButton(self.tr("Preview split"))
+        btn_preview.clicked.connect(self._on_preview)
         btn_ok = QtWidgets.QPushButton(self.tr("Generate"))
         btn_ok.setStyleSheet(get_ok_btn_style())
         btn_ok.clicked.connect(self._on_generate)
@@ -110,6 +201,7 @@ class DatasetSplitDialog(QtWidgets.QDialog):
         btn_cancel.clicked.connect(self.reject)
 
         btn_row = QtWidgets.QHBoxLayout()
+        btn_row.addWidget(btn_preview)
         btn_row.addStretch(1)
         btn_row.addWidget(btn_cancel)
         btn_row.addWidget(btn_ok)
@@ -120,19 +212,37 @@ class DatasetSplitDialog(QtWidgets.QDialog):
         main.addWidget(QtWidgets.QLabel(self.tr("Image folder:")))
         main.addLayout(row_folder)
         main.addLayout(ratio_form)
-        main.addLayout(seed_row)
+        main.addLayout(opt_row)
         main.addWidget(self.preview_label)
+        main.addWidget(QtWidgets.QLabel(self.tr("Class distribution:")))
+        main.addWidget(self._stats_hint)
+        main.addWidget(self._stats_tabs, 1)
         main.addLayout(btn_row)
 
         init_dir = _default_image_folder(parent) if parent else ""
         if init_dir:
             self.folder_edit.setText(init_dir)
-        self._refresh_preview()
+        self._refresh_output_hint()
 
-        self.folder_edit.textChanged.connect(lambda _: self._refresh_preview())
-        self.train_spin.valueChanged.connect(lambda _: self._refresh_preview())
-        self.val_spin.valueChanged.connect(lambda _: self._refresh_preview())
-        self.test_spin.valueChanged.connect(lambda _: self._refresh_preview())
+        self.folder_edit.textChanged.connect(lambda _: self._refresh_output_hint())
+        self.train_spin.valueChanged.connect(lambda _: self._invalidate_preview())
+        self.val_spin.valueChanged.connect(lambda _: self._invalidate_preview())
+        self.test_spin.valueChanged.connect(lambda _: self._invalidate_preview())
+        self.stratify_cb.toggled.connect(lambda _: self._invalidate_preview())
+        self.shuffle_cb.toggled.connect(lambda _: self._invalidate_preview())
+        self.seed_spin.valueChanged.connect(lambda _: self._invalidate_preview())
+
+    def _on_stratify_toggled(self, on: bool) -> None:
+        self.shuffle_cb.setEnabled(not on)
+        if on:
+            self.shuffle_cb.setToolTip(
+                self.tr("Stratified mode uses the random seed for assignment order only.")
+            )
+        else:
+            self.shuffle_cb.setToolTip(self.tr("Shuffle the image list before proportional split."))
+
+    def _invalidate_preview(self) -> None:
+        self._cached_parts = None
 
     def _browse_folder(self):
         start = self.folder_edit.text().strip()
@@ -148,7 +258,7 @@ class DatasetSplitDialog(QtWidgets.QDialog):
         if path:
             self.folder_edit.setText(path)
 
-    def _refresh_preview(self):
+    def _refresh_output_hint(self):
         folder = self.folder_edit.text().strip()
         if not folder:
             self.preview_label.setText(
@@ -161,6 +271,105 @@ class DatasetSplitDialog(QtWidgets.QDialog):
             % parent_dir
         )
 
+    def _weights(self) -> Tuple[int, int, int] | None:
+        w_tr = int(self.train_spin.value())
+        w_v = int(self.val_spin.value())
+        w_te = int(self.test_spin.value())
+        if w_tr + w_v + w_te <= 0:
+            return None
+        return w_tr, w_v, w_te
+
+    def _collect_paths(self) -> List[str]:
+        folder = self.folder_edit.text().strip()
+        if not folder or not osp.isdir(folder):
+            return []
+        return list(utils.scan_all_images(folder))
+
+    def _compute_parts(self) -> Optional[Tuple[List[str], List[str], List[str], List[str]]]:
+        weights = self._weights()
+        if weights is None:
+            return None
+        paths = self._collect_paths()
+        if not paths:
+            return None
+        w_tr, w_v, w_te = weights
+        part_train, part_val, part_test = run_split(
+            paths,
+            w_train=w_tr,
+            w_val=w_v,
+            w_test=w_te,
+            stratify=bool(self.stratify_cb.isChecked()),
+            shuffle=bool(self.shuffle_cb.isChecked()),
+            seed=int(self.seed_spin.value()),
+            output_dir=self._label_dir,
+        )
+        return part_train, part_val, part_test, paths
+
+    def _update_stats_tables(
+        self,
+        part_train: List[str],
+        part_val: List[str],
+        part_test: List[str],
+    ) -> None:
+        out = self._label_dir
+
+        def _fill(table: _ClassStatsTable, paths: List[str]) -> None:
+            st = compute_split_stats(paths, output_dir=out)
+            rows = st.sorted_rows()
+            table.fill(
+                image_count=st.image_count,
+                unlabeled=st.unlabeled_images,
+                rows=rows,
+            )
+
+        _fill(self._table_train, part_train)
+        _fill(self._table_val, part_val)
+        _fill(self._table_test, part_test)
+
+    def _on_preview(self) -> None:
+        folder = self.folder_edit.text().strip()
+        if not folder or not osp.isdir(folder):
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Dataset Split"),
+                self.tr("Please choose a valid image folder."),
+            )
+            return
+        weights = self._weights()
+        if weights is None:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Dataset Split"),
+                self.tr("The sum of train / val / test weights must be greater than zero."),
+            )
+            return
+        paths = self._collect_paths()
+        if not paths:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Dataset Split"),
+                self.tr("No images found under this folder."),
+            )
+            return
+        computed = self._compute_parts()
+        if computed is None:
+            return
+        part_train, part_val, part_test, all_paths = computed
+        self._cached_parts = (part_train, part_val, part_test)
+        self._update_stats_tables(part_train, part_val, part_test)
+        self._stats_hint.setText(
+            self.tr(
+                "Preview: %d images → train %d, val %d, test %d. "
+                "Images = files containing the class; Boxes = shape count."
+            )
+            % (
+                len(all_paths),
+                len(part_train),
+                len(part_val),
+                len(part_test),
+            )
+        )
+
     def _on_generate(self):
         folder = self.folder_edit.text().strip()
         if not folder or not osp.isdir(folder):
@@ -171,37 +380,26 @@ class DatasetSplitDialog(QtWidgets.QDialog):
             )
             return
 
-        w_tr = int(self.train_spin.value())
-        w_v = int(self.val_spin.value())
-        w_te = int(self.test_spin.value())
-        if w_tr + w_v + w_te <= 0:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Dataset Split"),
-                self.tr("The sum of train / val / test weights must be greater than zero."),
-            )
+        computed = self._compute_parts()
+        if computed is None:
+            weights = self._weights()
+            if weights is None:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    self.tr("Dataset Split"),
+                    self.tr("The sum of train / val / test weights must be greater than zero."),
+                )
+            else:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    self.tr("Dataset Split"),
+                    self.tr("No images found under this folder."),
+                )
             return
 
-        paths = utils.scan_all_images(folder)
-        if not paths:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Dataset Split"),
-                self.tr("No images found under this folder."),
-            )
-            return
-
-        if self.shuffle_cb.isChecked():
-            rng = random.Random(int(self.seed_spin.value()))
-            rng.shuffle(paths)
-
-        n_tr, n_v, n_te = _split_sizes(len(paths), w_tr, w_v, w_te)
-        i0 = 0
-        part_train = paths[i0 : i0 + n_tr]
-        i0 += n_tr
-        part_val = paths[i0 : i0 + n_v]
-        i0 += n_v
-        part_test = paths[i0 : i0 + n_te]
+        part_train, part_val, part_test, paths = computed
+        self._cached_parts = (part_train, part_val, part_test)
+        self._update_stats_tables(part_train, part_val, part_test)
 
         out_dir = osp.dirname(osp.normpath(osp.abspath(folder)))
         targets = {
@@ -253,4 +451,7 @@ class DatasetSplitDialog(QtWidgets.QDialog):
                 out_dir,
             ),
         )
-        self.accept()
+        # Keep dialog open so user can read class stats tabs
+        self._stats_hint.setText(
+            self.tr("List files written. Review class distribution in the tabs above.")
+        )

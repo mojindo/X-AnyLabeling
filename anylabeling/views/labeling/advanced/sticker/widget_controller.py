@@ -60,6 +60,7 @@ class _StickerWidgetMethods:
             try:
                 self._sticker_dock.quickApplyToggled.connect(self._on_sticker_quick_apply_toggled)
                 self._sticker_dock.settingsChanged.connect(self._on_sticker_settings_changed)
+                self._sticker_dock.closeModeRequested.connect(self._close_sticker_mode)
             except Exception:
                 pass
             self._sticker_dock.setFloating(True)
@@ -125,11 +126,34 @@ class _StickerWidgetMethods:
             pass
 
 
+    def _close_sticker_mode(self) -> None:
+        """Exit sticker session when the dock is closed (incl. quick apply)."""
+        dock = getattr(self, "_sticker_dock", None)
+        if dock is not None:
+            try:
+                dock.set_quick_apply_checked(False)
+            except Exception:
+                pass
+        try:
+            self.canvas.sticker_cancel()
+        except Exception:
+            pass
+        try:
+            self.canvas.set_sticker_enabled(False)
+        except Exception:
+            pass
+        if dock is not None:
+            try:
+                dock.hide()
+            except Exception:
+                pass
+
     def _on_sticker_quick_apply_toggled(self, enabled: bool) -> None:
         try:
             # Quick-apply is meant to work immediately on canvas clicks.
-            self.canvas.set_sticker_enabled(True)
-            self.set_edit_mode()
+            if bool(enabled):
+                self.canvas.set_sticker_enabled(True)
+                self.set_edit_mode()
             self.canvas.sticker_set_quick_apply_enabled(bool(enabled), output_dir=self.output_dir)
         except Exception:
             pass

@@ -28,6 +28,7 @@ class StickerLibraryDock(QtWidgets.QDockWidget):
     moveRequested = QtCore.pyqtSignal(float, float)  # dx, dy in image coords (pixels)
     quickApplyToggled = QtCore.pyqtSignal(bool)
     settingsChanged = QtCore.pyqtSignal(str, str, str, bool)  # blend, anno, warp, appearance
+    closeModeRequested = QtCore.pyqtSignal()
 
     def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
         super().__init__(parent)
@@ -347,4 +348,19 @@ class StickerLibraryDock(QtWidgets.QDockWidget):
             self.settingsChanged.emit(blend, anno, warp, appearance)
         except Exception:
             pass
+
+    def set_quick_apply_checked(self, checked: bool) -> None:
+        """Update quick-apply checkbox without emitting quickApplyToggled."""
+        cb = getattr(self, "_quick_apply", None)
+        if cb is None:
+            return
+        try:
+            cb.blockSignals(True)
+            cb.setChecked(bool(checked))
+        finally:
+            cb.blockSignals(False)
+
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        self.closeModeRequested.emit()
+        super().closeEvent(event)
 

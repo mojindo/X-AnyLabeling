@@ -246,8 +246,22 @@ def crop_rotation_rectified_bgra(
     return bgra
 
 
+def dilate_mask_alpha(alpha: np.ndarray, radius_px: int) -> np.ndarray:
+    """Expand a binary/soft alpha mask outward by ``radius_px`` (ellipse kernel)."""
+    r = int(radius_px)
+    if r <= 0 or alpha is None or alpha.size == 0:
+        return alpha
+    k = r * 2 + 1
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))
+    return cv2.dilate(alpha, kernel, iterations=1)
+
+
 def crop_polygon_bgra(
-    image_bgr: np.ndarray, *, bbox: BBox, polygon_points: List[List[float]]
+    image_bgr: np.ndarray,
+    *,
+    bbox: BBox,
+    polygon_points: List[List[float]],
+    mask_dilate_px: int = 0,
 ) -> np.ndarray:
     """
     Crop by bbox and apply polygon alpha mask so that pixels outside polygon are transparent.
@@ -276,6 +290,7 @@ def crop_polygon_bgra(
     poly = np.array(pts, dtype=np.int32)
     alpha = np.zeros((h, w), dtype=np.uint8)
     cv2.fillPoly(alpha, [poly], 255)
+    alpha = dilate_mask_alpha(alpha, mask_dilate_px)
     bgra = cv2.cvtColor(crop_bgr, cv2.COLOR_BGR2BGRA)
     bgra[:, :, 3] = alpha
     return bgra
@@ -291,6 +306,7 @@ def crop_shape_to_array(
     crop_mode: str = CROP_MODE_HBB,
     obb_rectify: bool = False,
     padding_px: int = 4,
+    mask_dilate_px: int = 0,
 ) -> Optional[np.ndarray]:
     """Return crop (BGR or BGRA) for one shape under the selected crop mode."""
     mode = str(crop_mode or CROP_MODE_HBB).lower()
@@ -301,7 +317,12 @@ def crop_shape_to_array(
         bbox = shape_to_bbox(points, img_w, img_h, padding_px=padding_px)
         if bbox is None:
             return None
-        out = crop_polygon_bgra(image_bgr, bbox=bbox, polygon_points=points)
+        out = crop_polygon_bgra(
+            image_bgr,
+            bbox=bbox,
+            polygon_points=points,
+            mask_dilate_px=int(mask_dilate_px),
+        )
         return out if out.size else None
     if mode == CROP_MODE_OBB:
         if obb_rectify:

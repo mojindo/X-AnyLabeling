@@ -3738,14 +3738,14 @@ Warnings:
 </context><context>
     <name>DatasetSplitDialog</name>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="439" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="432" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="393" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="387" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="376" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="348" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="340" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="332" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="441" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="434" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="395" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="389" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="378" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="350" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="342" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="334" />
         <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="109" />
         <source>Dataset Split</source>
         <translation type="unfinished" />
@@ -3782,143 +3782,143 @@ Warnings:
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="146" />
-        <source>Balance classes across splits: each image is assigned once, but every class on that image is counted when balancing.</source>
+        <source>Balance classes across splits: each image is assigned once, but every class on that image is counted when balancing. Images without any label (no shapes/flags) are stratified with the same train/val/test ratio in a separate pass.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="152" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="154" />
         <source>Shuffle before split</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="155" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="157" />
         <source>Used for non-stratified splits, or as tie-break order when stratifying.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="166" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="168" />
         <source>Random seed:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="182" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="184" />
         <source>Train</source>
         <translation type="unfinished">훈련</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="183" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="185" />
         <source>Val</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="184" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="186" />
         <source>Test</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="187" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="189" />
         <source>Click Preview split to compute class counts per list (labels from JSON).</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="192" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="194" />
         <source>Preview split</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="194" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="196" />
         <source>Generate</source>
         <translation type="unfinished">생성</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="197" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="199" />
         <source>Cancel</source>
         <translation>취소</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="210" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="212" />
         <source>Image folder:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="215" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="217" />
         <source>Class distribution:</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="237" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="239" />
         <source>Stratified mode uses the random seed for assignment order only.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="240" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="242" />
         <source>Shuffle the image list before proportional split.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="251" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="253" />
         <source>Select Image Folder</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="263" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="265" />
         <source>List files will be written next to this folder (parent directory).</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="268" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="270" />
         <source>Will write train.txt, val.txt, test.txt, all.txt to:
 %s</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="377" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="333" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="379" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="335" />
         <source>Please choose a valid image folder.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="388" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="341" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="390" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="343" />
         <source>The sum of train / val / test weights must be greater than zero.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="394" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="349" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="396" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="351" />
         <source>No images found under this folder.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="359" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="361" />
         <source>Preview: %d images → train %d, val %d, test %d. Images = files containing the class; Boxes = shape count.</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="413" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="415" />
         <source>Overwrite?</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="414" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="416" />
         <source>These files already exist and will be replaced:
 %s</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="433" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="435" />
         <source>Failed to write list files:
 %s</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="440" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="442" />
         <source>Done. %d images → train %d, val %d, test %d; all.txt has %d.
 Output: %s</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="454" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="456" />
         <source>List files written. Review class distribution in the tabs above.</source>
         <translation type="unfinished" />
     </message>
@@ -9030,21 +9030,31 @@ This warning will only be shown once. Do you want to continue?</source>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\bootstrap.py" line="346" />
-        <source>Image Augmentation…</source>
+        <source>Refined Matting…</source>
         <translation type="unfinished" />
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\bootstrap.py" line="355" />
-        <source>Apply one photometric augmentation per image and save images with JSON</source>
+        <source>Export RGBA crops via RMBG: fine (crop then refine) or fast (full image then crop)</source>
         <translation type="unfinished" />
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\bootstrap.py" line="361" />
+        <source>Image Augmentation…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="370" />
+        <source>Apply one photometric augmentation per image and save images with JSON</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="376" />
         <source>Jump by Labels…</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="363" />
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="378" />
         <source>Select labels and jump to previous/next image containing any of them</source>
         <translation type="unfinished" />
     </message>
@@ -13524,6 +13534,173 @@ The main application remains available.</source>
         <location filename="..\..\views\labeling\vqa\dialogs.py" line="243" />
         <source>Are you sure you want to delete this template?</source>
         <translation>이 템플릿을 삭제하시겠습니까?</translation>
+    </message>
+</context><context>
+    <name>RefinedMattingDialog</name>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="374" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="360" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="307" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="298" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="290" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="282" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="274" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="101" />
+        <source>Refined Matting</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="119" />
+        <source>Export RGBA crops per annotation. Fine mode: crop then RMBG refine. Fast mode: full-image RMBG once, then crop by box.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="128" />
+        <source>Mode</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="130" />
+        <source>Fine (crop then matting)</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="131" />
+        <source>Fast (full image matting, then crop)</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="142" />
+        <source>Matting model:</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="145" />
+        <source>Scope</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="147" />
+        <source>Current image only</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="148" />
+        <source>Entire open dataset</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="157" />
+        <source>Output folder for PNG materials</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="158" />
+        <source>Browse…</source>
+        <translation type="unfinished">찾아보기…</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="162" />
+        <source>Output directory:</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="170" />
+        <source>Rectify oriented boxes (OBB)</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="172" />
+        <source>Crop padding (px):</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="176" />
+        <source>Labels to export</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="179" />
+        <source>Select all</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="180" />
+        <source>Select none</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="181" />
+        <source>Reload labels</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="197" />
+        <source>Run</source>
+        <translation type="unfinished">실행</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="200" />
+        <source>Close</source>
+        <translation type="unfinished">닫기</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="224" />
+        <source>Select output folder</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="275" />
+        <source>Matting is still running.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="283" />
+        <source>Please choose an output directory.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="291" />
+        <source>No images to process.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="299" />
+        <source>Select at least one label.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="308" />
+        <source>Cannot create output directory:
+%s</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="318" />
+        <source>Loading model…</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="319" />
+        <source>Cancel</source>
+        <translation type="unfinished">취소</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="350" />
+        <source>Processing %d / %d: %s</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="361" />
+        <source>Done. Processed %d image(s); %d shape(s) matched; wrote %d PNG crop(s).
+%s</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="375" />
+        <source>Matting failed:
+%s</source>
+        <translation type="unfinished" />
     </message>
 </context><context>
     <name>RemoteDirBrowserDialog</name>

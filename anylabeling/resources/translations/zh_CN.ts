@@ -3348,7 +3348,7 @@ pip install "x-anylabeling-cvhub[advance]"</translation>
     <message>
         <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="488" />
         <source>Select at least one label.</source>
-        <translation>请至少勾选一个标签。</translation>
+        <translation>请至少选择一个标签。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="495" />
@@ -3551,7 +3551,7 @@ pip install "x-anylabeling-cvhub[advance]"</translation>
     <message>
         <location filename="..\..\views\labeling\advanced\ops\dataset_filter_dialog.py" line="330" />
         <source>Select output folder</source>
-        <translation>选择输出目录</translation>
+        <translation>选择输出文件夹</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\ops\dataset_filter_dialog.py" line="344" />
@@ -3764,14 +3764,14 @@ Warnings:
 </context><context>
     <name>DatasetSplitDialog</name>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="439" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="432" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="393" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="387" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="376" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="348" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="340" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="332" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="441" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="434" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="395" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="389" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="378" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="350" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="342" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="334" />
         <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="109" />
         <source>Dataset Split</source>
         <translation>数据集划分</translation>
@@ -3808,147 +3808,147 @@ Warnings:
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="146" />
-        <source>Balance classes across splits: each image is assigned once, but every class on that image is counted when balancing.</source>
-        <translation>在各集合间均衡类别：每张图只划入一个集合，但图中出现的每个类别都会参与均衡计算。</translation>
+        <source>Balance classes across splits: each image is assigned once, but every class on that image is counted when balancing. Images without any label (no shapes/flags) are stratified with the same train/val/test ratio in a separate pass.</source>
+        <translation>在各集合间均衡类别；无标注图片（无形状/标志）会按相同比例单独分层后并入各集合，避免全挤入验证/测试集。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="152" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="154" />
         <source>Shuffle before split</source>
         <translation>划分前随机打乱</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="155" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="157" />
         <source>Used for non-stratified splits, or as tie-break order when stratifying.</source>
         <translation>用于非分层随机划分，或作为分层时的随机次序。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="166" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="168" />
         <source>Random seed:</source>
         <translation>随机种子：</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="182" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="184" />
         <source>Train</source>
         <translation>训练</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="183" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="185" />
         <source>Val</source>
         <translation>验证集</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="184" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="186" />
         <source>Test</source>
         <translation>测试集</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="187" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="189" />
         <source>Click Preview split to compute class counts per list (labels from JSON).</source>
         <translation>点击「预览划分」按 JSON 标注统计各列表的类别数量。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="192" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="194" />
         <source>Preview split</source>
         <translation>预览划分</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="194" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="196" />
         <source>Generate</source>
         <translation>生成</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="197" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="199" />
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="210" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="212" />
         <source>Image folder:</source>
         <translation>图片文件夹：</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="215" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="217" />
         <source>Class distribution:</source>
         <translation>类别分布：</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="237" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="239" />
         <source>Stratified mode uses the random seed for assignment order only.</source>
         <translation>分层模式下随机种子仅影响分配顺序。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="240" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="242" />
         <source>Shuffle the image list before proportional split.</source>
         <translation>按比例切分前先打乱图片列表。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="251" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="253" />
         <source>Select Image Folder</source>
         <translation>选择图片文件夹</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="263" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="265" />
         <source>List files will be written next to this folder (parent directory).</source>
         <translation>列表文件将写入该文件夹的上一级目录。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="268" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="270" />
         <source>Will write train.txt, val.txt, test.txt, all.txt to:
 %s</source>
         <translation>将写入 train.txt、val.txt、test.txt、all.txt 到：
 %s</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="377" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="333" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="379" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="335" />
         <source>Please choose a valid image folder.</source>
         <translation>请选择有效的图片文件夹。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="388" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="341" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="390" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="343" />
         <source>The sum of train / val / test weights must be greater than zero.</source>
         <translation>训练 / 验证 / 测试权重之和必须大于 0。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="394" />
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="349" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="396" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="351" />
         <source>No images found under this folder.</source>
         <translation>该文件夹下未找到图片。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="359" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="361" />
         <source>Preview: %d images → train %d, val %d, test %d. Images = files containing the class; Boxes = shape count.</source>
         <translation>预览：共 %d 张 → 训练 %d、验证 %d、测试 %d。图片数 = 含该类别的文件数；框数 = 标注形状数量。</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="413" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="415" />
         <source>Overwrite?</source>
         <translation>覆盖？</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="414" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="416" />
         <source>These files already exist and will be replaced:
 %s</source>
         <translation>以下文件已存在并将被替换：
 %s</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="433" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="435" />
         <source>Failed to write list files:
 %s</source>
         <translation>写入列表文件失败：
 %s</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="440" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="442" />
         <source>Done. %d images → train %d, val %d, test %d; all.txt has %d.
 Output: %s</source>
         <translation>完成。共 %d 张图片 → 训练 %d、验证 %d、测试 %d；all.txt 含 %d 张。
 输出：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="454" />
+        <location filename="..\..\views\labeling\advanced\ops\dataset_split_dialog.py" line="456" />
         <source>List files written. Review class distribution in the tabs above.</source>
         <translation>列表已写入，请在上方标签页查看各类别分布。</translation>
     </message>
@@ -5970,7 +5970,7 @@ Original images backed up to:
     <message>
         <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="512" />
         <source>Select output folder</source>
-        <translation>选择输出目录</translation>
+        <translation>选择输出文件夹</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\augment\dialog.py" line="573" />
@@ -6424,7 +6424,7 @@ Original images backed up to:
     <message>
         <location filename="..\..\views\labeling\advanced\ops\label_jump_dialog.py" line="196" />
         <source>Select at least one label.</source>
-        <translation>请至少勾选一个标签。</translation>
+        <translation>请至少选择一个标签。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\ops\label_jump_dialog.py" line="246" />
@@ -9068,21 +9068,31 @@ This warning will only be shown once. Do you want to continue?</source>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\bootstrap.py" line="346" />
+        <source>Refined Matting…</source>
+        <translation>精细抠图…</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="355" />
+        <source>Export RGBA crops via RMBG: fine (crop then refine) or fast (full image then crop)</source>
+        <translation>用 RMBG 导出 RGBA 素材：精细（先裁后抠）或快速（全图抠图再裁）</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="361" />
         <source>Image Augmentation…</source>
         <translation>数据增强…</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="355" />
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="370" />
         <source>Apply one photometric augmentation per image and save images with JSON</source>
         <translation>每张原图只做一种图像增强，并保存增强后的图片和标注</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="361" />
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="376" />
         <source>Jump by Labels…</source>
         <translation>按标签跳转…</translation>
     </message>
     <message>
-        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="363" />
+        <location filename="..\..\views\labeling\advanced\bootstrap.py" line="378" />
         <source>Select labels and jump to previous/next image containing any of them</source>
         <translation>选择标签并跳到包含任一类别的上一张/下一张图片</translation>
     </message>
@@ -13565,6 +13575,176 @@ The main application remains available.</source>
         <location filename="..\..\views\labeling\vqa\dialogs.py" line="243" />
         <source>Are you sure you want to delete this template?</source>
         <translation>您确定要删除这个模板吗？</translation>
+    </message>
+</context><context>
+    <name>RefinedMattingDialog</name>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="374" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="360" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="307" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="298" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="290" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="282" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="274" />
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="101" />
+        <source>Refined Matting</source>
+        <translation>精细抠图</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="119" />
+        <source>Export RGBA crops per annotation. Fine mode: crop then RMBG refine. Fast mode: full-image RMBG once, then crop by box.</source>
+        <translation>按标注导出 RGBA 素材。精细模式：先按框裁剪再 RMBG 精修；快速模式：全图抠图一次后按框裁剪。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="128" />
+        <source>Mode</source>
+        <translation>模式</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="130" />
+        <source>Fine (crop then matting)</source>
+        <translation>精细（先裁剪再抠图）</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="131" />
+        <source>Fast (full image matting, then crop)</source>
+        <translation>快速（全图抠图后裁剪）</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="142" />
+        <source>Matting model:</source>
+        <translation>抠图模型：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="145" />
+        <source>Scope</source>
+        <translation>范围</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="147" />
+        <source>Current image only</source>
+        <translation>仅当前图片</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="148" />
+        <source>Entire open dataset</source>
+        <translation>整个已打开数据集</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="157" />
+        <source>Output folder for PNG materials</source>
+        <translation>PNG 素材输出文件夹</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="158" />
+        <source>Browse…</source>
+        <translation>浏览…</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="162" />
+        <source>Output directory:</source>
+        <translation>输出目录：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="170" />
+        <source>Rectify oriented boxes (OBB)</source>
+        <translation>矫正旋转框（OBB）</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="172" />
+        <source>Crop padding (px):</source>
+        <translation>裁剪外扩（像素）：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="176" />
+        <source>Labels to export</source>
+        <translation>参与导出的标签</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="179" />
+        <source>Select all</source>
+        <translation>全选</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="180" />
+        <source>Select none</source>
+        <translation>全不选</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="181" />
+        <source>Reload labels</source>
+        <translation>重新加载标签</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="197" />
+        <source>Run</source>
+        <translation>运行</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="200" />
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="224" />
+        <source>Select output folder</source>
+        <translation>选择输出文件夹</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="275" />
+        <source>Matting is still running.</source>
+        <translation>抠图任务仍在运行。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="283" />
+        <source>Please choose an output directory.</source>
+        <translation>请选择输出目录。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="291" />
+        <source>No images to process.</source>
+        <translation>没有可处理的图片。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="299" />
+        <source>Select at least one label.</source>
+        <translation>请至少选择一个标签。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="308" />
+        <source>Cannot create output directory:
+%s</source>
+        <translation>无法创建输出目录：
+%s</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="318" />
+        <source>Loading model…</source>
+        <translation>正在加载模型…</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="319" />
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="350" />
+        <source>Processing %d / %d: %s</source>
+        <translation>处理 %d / %d：%s</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="361" />
+        <source>Done. Processed %d image(s); %d shape(s) matched; wrote %d PNG crop(s).
+%s</source>
+        <translation>完成。处理 %d 张图；匹配 %d 个标注；写出 %d 个 PNG。
+%s</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\labeling\advanced\matting\dialog.py" line="375" />
+        <source>Matting failed:
+%s</source>
+        <translation>抠图失败：
+%s</translation>
     </message>
 </context><context>
     <name>RemoteDirBrowserDialog</name>

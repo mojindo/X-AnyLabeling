@@ -342,6 +342,21 @@ def register_advanced_menu(widget: Any) -> None:
             "Find near-duplicate images in the open folder and delete extras",
         ),
     )
+    refined_matting = action(
+        QCoreApplication.translate("LabelingWidget", "Refined Matting…"),
+        lambda: _guarded(
+            widget,
+            "Refined Matting",
+            lambda w: __import__(
+                "anylabeling.views.labeling.advanced.matting.dialog",
+                fromlist=["open_refined_matting_dialog"],
+            ).open_refined_matting_dialog(w),
+        ),
+        tip=QCoreApplication.translate(
+            "LabelingWidget",
+            "Export RGBA crops via RMBG: fine (crop then refine) or fast (full image then crop)",
+        ),
+    )
     dataset_augment = action(
         QCoreApplication.translate("LabelingWidget", "Image Augmentation…"),
         lambda: _guarded(
@@ -387,6 +402,7 @@ def register_advanced_menu(widget: Any) -> None:
             anno_filter,
             dataset_dedup,
             dataset_augment,
+            refined_matting,
             label_jump,
         ),
     )

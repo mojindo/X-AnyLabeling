@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
 )
 
+from anylabeling.views.labeling.advanced.compare.i18n import project_browse_start
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.advanced.compare.annotation_compare import CompareSettings
 from anylabeling.views.labeling.advanced.compare.annotation_compare_io import (
@@ -237,19 +238,27 @@ class AnnotationCompareDialog(QDialog):
         root.addLayout(btns)
 
     def _browse_pred_dir(self) -> None:
-        start = self.pred_dir_edit.text().strip() or "."
+        start = project_browse_start(
+            self.parent_widget, self.pred_dir_edit.text().strip()
+        )
         path = QFileDialog.getExistingDirectory(
-            self, self.tr("Select YOLO label folder"), start
+            self,
+            self.tr("Select YOLO label folder"),
+            start or ".",
+            QFileDialog.Option.ShowDirsOnly
+            | QFileDialog.Option.DontResolveSymlinks,
         )
         if path:
             self.pred_dir_edit.setText(path)
 
     def _browse_classes(self) -> None:
-        start = self.classes_edit.text().strip() or "."
+        start = project_browse_start(
+            self.parent_widget, self.classes_edit.text().strip()
+        )
         path, _ = QFileDialog.getOpenFileName(
             self,
             self.tr("Select classes.txt"),
-            start,
+            start or ".",
             self.tr("Text files (*.txt);;All files (*)"),
         )
         if path:

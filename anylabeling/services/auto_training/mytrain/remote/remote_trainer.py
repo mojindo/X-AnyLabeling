@@ -5,12 +5,15 @@ from __future__ import annotations
 import json
 import os
 import shlex
+import tarfile
 import tempfile
 import threading
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 from anylabeling.services.auto_training.mytrain.dataset_lists import (
+    SPLIT_FILES,
     build_remote_merge_script,
 )
 
@@ -24,10 +27,104 @@ from .ssh_client import SSHClient, SSHError
 
 
 _UPLOAD_MANIFEST = ".xal_upload_manifest.json"
+_BUNDLE_LABELS_SPLITS = "_xal_labels_splits.tar.gz"
+_BUNDLE_IMAGES = "_xal_images_bulk.tar.gz"
+_SYNC_BUNDLE_NAMES = (_BUNDLE_LABELS_SPLITS, _BUNDLE_IMAGES)
+_BULK_IMAGE_CHANGE_RATIO = 0.6
+_BULK_IMAGE_MIN_CHANGES = 50
+
+IMAGE_EXTS = {
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".bmp",
+    ".webp",
+    ".tif",
+    ".tiff",
+}
 
 
 class UploadStopped(Exception):
     """User stopped a dataset upload. A later run must upload again."""
+
+
+@dataclass
+class UploadProgressReporter:
+    """Counts discrete sync steps for overall / per-subdir percentages."""
+
+    total: int
+    per_subdir: Dict[str, int]
+    done: int = 0
+    sub_done: Dict[str, int] = field(default_factory=dict)
+    callback: Optional[Callable[[float, str, str, float], None]] = None
+
+    def step(self, detail: str, *, sd: str = "", n: int = 1) -> None:
+        self.done = min(self.total, self.done + int(n))
+        overall = 100.0 * self.done / max(1, self.total)
+        sub_pct = -1.0
+        if sd and sd in self.per_subdir:
+            cur = min(self.per_subdir[sd], self.sub_done.get(sd, 0) + int(n))
+            self.sub_done[sd] = cur
+            sub_pct = 100.0 * cur / max(1, self.per_subdir[sd])
+        if self.callback:
+            self.callback(overall, detail, sd or "", sub_pct)
+
+    def notify(
+        self,
+        detail: str,
+        *,
+        sd: str = "",
+        partial: float = 0.0,
+    ) -> None:
+        """Update status without advancing steps; ``partial`` is 0–1 into the next step."""
+        partial = max(0.0, min(1.0, float(partial)))
+        overall = 100.0 * (self.done + partial) / max(1, self.total)
+        sub_pct = -1.0
+        if sd and sd in self.per_subdir:
+            sub_base = self.sub_done.get(sd, 0)
+            sub_pct = 100.0 * (sub_base + partial) / max(
+                1, self.per_subdir[sd]
+            )
+        if self.callback:
+            self.callback(overall, detail, sd or "", sub_pct)
+
+
+def _plan_upload_workload(
+    root: Path,
+    subdirs: Sequence[str],
+    entries: Dict[str, Dict[str, int]],
+    orphans: Sequence[str],
+    manifest_files: dict,
+    remote_sizes: Optional[Dict[str, int]],
+) -> Tuple[int, Dict[str, int]]:
+    total = len(orphans) + 1 + 3
+    per: Dict[str, int] = {}
+    for sd in subdirs:
+        local_sub = root / sd
+        sub = 0
+        if not local_sub.is_dir():
+            per[sd] = 0
+            continue
+        if any((local_sub / s).is_file() for s in SPLIT_FILES) or (
+            local_sub / "labels"
+        ).is_dir():
+            sub += 1
+        prefix = f"{sd}/images/"
+        if _subdir_bulk_images_recommended(
+            sd, entries, manifest_files, remote_sizes, orphans
+        ):
+            sub += 1
+        else:
+            for rel, meta in entries.items():
+                if not rel.startswith(prefix):
+                    continue
+                if _image_needs_upload(
+                    rel, meta, manifest_files, remote_sizes
+                ):
+                    sub += 1
+        per[sd] = sub
+        total += sub
+    return max(1, total), per
 
 
 class UploadGate:
@@ -62,40 +159,431 @@ class UploadGate:
             raise UploadStopped("Upload stopped")
 
 
+def _unlink_quiet(path: str) -> None:
+    try:
+        if path and os.path.isfile(path):
+            os.unlink(path)
+    except OSError:
+        pass
+
+
+def _file_stat_entry(full: Path) -> Dict[str, int]:
+    st = full.stat()
+    return {
+        "size": int(st.st_size),
+        "mtime_ns": int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1e9))),
+    }
+
+
 def _local_upload_entries(
     local_root: str, subdirs: Sequence[str]
 ) -> Dict[str, Dict[str, int]]:
-    """Selected subdirs plus ROOT/classes.txt. Values are size and mtime_ns."""
+    """Uploadable files: images (no JSON), labels/*.txt, split lists, classes.txt."""
     root = Path(local_root)
     entries: Dict[str, Dict[str, int]] = {}
     classes = root / "classes.txt"
     if classes.is_file():
-        st = classes.stat()
-        entries["classes.txt"] = {
-            "size": int(st.st_size),
-            "mtime_ns": int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1e9))),
-        }
+        entries["classes.txt"] = _file_stat_entry(classes)
     for sd in subdirs:
         sub = root / sd
         if not sub.is_dir():
             continue
-        for dirpath, dirnames, filenames in os.walk(sub):
+        for split in SPLIT_FILES:
+            sp = sub / split
+            if sp.is_file():
+                entries[f"{sd}/{split}"] = _file_stat_entry(sp)
+        labels_dir = sub / "labels"
+        if labels_dir.is_dir():
+            for txt in sorted(labels_dir.glob("*.txt")):
+                if txt.is_file():
+                    rel = f"{sd}/labels/{txt.name}"
+                    entries[rel] = _file_stat_entry(txt)
+        images_dir = sub / "images"
+        if images_dir.is_dir():
+            for dirpath, dirnames, filenames in os.walk(images_dir):
+                dirnames[:] = [d for d in dirnames if d and not d.startswith(".")]
+                for name in filenames:
+                    if not name or name.startswith("."):
+                        continue
+                    if os.path.splitext(name)[1].lower() not in IMAGE_EXTS:
+                        continue
+                    full = Path(dirpath) / name
+                    if full.is_file():
+                        entries[full.relative_to(root).as_posix()] = _file_stat_entry(
+                            full
+                        )
+    return entries
+
+
+def _image_needs_upload(
+    rel: str,
+    meta: Dict[str, int],
+    manifest_files: dict,
+    remote_sizes: Optional[Dict[str, int]],
+) -> bool:
+    if not remote_sizes or rel not in remote_sizes:
+        return True
+    if int(remote_sizes[rel]) != int(meta["size"]):
+        return True
+    prev = manifest_files.get(rel) if isinstance(manifest_files, dict) else None
+    if not isinstance(prev, dict):
+        return True
+    return int(prev.get("mtime_ns", -1)) != int(meta["mtime_ns"])
+
+
+def _local_image_rels(entries: Dict[str, Dict[str, int]]) -> set:
+    return {rel for rel in entries if "/images/" in rel}
+
+
+def _remote_image_rels_to_delete(
+    entries: Dict[str, Dict[str, int]],
+    remote_sizes: Optional[Dict[str, int]],
+    subdirs: Sequence[str],
+) -> List[str]:
+    """Remote image paths that no longer exist locally."""
+    if not remote_sizes:
+        return []
+    local_images = _local_image_rels(entries)
+    prefixes = tuple(f"{sd}/images/" for sd in subdirs)
+    out: List[str] = []
+    for rel in remote_sizes:
+        if rel not in local_images and rel.startswith(prefixes):
+            out.append(rel)
+    return sorted(out)
+
+
+def _delete_remote_files(
+    client: SSHClient,
+    remote_root: str,
+    rels: Sequence[str],
+    *,
+    progress: Optional[Callable[[str], None]] = None,
+    tick: Optional[Callable[[], None]] = None,
+    reporter: Optional[UploadProgressReporter] = None,
+) -> None:
+    base = remote_root.rstrip("/")
+    for rel in rels:
+        if tick is not None:
+            tick()
+        rp = f"{base}/{rel}"
+        sd = rel.split("/", 1)[0] if "/" in rel else ""
+        detail = f"deleted {rel}"
+        if reporter:
+            reporter.step(detail, sd=sd)
+        elif progress:
+            progress(detail)
+        try:
+            client.exec(f"rm -f {shlex.quote(rp)}", timeout=60)
+        except Exception:
+            pass
+
+
+def _build_labels_splits_tar(local_sub: Path, dest_tgz: str) -> bool:
+    """Pack split lists and labels/*.txt for one sub-dataset."""
+    added = 0
+    with tarfile.open(dest_tgz, "w:gz") as tar:
+        for split in SPLIT_FILES:
+            p = local_sub / split
+            if p.is_file():
+                tar.add(p, arcname=split)
+                added += 1
+        labels = local_sub / "labels"
+        if labels.is_dir():
+            for txt in sorted(labels.glob("*.txt")):
+                if txt.is_file():
+                    tar.add(txt, arcname=f"labels/{txt.name}")
+                    added += 1
+    if added == 0:
+        try:
+            os.unlink(dest_tgz)
+        except OSError:
+            pass
+        return False
+    return True
+
+
+def _bulk_step_partial(*, pack: float = 0.0, upload: float = 0.0) -> float:
+    """Map pack/upload sub-phases (each 0–1) into one step's partial progress."""
+    pack = max(0.0, min(1.0, pack))
+    upload = max(0.0, min(1.0, upload))
+    if upload > 0.0 or pack >= 1.0:
+        return min(1.0, 0.18 + 0.78 * upload)
+    return 0.18 * pack
+
+
+def _build_images_tar(
+    local_sub: Path,
+    dest_tgz: str,
+    *,
+    total_hint: int = 0,
+    on_progress: Optional[Callable[[int, int], None]] = None,
+    tick: Optional[Callable[[], None]] = None,
+) -> bool:
+    """Pack images/ (recognized extensions only) for bulk upload."""
+    images = local_sub / "images"
+    if not images.is_dir():
+        return False
+    added = 0
+    last_pct = [-1]
+    with tarfile.open(dest_tgz, "w:gz") as tar:
+        for dirpath, dirnames, filenames in os.walk(images):
             dirnames[:] = [d for d in dirnames if d and not d.startswith(".")]
             for name in filenames:
+                if tick is not None and added % 40 == 0:
+                    tick()
                 if not name or name.startswith("."):
+                    continue
+                if os.path.splitext(name)[1].lower() not in IMAGE_EXTS:
                     continue
                 full = Path(dirpath) / name
                 if not full.is_file():
                     continue
-                rel = full.relative_to(root).as_posix()
-                st = full.stat()
-                entries[rel] = {
-                    "size": int(st.st_size),
-                    "mtime_ns": int(
-                        getattr(st, "st_mtime_ns", int(st.st_mtime * 1e9))
-                    ),
-                }
-    return entries
+                arc = full.relative_to(local_sub).as_posix()
+                tar.add(full, arcname=arc)
+                added += 1
+                if on_progress is not None:
+                    total = total_hint if total_hint > 0 else max(added, 1)
+                    pct = int(100 * added / total)
+                    if pct // 5 > last_pct[0] // 5 or added >= total:
+                        last_pct[0] = pct
+                        on_progress(added, total)
+    if added == 0:
+        try:
+            os.unlink(dest_tgz)
+        except OSError:
+            pass
+        return False
+    return True
+
+
+def _subdir_bulk_images_recommended(
+    sd: str,
+    entries: Dict[str, Dict[str, int]],
+    manifest_files: dict,
+    remote_sizes: Optional[Dict[str, int]],
+    orphan_rels: Sequence[str],
+) -> bool:
+    prefix = f"{sd}/images/"
+    local_images = [rel for rel in entries if rel.startswith(prefix)]
+    n = len(local_images)
+    if n == 0:
+        return False
+    remote_count = sum(1 for r in (remote_sizes or {}) if r.startswith(prefix))
+    if remote_count == 0:
+        return True
+    to_upload = 0
+    for rel in local_images:
+        meta = entries.get(rel)
+        if meta and _image_needs_upload(
+            rel, meta, manifest_files, remote_sizes
+        ):
+            to_upload += 1
+    to_delete = sum(1 for rel in orphan_rels if rel.startswith(prefix))
+    changes = to_upload + to_delete
+    threshold = max(_BULK_IMAGE_MIN_CHANGES, int(n * _BULK_IMAGE_CHANGE_RATIO))
+    return changes >= threshold
+
+
+def _extract_tarball_on_remote(
+    client: SSHClient,
+    *,
+    remote_archive: str,
+    extract_dir: str,
+    remove_first: Sequence[str],
+    remote_python: str = "",
+    tick: Optional[Callable[[], None]] = None,
+) -> None:
+    """Extract ``.tar.gz`` on the server; remove listed paths under ``extract_dir`` first."""
+    script = """# -*- coding: utf-8 -*-
+import json, os, shutil, sys, tarfile
+archive, dest, remove = sys.argv[1], sys.argv[2], json.loads(sys.argv[3])
+for name in remove:
+    path = os.path.join(dest, name)
+    if name.endswith("/") or os.path.isdir(path):
+        shutil.rmtree(path, ignore_errors=True)
+    elif os.path.isfile(path):
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+    else:
+        shutil.rmtree(path, ignore_errors=True)
+try:
+    with tarfile.open(archive, "r:gz") as tar:
+        tar.extractall(dest)
+finally:
+    try:
+        os.remove(archive)
+    except OSError:
+        pass
+"""
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix="_xal_extract.py", delete=False, encoding="utf-8"
+    ) as f:
+        f.write(script)
+        local_script = f.name
+    remote_script = f"{extract_dir.rstrip('/')}/_xal_extract_bundle.py"
+    try:
+        if tick is not None:
+            tick()
+        client.upload_file(local_script, remote_script)
+        rm_json = json.dumps(list(remove_first))
+        script_q = shlex.quote(remote_script)
+        cmd_tail = (
+            f"{script_q} {shlex.quote(remote_archive)} "
+            f"{shlex.quote(extract_dir)} {shlex.quote(rm_json)}"
+        )
+        py = (remote_python or "").strip()
+        if py:
+            cmd = f"{shlex.quote(py)} {cmd_tail}"
+        else:
+            cmd = f"python3 {cmd_tail} || python {cmd_tail}"
+        code, out, err = client.exec(cmd, timeout=3600)
+        client.exec(f"rm -f {shlex.quote(remote_script)}", timeout=60)
+        if code != 0:
+            try:
+                client.exec(f"rm -f {shlex.quote(remote_archive)}", timeout=60)
+            except Exception:
+                pass
+            text = ((out or "") + (err or "")).strip()
+            raise SSHError(text or f"Remote extract failed (code {code})")
+    finally:
+        _unlink_quiet(local_script)
+
+
+def _purge_remote_sync_bundles(
+    client: SSHClient, remote_root: str, subdirs: Sequence[str]
+) -> None:
+    """Remove leftover transport tarballs under each selected sub-dataset."""
+    base = remote_root.rstrip("/")
+    for sd in subdirs:
+        remote_sub = f"{base}/{sd}"
+        for name in _SYNC_BUNDLE_NAMES:
+            try:
+                client.exec(
+                    f"rm -f {shlex.quote(remote_sub + '/' + name)}",
+                    timeout=60,
+                )
+            except Exception:
+                pass
+        try:
+            client.exec(
+                f"rm -f {shlex.quote(remote_sub + '/_xal_extract_bundle.py')}",
+                timeout=60,
+            )
+        except Exception:
+            pass
+
+
+def _verify_remote_fingerprint(
+    client: SSHClient,
+    remote_root: str,
+    subdirs: Sequence[str],
+    entries: Dict[str, Dict[str, int]],
+    *,
+    remote_python: str = "",
+) -> bool:
+    """Re-check remote file sizes match expected upload set."""
+    remote_sizes = _remote_selected_sizes(
+        client, remote_root, subdirs, remote_python=remote_python
+    )
+    if remote_sizes is None:
+        return False
+    local_sizes = {rel: int(meta["size"]) for rel, meta in entries.items()}
+    return remote_sizes == local_sizes
+
+
+def _upload_bundle(
+    client: SSHClient,
+    *,
+    local_tgz: str,
+    remote_sub: str,
+    remote_name: str,
+    extract_dir: str,
+    remove_first: Sequence[str],
+    remote_python: str,
+    tick: Optional[Callable[[], None]] = None,
+    progress: Optional[Callable[[str], None]] = None,
+    reporter: Optional[UploadProgressReporter] = None,
+    reporter_sd: str = "",
+    reporter_detail: str = "",
+    reporter_detail_upload: str = "",
+    bulk_partial: bool = False,
+) -> None:
+    remote_archive = f"{remote_sub.rstrip('/')}/{remote_name}"
+    try:
+        if reporter and reporter_detail_upload:
+            reporter.notify(
+                reporter_detail_upload,
+                sd=reporter_sd,
+                partial=_bulk_step_partial(upload=0.01) if bulk_partial else 0.0,
+            )
+        elif progress:
+            progress(remote_archive)
+        if tick is not None:
+            tick()
+        last_pct = [-1]
+
+        def _upload_progress(done: int, total: int) -> None:
+            if total <= 0 or reporter is None:
+                return
+            pct = int(100 * done / total)
+            if pct // 5 > last_pct[0] // 5 or done >= total:
+                last_pct[0] = pct
+                upload_frac = done / total
+                partial = (
+                    _bulk_step_partial(upload=upload_frac)
+                    if bulk_partial
+                    else 0.0
+                )
+                reporter.notify(
+                    f"{reporter_detail_upload or reporter_detail} ({pct}%)",
+                    sd=reporter_sd,
+                    partial=partial,
+                )
+
+        client.upload_file(
+            local_tgz,
+            remote_archive,
+            progress_callback=_upload_progress
+            if reporter is not None
+            else None,
+            tick=tick,
+        )
+        if reporter and bulk_partial:
+            reporter.notify(
+                f"extract {reporter_sd or remote_name}",
+                sd=reporter_sd,
+                partial=_bulk_step_partial(upload=0.99),
+            )
+        _extract_tarball_on_remote(
+            client,
+            remote_archive=remote_archive,
+            extract_dir=extract_dir,
+            remove_first=remove_first,
+            remote_python=remote_python,
+            tick=tick,
+        )
+        if reporter:
+            reporter.step(
+                reporter_detail or remote_name,
+                sd=reporter_sd,
+            )
+    finally:
+        _unlink_quiet(local_tgz)
+
+
+def _purge_remote_images_json(
+    client: SSHClient, remote_root: str, subdirs: Sequence[str]
+) -> None:
+    for sd in subdirs:
+        rs = f"{remote_root.rstrip('/')}/{sd}/images"
+        client.exec(
+            "find "
+            + shlex.quote(rs)
+            + " -type f -iname '*.json' -delete 2>/dev/null || true",
+            timeout=120,
+        )
 
 
 def _remote_selected_sizes(
@@ -110,6 +598,8 @@ def _remote_selected_sizes(
 import json, os, sys
 root = sys.argv[1]
 subdirs = json.loads(sys.argv[2])
+SPLIT_FILES = ("train.txt", "val.txt", "test.txt", "all.txt")
+IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tif", ".tiff"}
 out = {}
 classes = os.path.join(root, "classes.txt")
 if os.path.isfile(classes):
@@ -118,19 +608,38 @@ for sd in subdirs:
     base = os.path.join(root, sd)
     if not os.path.isdir(base):
         continue
-    for dirpath, dirnames, filenames in os.walk(base):
-        dirnames[:] = [d for d in dirnames if d and not d.startswith(".")]
-        for name in filenames:
-            if not name or name.startswith("."):
+    for split in SPLIT_FILES:
+        p = os.path.join(base, split)
+        if os.path.isfile(p):
+            rel = f"{sd}/{split}"
+            out[rel] = os.path.getsize(p)
+    labels = os.path.join(base, "labels")
+    if os.path.isdir(labels):
+        for name in os.listdir(labels):
+            if not name.endswith(".txt"):
                 continue
-            full = os.path.join(dirpath, name)
-            if not os.path.isfile(full):
-                continue
-            rel = os.path.relpath(full, root).replace(os.sep, "/")
-            try:
+            full = os.path.join(labels, name)
+            if os.path.isfile(full):
+                rel = f"{sd}/labels/{name}"
                 out[rel] = os.path.getsize(full)
-            except OSError:
-                pass
+    images = os.path.join(base, "images")
+    if os.path.isdir(images):
+        for dirpath, dirnames, filenames in os.walk(images):
+            dirnames[:] = [d for d in dirnames if d and not d.startswith(".")]
+            for name in filenames:
+                if not name or name.startswith("."):
+                    continue
+                ext = os.path.splitext(name)[1].lower()
+                if ext not in IMAGE_EXTS:
+                    continue
+                full = os.path.join(dirpath, name)
+                if not os.path.isfile(full):
+                    continue
+                rel = os.path.relpath(full, root).replace(os.sep, "/")
+                try:
+                    out[rel] = os.path.getsize(full)
+                except OSError:
+                    pass
 print(json.dumps(out))
 """
     with tempfile.NamedTemporaryFile(
@@ -249,14 +758,16 @@ def upload_dataset(
     *,
     subdirs: Sequence[str],
     progress: Optional[Callable[[str], None]] = None,
+    progress_state: Optional[Callable[[float, str, str, float], None]] = None,
     remote_base: str = "",
     remote_python: str = "",
     control: Optional[UploadGate] = None,
 ) -> Tuple[str, bool]:
-    """Upload selected subdirs and classes.txt.
+    """Sync subdirs: bundled labels+splits, incremental or bulk images.
 
-    Returns ``(remote_path, skipped)``. ``skipped`` is True when the remote
-    copy already matches and nothing was transferred.
+    Labels and split txts ship as one ``.tar.gz`` per sub-dataset; images are
+    uploaded one-by-one unless most of the sub-dataset changed (then one tarball).
+    Does not upload LabelMe JSON under images/. Returns ``(remote_path, skipped)``.
     """
     remote = dataset_remote_dir(local_root, client.home, remote_base)
     entries = _local_upload_entries(local_root, subdirs)
@@ -278,28 +789,357 @@ def upload_dataset(
     if _payload_unchanged(entries, remote_sizes, manifest):
         if not manifest:
             _write_remote_manifest(client, remote, subdirs, entries)
-        if progress:
+        if progress_state:
+            progress_state(100.0, f"unchanged {remote}", "", -1.0)
+        elif progress:
             progress(f"unchanged {remote}")
         return remote, True
 
+    manifest_files = (
+        (manifest.get("files") or {}) if isinstance(manifest, dict) else {}
+    )
     root = Path(local_root)
-    for sd in subdirs:
+    remote_root = remote.rstrip("/")
+    orphans = _remote_image_rels_to_delete(entries, remote_sizes, subdirs)
+    total_steps, per_sd = _plan_upload_workload(
+        root, subdirs, entries, orphans, manifest_files, remote_sizes
+    )
+    reporter = UploadProgressReporter(
+        total_steps, per_sd, callback=progress_state
+    )
+
+    def _put(
+        local_path: str,
+        remote_path: str,
+        *,
+        sd: str = "",
+        rel_key: str = "",
+    ) -> None:
         _tick()
-        remote_sub = f"{remote.rstrip('/')}/{sd}"
-        client.exec(f"rm -rf {shlex.quote(remote_sub)}")
-        local_sub = root / sd
-        if local_sub.is_dir():
-            client.upload_directory(
-                str(local_sub),
-                remote_sub,
-                progress=progress,
-                control=control,
+        rel = rel_key
+        if not rel and remote_path.startswith(remote_root + "/"):
+            rel = remote_path[len(remote_root) + 1 :]
+        if not rel:
+            rel = remote_path
+        sub = sd or (rel.split("/", 1)[0] if "/" in rel else "")
+        if reporter.callback:
+            reporter.step(rel, sd=sub)
+        elif progress:
+            progress(remote_path)
+        client.upload_file(local_path, remote_path)
+
+    if orphans:
+        _delete_remote_files(
+            client,
+            remote_root,
+            orphans,
+            progress=progress if not progress_state else None,
+            tick=_tick,
+            reporter=reporter if progress_state else None,
+        )
+
+    classes_path = root / "classes.txt"
+    if classes_path.is_file():
+        _put(
+            str(classes_path),
+            f"{remote_root}/classes.txt",
+            rel_key="classes.txt",
+        )
+
+    local_tmp_bundles: List[str] = []
+
+    def _local_bundle_file() -> str:
+        fd, path = tempfile.mkstemp(suffix=".tar.gz")
+        os.close(fd)
+        local_tmp_bundles.append(path)
+        return path
+
+    try:
+        for sd in subdirs:
+            _tick()
+            local_sub = root / sd
+            if not local_sub.is_dir():
+                continue
+            remote_sub = f"{remote_root}/{sd}"
+            client.mkdir_p(remote_sub)
+            remove_splits = [s for s in SPLIT_FILES if (local_sub / s).is_file()]
+
+            bundle_ls = _local_bundle_file()
+            if progress_state:
+                reporter.notify(f"packing {sd} labels+splits", sd=sd)
+            if _build_labels_splits_tar(local_sub, bundle_ls):
+                _upload_bundle(
+                    client,
+                    local_tgz=bundle_ls,
+                    remote_sub=remote_sub,
+                    remote_name=_BUNDLE_LABELS_SPLITS,
+                    extract_dir=remote_sub,
+                    remove_first=["labels"] + remove_splits,
+                    remote_python=remote_python,
+                    tick=_tick,
+                    progress=progress if not progress_state else None,
+                    reporter=reporter if progress_state else None,
+                    reporter_sd=sd,
+                    reporter_detail=f"bundle {sd} labels+splits",
+                    reporter_detail_upload=f"upload {sd} labels+splits",
+                )
+            else:
+                _unlink_quiet(bundle_ls)
+                if bundle_ls in local_tmp_bundles:
+                    local_tmp_bundles.remove(bundle_ls)
+
+            bulk_images = _subdir_bulk_images_recommended(
+                sd, entries, manifest_files, remote_sizes, orphans
             )
-    _tick()
-    client.upload_file(str(root / "classes.txt"), f"{remote.rstrip('/')}/classes.txt")
-    _tick()
-    _write_remote_manifest(client, remote, subdirs, entries)
-    return remote, False
+            images_bulk_done = False
+            if bulk_images:
+                bundle_im = _local_bundle_file()
+                img_prefix = f"{sd}/images/"
+                img_total = sum(
+                    1 for rel in entries if rel.startswith(img_prefix)
+                )
+
+                def _pack_progress(added: int, total: int) -> None:
+                    if not progress_state:
+                        return
+                    pct = int(100 * added / max(1, total))
+                    reporter.notify(
+                        f"packing {sd} images (bulk) {added}/{total} ({pct}%)",
+                        sd=sd,
+                        partial=_bulk_step_partial(
+                            pack=added / max(1, total)
+                        ),
+                    )
+
+                if progress_state:
+                    reporter.notify(
+                        f"packing {sd} images (bulk)",
+                        sd=sd,
+                        partial=0.0,
+                    )
+                if _build_images_tar(
+                    local_sub,
+                    bundle_im,
+                    total_hint=img_total,
+                    on_progress=_pack_progress if progress_state else None,
+                    tick=_tick,
+                ):
+                    _upload_bundle(
+                        client,
+                        local_tgz=bundle_im,
+                        remote_sub=remote_sub,
+                        remote_name=_BUNDLE_IMAGES,
+                        extract_dir=remote_sub,
+                        remove_first=["images"],
+                        remote_python=remote_python,
+                        tick=_tick,
+                        progress=progress if not progress_state else None,
+                        reporter=reporter if progress_state else None,
+                        reporter_sd=sd,
+                        reporter_detail=f"bundle {sd} images (bulk)",
+                        reporter_detail_upload=f"upload {sd} images (bulk)",
+                        bulk_partial=bool(progress_state),
+                    )
+                    images_bulk_done = True
+                else:
+                    _unlink_quiet(bundle_im)
+                    if bundle_im in local_tmp_bundles:
+                        local_tmp_bundles.remove(bundle_im)
+            if not images_bulk_done:
+                client.mkdir_p(f"{remote_sub}/images")
+                images_dir = local_sub / "images"
+                if images_dir.is_dir():
+                    if progress_state:
+                        reporter.notify(f"sync {sd} images", sd=sd)
+                    for dirpath, dirnames, filenames in os.walk(images_dir):
+                        dirnames[:] = [
+                            d for d in dirnames if d and not d.startswith(".")
+                        ]
+                        for name in filenames:
+                            if not name or name.startswith("."):
+                                continue
+                            if (
+                                os.path.splitext(name)[1].lower()
+                                not in IMAGE_EXTS
+                            ):
+                                continue
+                            full = Path(dirpath) / name
+                            if not full.is_file():
+                                continue
+                            rel = full.relative_to(root).as_posix()
+                            meta = entries.get(rel)
+                            if meta is None:
+                                continue
+                            if _image_needs_upload(
+                                rel, meta, manifest_files, remote_sizes
+                            ):
+                                rp = f"{remote_root}/{rel}"
+                                _put(str(full), rp, sd=sd)
+
+        _tick()
+        _purge_remote_images_json(client, remote_root, subdirs)
+        if progress_state:
+            reporter.step("purge LabelMe JSON on remote")
+        _tick()
+        if not _verify_remote_fingerprint(
+            client, remote, subdirs, entries, remote_python=remote_python
+        ):
+            raise SSHError(
+                "Remote dataset fingerprint mismatch after sync; manifest not updated."
+            )
+        if progress_state:
+            reporter.step("verify remote fingerprint")
+        _purge_remote_sync_bundles(client, remote_root, subdirs)
+        _write_remote_manifest(client, remote, subdirs, entries)
+        if progress_state:
+            reporter.step(f"synced {remote}")
+        elif progress:
+            progress(f"synced {remote}")
+        return remote, False
+    finally:
+        for path in local_tmp_bundles:
+            _unlink_quiet(path)
+        try:
+            _purge_remote_sync_bundles(client, remote_root, subdirs)
+        except Exception:
+            pass
+
+
+def _run_remote_json_script(
+    client: SSHClient,
+    script_body: str,
+    *,
+    args: Sequence[str],
+    remote_workdir: str,
+    remote_python: str = "",
+    timeout: int = 180,
+) -> Tuple[Optional[dict], str]:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix="_xal_dataset_probe.py", delete=False, encoding="utf-8"
+    ) as f:
+        f.write(script_body)
+        local_script = f.name
+    remote_script = f"{remote_workdir.rstrip('/')}/_xal_dataset_probe.py"
+    try:
+        client.mkdir_p(remote_workdir)
+        client.upload_file(local_script, remote_script)
+        script_q = shlex.quote(remote_script)
+        arg_s = " ".join(shlex.quote(a) for a in args)
+        py = (remote_python or "").strip()
+        if py:
+            cmd = f"{shlex.quote(py)} {script_q} {arg_s}"
+        else:
+            cmd = f"python3 {script_q} {arg_s} || python {script_q} {arg_s}"
+        code, out, err = client.exec(cmd, timeout=timeout)
+        client.exec(f"rm -f {shlex.quote(remote_script)}", timeout=60)
+        text = (out or "").strip()
+        if not text:
+            return None, (err or "").strip() or f"probe failed (code {code})"
+        try:
+            data = json.loads(text.splitlines()[-1])
+        except json.JSONDecodeError:
+            return None, text or (err or "").strip()
+        if not isinstance(data, dict):
+            return None, "invalid probe response"
+        return data, ""
+    finally:
+        _unlink_quiet(local_script)
+
+
+def probe_remote_dataset_subdirs(
+    client: SSHClient,
+    remote_root: str,
+    *,
+    remote_python: str = "",
+) -> Tuple[bool, str, List[str]]:
+    """Return candidate sub-version folder names under a remote dataset ROOT."""
+    script = """# -*- coding: utf-8 -*-
+import json, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+if not root.is_dir():
+    print(json.dumps({"ok": False, "error": "Dataset root does not exist: %s" % root}))
+    raise SystemExit(0)
+if not (root / "classes.txt").is_file():
+    print(json.dumps({"ok": False, "error": "Missing classes.txt: %s" % (root / "classes.txt")}))
+    raise SystemExit(0)
+SPLIT_FILES = ("train.txt", "val.txt", "test.txt", "all.txt")
+names = []
+for child in sorted(root.iterdir()):
+    if not child.is_dir():
+        continue
+    if child.name.startswith(".") or child.name.startswith("_"):
+        continue
+    if (child / "images").is_dir() or any((child / s).is_file() for s in SPLIT_FILES):
+        names.append(child.name)
+print(json.dumps({"ok": True, "subdirs": names}))
+"""
+    data, err = _run_remote_json_script(
+        client,
+        script,
+        args=[remote_root],
+        remote_workdir=remote_root,
+        remote_python=remote_python,
+    )
+    if data is None:
+        return False, err or "Remote probe failed", []
+    if not data.get("ok"):
+        return False, str(data.get("error") or "Invalid remote dataset root"), []
+    raw = data.get("subdirs") or []
+    subs = [str(x) for x in raw if isinstance(x, str) and x.strip()]
+    return True, "", subs
+
+
+def validate_remote_dataset_root(
+    client: SSHClient,
+    remote_root: str,
+    subdirs: Sequence[str],
+    *,
+    remote_python: str = "",
+) -> Tuple[bool, str]:
+    script = """# -*- coding: utf-8 -*-
+import json, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+subdirs = json.loads(sys.argv[2])
+SPLIT_FILES = ("train.txt", "val.txt", "test.txt", "all.txt")
+if not root.is_dir():
+    print(json.dumps({"ok": False, "error": "Dataset root does not exist: %s" % root}))
+    raise SystemExit(0)
+classes = root / "classes.txt"
+if not classes.is_file():
+    print(json.dumps({"ok": False, "error": "Missing classes.txt"}))
+    raise SystemExit(0)
+if not [ln.strip() for ln in classes.read_text(encoding="utf-8").splitlines() if ln.strip()]:
+    print(json.dumps({"ok": False, "error": "No valid class names in classes.txt"}))
+    raise SystemExit(0)
+if not subdirs:
+    print(json.dumps({"ok": False, "error": "Please select at least one sub-dataset version"}))
+    raise SystemExit(0)
+for sd in subdirs:
+    sub = root / sd
+    if not sub.is_dir():
+        print(json.dumps({"ok": False, "error": "Sub-directory does not exist: %s" % sub}))
+        raise SystemExit(0)
+    for split in SPLIT_FILES:
+        p = sub / split
+        if not p.is_file():
+            print(json.dumps({"ok": False, "error": "Missing %s" % p}))
+            raise SystemExit(0)
+print(json.dumps({"ok": True}))
+"""
+    data, err = _run_remote_json_script(
+        client,
+        script,
+        args=[remote_root, json.dumps(list(subdirs))],
+        remote_workdir=remote_root,
+        remote_python=remote_python,
+    )
+    if data is None:
+        return False, err or "Remote validation failed"
+    if not data.get("ok"):
+        return False, str(data.get("error") or "Remote dataset invalid")
+    return True, ""
 
 
 def remote_merge_lists(
@@ -886,17 +1726,6 @@ def list_remote_weight_choices(client: SSHClient, run_dir: str) -> List[str]:
     except Exception:
         pass
     return choices or ["best.pt", "last.pt"]
-
-
-IMAGE_EXTS = {
-    ".jpg",
-    ".jpeg",
-    ".png",
-    ".bmp",
-    ".webp",
-    ".tif",
-    ".tiff",
-}
 
 
 def count_local_images(folder: str) -> int:

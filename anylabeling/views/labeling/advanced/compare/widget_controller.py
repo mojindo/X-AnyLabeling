@@ -9,6 +9,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QDialog, QMessageBox
 
+from anylabeling.views.labeling.advanced.compare.i18n import tr_compare
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.shape import Shape
 
@@ -26,25 +27,25 @@ class _CompareWidgetMethods:
         if not getattr(self, "_annotation_compare_active", False):
             return self._advanced_original_get_labeling_instruction()
 
-        text_mode = self.tr("Mode:")
-        text_shortcuts = self.tr("Shortcuts:")
-        text_settings = self.tr("Settings")
-        text_previous = self.tr("Previous")
-        text_next = self.tr("Next")
+        text_mode = tr_compare("Mode:")
+        text_shortcuts = tr_compare("Shortcuts:")
+        text_settings = tr_compare("Settings")
+        text_previous = tr_compare("Previous")
+        text_next = tr_compare("Next")
         shortcuts = self._config.get("shortcuts", {})
         if self._review_marks_mode_is_model_eval():
-            text_compare = self.tr("Model Evaluation Review")
-            text_next_fn = self.tr("Next false alarm")
-            text_next_fp = self.tr("Next miss")
+            text_compare = tr_compare("Model Evaluation Review")
+            text_next_fn = tr_compare("Next false alarm")
+            text_next_fp = tr_compare("Next miss")
         else:
-            text_compare = self.tr("Annotation Compare Review")
-            text_next_fn = self.tr("Next missed")
-            text_next_fp = self.tr("Next false-label")
+            text_compare = tr_compare("Annotation Compare Review")
+            text_next_fn = tr_compare("Next missed")
+            text_next_fp = tr_compare("Next false-label")
         browse_on = bool(getattr(self, "_compare_browse_mode", False))
         text_browse = (
-            self.tr("Browse mode on")
+            tr_compare("Browse mode on")
             if browse_on
-            else self.tr("Browse mode off")
+            else tr_compare("Browse mode off")
         )
         fn_sc = shortcuts.get("open_next_compare_fn") or shortcuts.get(
             "open_next_compare_issue"
@@ -105,10 +106,10 @@ class _CompareWidgetMethods:
                 return
             if model_mode:
                 btn.setText(
-                    self.tr("Prev False Alarm") if prev else self.tr("Next False Alarm")
+                    tr_compare("Prev False Alarm") if prev else tr_compare("Next False Alarm")
                 )
                 btn.setToolTip(
-                    self.tr(
+                    tr_compare(
                         "Open previous image with model false alarms (误报)"
                         if prev
                         else "Open next image with model false alarms (误报)"
@@ -116,10 +117,10 @@ class _CompareWidgetMethods:
                 )
             else:
                 btn.setText(
-                    self.tr("Prev Missed") if prev else self.tr("Next Missed")
+                    tr_compare("Prev Missed") if prev else tr_compare("Next Missed")
                 )
                 btn.setToolTip(
-                    self.tr(
+                    tr_compare(
                         "Open previous image with suspect missed labels"
                         if prev
                         else "Open next image with suspect missed labels"
@@ -135,10 +136,10 @@ class _CompareWidgetMethods:
                 return
             if model_mode:
                 btn.setText(
-                    self.tr("Prev Miss") if prev else self.tr("Next Miss")
+                    tr_compare("Prev Miss") if prev else tr_compare("Next Miss")
                 )
                 btn.setToolTip(
-                    self.tr(
+                    tr_compare(
                         "Open previous image with model misses (漏报)"
                         if prev
                         else "Open next image with model misses (漏报)"
@@ -146,12 +147,12 @@ class _CompareWidgetMethods:
                 )
             else:
                 btn.setText(
-                    self.tr("Prev False-Label")
+                    tr_compare("Prev False-Label")
                     if prev
-                    else self.tr("Next False-Label")
+                    else tr_compare("Next False-Label")
                 )
                 btn.setToolTip(
-                    self.tr(
+                    tr_compare(
                         "Open previous image with suspect false labels"
                         if prev
                         else "Open next image with suspect false labels"
@@ -219,8 +220,8 @@ class _CompareWidgetMethods:
         if not self.filename:
             QMessageBox.information(
                 self,
-                self.tr("Annotation Compare Review"),
-                self.tr("No image loaded."),
+                tr_compare("Annotation Compare Review"),
+                tr_compare("No image loaded."),
             )
             return False
 
@@ -233,7 +234,7 @@ class _CompareWidgetMethods:
 
         if count_pending_review(self.canvas.shapes) <= 0:
             self.status(
-                self.tr("No unreviewed compare marks on this image."),
+                tr_compare("No unreviewed compare marks on this image."),
                 3000,
             )
             return False
@@ -256,7 +257,7 @@ class _CompareWidgetMethods:
         self._sync_compare_issue_nav_enabled()
         if self._review_marks_mode_is_model_eval():
             self.status(
-                self.tr(
+                tr_compare(
                     "Accepted model-eval results: %d false alarm(s) kept, "
                     "%d miss flag(s) cleared."
                 )
@@ -265,7 +266,7 @@ class _CompareWidgetMethods:
             )
         else:
             self.status(
-                self.tr(
+                tr_compare(
                     "Accepted compare results: %d missed label(s) kept, "
                     "%d false-label flag(s) cleared."
                 )
@@ -282,8 +283,8 @@ class _CompareWidgetMethods:
         if not self.filename:
             QMessageBox.information(
                 self,
-                self.tr("Annotation Compare Review"),
-                self.tr("No image loaded."),
+                tr_compare("Annotation Compare Review"),
+                tr_compare("No image loaded."),
             )
             return False
 
@@ -296,7 +297,7 @@ class _CompareWidgetMethods:
 
         if count_pending_review(self.canvas.shapes) <= 0:
             self.status(
-                self.tr("No unreviewed compare marks on this image."),
+                tr_compare("No unreviewed compare marks on this image."),
                 3000,
             )
             return False
@@ -312,8 +313,8 @@ class _CompareWidgetMethods:
 
         reply = QMessageBox.question(
             self,
-            self.tr("Clear This Check"),
-            self.tr(
+            tr_compare("Clear This Check"),
+            tr_compare(
                 "Clear all suspect marks on this image?\n\n"
                 "• Delete pred-side marks (漏标/误报): %d\n"
                 "• Clear GT-side flags (误标/漏报): %d"
@@ -333,7 +334,7 @@ class _CompareWidgetMethods:
             pass
         self._sync_compare_issue_nav_enabled()
         self.status(
-            self.tr(
+            tr_compare(
                 "Cleared this image: removed %d pred-side mark(s), "
                 "cleared %d GT-side flag(s)."
             )
@@ -387,10 +388,10 @@ class _CompareWidgetMethods:
             return self._open_compare_issue_image(
                 direction=direction,
                 statuses=(STATUS_MODEL_FALSE,),
-                empty_msg=self.tr(
+                empty_msg=tr_compare(
                     "No more images with false alarms in this dataset."
                 ),
-                same_msg=self.tr(
+                same_msg=tr_compare(
                     "Already on the first image with false alarms in this pass."
                     if going_prev
                     else "Already on the last image with false alarms in this pass."
@@ -399,10 +400,10 @@ class _CompareWidgetMethods:
         return self._open_compare_issue_image(
             direction=direction,
             statuses=(STATUS_SUSPECT_FN,),
-            empty_msg=self.tr(
+            empty_msg=tr_compare(
                 "No more images with suspect missed labels in this dataset."
             ),
-            same_msg=self.tr(
+            same_msg=tr_compare(
                 "Already on the first image with suspect missed labels in this pass."
                 if going_prev
                 else "Already on the last image with suspect missed labels in this pass."
@@ -421,10 +422,10 @@ class _CompareWidgetMethods:
             return self._open_compare_issue_image(
                 direction=direction,
                 statuses=(STATUS_MODEL_MISS,),
-                empty_msg=self.tr(
+                empty_msg=tr_compare(
                     "No more images with misses in this dataset."
                 ),
-                same_msg=self.tr(
+                same_msg=tr_compare(
                     "Already on the first image with misses in this pass."
                     if going_prev
                     else "Already on the last image with misses in this pass."
@@ -433,10 +434,10 @@ class _CompareWidgetMethods:
         return self._open_compare_issue_image(
             direction=direction,
             statuses=(STATUS_SUSPECT_FP,),
-            empty_msg=self.tr(
+            empty_msg=tr_compare(
                 "No more images with suspect false labels in this dataset."
             ),
-            same_msg=self.tr(
+            same_msg=tr_compare(
                 "Already on the first image with suspect false labels in this pass."
                 if going_prev
                 else "Already on the last image with suspect false labels in this pass."
@@ -498,7 +499,7 @@ class _CompareWidgetMethods:
         if not next_path:
             self.status(
                 empty_msg
-                or self.tr(
+                or tr_compare(
                     "No more images with suspect missed/false labels in this dataset."
                 ),
                 4000,
@@ -508,7 +509,7 @@ class _CompareWidgetMethods:
         if osp.normpath(str(next_path)) == cur:
             self.status(
                 same_msg
-                or self.tr(
+                or tr_compare(
                     "Already on the last image with compare issues in this pass."
                 ),
                 3000,
@@ -562,14 +563,14 @@ class _CompareWidgetMethods:
         """Return 'keep', 'accept', or None (cancel navigation)."""
         msg_box = QMessageBox(self)
         msg_box.setIcon(QMessageBox.Icon.Warning)
-        msg_box.setWindowTitle(self.tr("Unreviewed Compare Marks"))
+        msg_box.setWindowTitle(tr_compare("Unreviewed Compare Marks"))
         msg_box.setText(
-            self.tr(
+            tr_compare(
                 "This image still has unreviewed suspect missed/false labels."
             )
         )
         msg_box.setInformativeText(
-            self.tr(
+            tr_compare(
                 "Choose an action before switching images:\n"
                 "• Keep markers — save and switch to the next image now\n"
                 "• Accept results — apply to this image and stay here; "
@@ -577,15 +578,15 @@ class _CompareWidgetMethods:
             )
         )
         keep_btn = msg_box.addButton(
-            self.tr("Keep markers"),
+            tr_compare("Keep markers"),
             QMessageBox.ButtonRole.YesRole,
         )
         accept_btn = msg_box.addButton(
-            self.tr("Accept results"),
+            tr_compare("Accept results"),
             QMessageBox.ButtonRole.NoRole,
         )
         cancel_btn = msg_box.addButton(
-            self.tr("Cancel"),
+            tr_compare("Cancel"),
             QMessageBox.ButtonRole.RejectRole,
         )
         msg_box.exec()

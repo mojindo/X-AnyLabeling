@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from PyQt6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QPushButton, QWidget
 
+from anylabeling.views.labeling.advanced.compare.i18n import tr_compare
 from anylabeling.views.labeling.utils.style import (
     get_cancel_btn_style,
     get_checkbox_indicator_style,
@@ -12,8 +13,8 @@ from anylabeling.views.labeling.utils.style import (
 
 
 def _nav_btn(widget, text: str, tip: str, slot) -> QPushButton:
-    btn = QPushButton(widget.tr(text))
-    btn.setToolTip(widget.tr(tip))
+    btn = QPushButton(tr_compare(text))
+    btn.setToolTip(tr_compare(tip))
     btn.setStyleSheet(get_cancel_btn_style())
     btn.clicked.connect(slot)
     btn.hide()
@@ -33,9 +34,9 @@ def install_compare_ui_bar(widget) -> None:
         widget.label_instruction = QLabel(widget.get_labeling_instruction(), widget)
         widget.label_instruction.setContentsMargins(0, 0, 0, 0)
 
-    widget._compare_browse_mode_cb = QCheckBox(widget.tr("Browse Mode"))
+    widget._compare_browse_mode_cb = QCheckBox(tr_compare("Browse Mode"))
     widget._compare_browse_mode_cb.setToolTip(
-        widget.tr(
+        tr_compare(
             "Browse mode: keep unreviewed suspect marks and switch images "
             "without confirmation. Uncheck to require confirmation before switching."
         )
@@ -54,9 +55,9 @@ def install_compare_ui_bar(widget) -> None:
     )
     widget._compare_browse_mode_cb.hide()
 
-    widget._compare_accept_all_btn = QPushButton(widget.tr("Accept This Check"))
+    widget._compare_accept_all_btn = QPushButton(tr_compare("Accept This Check"))
     widget._compare_accept_all_btn.setToolTip(
-        widget.tr(
+        tr_compare(
             "Accept all suspect marks on this image: keep missed-label boxes "
             "as annotations; keep false-label boxes and clear their flags."
         )
@@ -67,9 +68,9 @@ def install_compare_ui_bar(widget) -> None:
     )
     widget._compare_accept_all_btn.hide()
 
-    widget._compare_clear_image_btn = QPushButton(widget.tr("Clear This Check"))
+    widget._compare_clear_image_btn = QPushButton(tr_compare("Clear This Check"))
     widget._compare_clear_image_btn.setToolTip(
-        widget.tr(
+        tr_compare(
             "Clear all suspect marks on this image: delete missed-label / "
             "false-alarm boxes; keep false-label / miss boxes and remove flags."
         )
@@ -106,10 +107,10 @@ def install_compare_ui_bar(widget) -> None:
     )
 
     widget._compare_clear_dataset_btn = QPushButton(
-        widget.tr("Clear Dataset Checks")
+        tr_compare("Clear Dataset Checks")
     )
     widget._compare_clear_dataset_btn.setToolTip(
-        widget.tr(
+        tr_compare(
             "Clear compare / model-eval marks on the whole dataset "
             "(same as Advanced → Clear Compare Results)."
         )

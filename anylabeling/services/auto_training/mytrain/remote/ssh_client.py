@@ -339,11 +339,29 @@ class SSHClient:
             except IOError:
                 sftp.mkdir(cur)
 
-    def upload_file(self, local_path: str, remote_path: str) -> None:
+    def upload_file(
+        self,
+        local_path: str,
+        remote_path: str,
+        *,
+        progress_callback: Optional[Callable[[int, int], None]] = None,
+        tick: Optional[Callable[[], None]] = None,
+    ) -> None:
         remote_dir = os.path.dirname(remote_path.replace("\\", "/"))
         if remote_dir:
             self.mkdir_p(remote_dir)
-        self.sftp().put(local_path, remote_path)
+
+        def _cb(done: int, total: int) -> None:
+            if tick is not None:
+                tick()
+            if progress_callback is not None:
+                progress_callback(done, total)
+
+        sftp = self.sftp()
+        if progress_callback is not None or tick is not None:
+            sftp.put(local_path, remote_path, callback=_cb)
+        else:
+            sftp.put(local_path, remote_path)
 
     def download_file(self, remote_path: str, local_path: str) -> None:
         os.makedirs(os.path.dirname(local_path) or ".", exist_ok=True)

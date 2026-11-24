@@ -28,6 +28,8 @@ from PyQt6.QtWidgets import (
     QTextEdit,
     QApplication,
     QSizePolicy,
+    QRadioButton,
+    QButtonGroup,
 )
 
 from anylabeling.config import get_config
@@ -100,6 +102,7 @@ from anylabeling.services.auto_training.mytrain.remote.ssh_profiles import (
 from anylabeling.services.auto_training.mytrain.remote.remote_paths import (
     dataset_remote_dir,
     posix_join,
+    resolve_remote_base,
     runs_remote_dir,
 )
 from anylabeling.services.auto_training.mytrain.remote.remote_runtime import (
@@ -113,6 +116,8 @@ from anylabeling.services.auto_training.mytrain.remote.remote_trainer import (
     remote_export_onnx,
     remote_merge_lists,
     remote_predict_yolo,
+    probe_remote_dataset_subdirs,
+    validate_remote_dataset_root,
     UploadGate,
     UploadStopped,
     upload_dataset,
@@ -192,6 +197,7 @@ class MyTrainDialog(QDialog):
         self.training_backend = "ultralytics"  # ultralytics | custom
         self.dataset_root = ""
         self.remote_dataset_root = ""
+        self.remote_dataset_source = "upload"  # upload | remote
         self.data_yaml_path = ""
         self.ssh_client = SSHClient()
         self.subdir_checkboxes = {}
@@ -1143,12 +1149,8 @@ class MyTrainDialog(QDialog):
             if self.train_mode == "local":
                 self.remote_gpu_result = None
                 self.interpreter_probe_info = None
-        if hasattr(self, "prepare_dataset_btn"):
-            self.prepare_dataset_btn.setText(
-                self.tr("Upload & Generate")
-                if self.train_mode == "remote"
-                else self.tr("Generate Dataset Lists")
-            )
+        self._refresh_prepare_dataset_btn()
+        self._sync_remote_dataset_source_ui()
         self._refresh_exec_cwd_hint()
         if (
             self.train_mode == "remote"
@@ -2643,13 +2645,36 @@ class MyTrainDialog(QDialog):
         tip.setWordWrap(True)
         layout.addWidget(tip)
 
+        self.dataset_remote_source_row = QWidget()
+        src_layout = QHBoxLayout(self.dataset_remote_source_row)
+        src_layout.setContentsMargins(0, 0, 0, 0)
+        self.rb_dataset_upload = QRadioButton(
+            self.tr("Upload local dataset to remote")
+        )
+        self.rb_dataset_remote = QRadioButton(
+            self.tr("Use existing dataset on remote (no upload)")
+        )
+        self.rb_dataset_upload.setChecked(True)
+        self._dataset_source_group = QButtonGroup(self)
+        self._dataset_source_group.addButton(self.rb_dataset_upload)
+        self._dataset_source_group.addButton(self.rb_dataset_remote)
+        src_layout.addWidget(self.rb_dataset_upload)
+        src_layout.addWidget(self.rb_dataset_remote)
+        src_layout.addStretch()
+        self._dataset_source_group.buttonToggled.connect(
+            self._on_remote_dataset_source_changed
+        )
+        layout.addWidget(self.dataset_remote_source_row)
+
         root_row = QHBoxLayout()
         self.dataset_root_edit = CustomLineEdit()
         self.dataset_root_edit.setReadOnly(True)
-        browse_btn = SecondaryButton(self.tr("Open Dataset Folder"))
-        browse_btn.clicked.connect(self.browse_dataset_root)
+        self.dataset_root_browse_btn = SecondaryButton(
+            self.tr("Open Dataset Folder")
+        )
+        self.dataset_root_browse_btn.clicked.connect(self.browse_dataset_root)
         root_row.addWidget(self.dataset_root_edit)
-        root_row.addWidget(browse_btn)
+        root_row.addWidget(self.dataset_root_browse_btn)
         layout.addLayout(root_row)
 
         layout.addWidget(QLabel(self.tr("Sub-dataset versions:")))
@@ -2685,6 +2710,55 @@ class MyTrainDialog(QDialog):
         layout.addLayout(btn_row)
 
         parent_layout.addWidget(group)
+        self._sync_remote_dataset_source_ui()
+
+    def _remote_dataset_use_existing(self) -> bool:
+        return (
+            self.train_mode == "remote"
+            and getattr(self, "remote_dataset_source", "upload") == "remote"
+        )
+
+    def _refresh_prepare_dataset_btn(self) -> None:
+        if not hasattr(self, "prepare_dataset_btn"):
+            return
+        if self.train_mode != "remote":
+            self.prepare_dataset_btn.setText(self.tr("Generate Dataset Lists"))
+        elif self._remote_dataset_use_existing():
+            self.prepare_dataset_btn.setText(self.tr("Generate on Server"))
+        else:
+            self.prepare_dataset_btn.setText(self.tr("Upload & Generate"))
+
+    def _sync_remote_dataset_source_ui(self) -> None:
+        remote = self.train_mode == "remote"
+        if hasattr(self, "dataset_remote_source_row"):
+            self.dataset_remote_source_row.setVisible(remote)
+        if not remote:
+            return
+        existing = self._remote_dataset_use_existing()
+        if hasattr(self, "dataset_root_browse_btn"):
+            self.dataset_root_browse_btn.setText(
+                self.tr("Select Remote ROOT…")
+                if existing
+                else self.tr("Open Dataset Folder")
+            )
+        if hasattr(self, "dataset_root_edit"):
+            self.dataset_root_edit.setReadOnly(existing)
+
+    def _on_remote_dataset_source_changed(self, *_args) -> None:
+        self.remote_dataset_source = (
+            "remote" if self.rb_dataset_remote.isChecked() else "upload"
+        )
+        self.data_yaml_path = ""
+        if self.remote_dataset_source == "remote":
+            self.dataset_root = ""
+        else:
+            self.remote_dataset_root = ""
+            self.dataset_root_edit.clear()
+        self.dataset_status_label.setText("")
+        self._sync_remote_dataset_source_ui()
+        self._refresh_prepare_dataset_btn()
+        self.clear_cache()
+        self.refresh_dataset_summary()
 
     def _set_upload_controls(self, active: bool, paused: bool = False) -> None:
         self.prepare_dataset_btn.setEnabled(not active)
@@ -2741,26 +2815,54 @@ class MyTrainDialog(QDialog):
         def _progress(message: str) -> None:
             self._upload_bridge.log.emit(str(message))
 
+        def _progress_state(
+            overall_pct: float,
+            detail: str,
+            subdir: str,
+            sub_pct: float,
+        ) -> None:
+            if subdir and sub_pct >= 0:
+                msg = self.tr(
+                    "Overall {overall:.0f}% · {subdir} {subpct:.0f}% — {detail}"
+                ).format(
+                    overall=overall_pct,
+                    subdir=subdir,
+                    subpct=sub_pct,
+                    detail=detail,
+                )
+            else:
+                msg = self.tr("Overall {overall:.0f}% — {detail}").format(
+                    overall=overall_pct,
+                    detail=detail,
+                )
+            self._upload_bridge.log.emit(msg)
+
         def _run() -> None:
             try:
                 remote_root, skipped = upload_dataset(
                     client,
                     root,
                     subdirs=subdirs,
-                    progress=_progress,
+                    progress_state=_progress_state,
                     remote_base=remote_base,
                     remote_python=remote_python,
                     control=gate,
                 )
                 if skipped:
-                    _progress(
-                        self.tr(
-                            "Remote dataset unchanged, skipped upload:\n%s"
-                        )
-                        % remote_root
+                    _progress_state(
+                        100.0,
+                        self.tr("Remote dataset unchanged, skipped upload: %s")
+                        % remote_root,
+                        "",
+                        -1.0,
                     )
                 else:
-                    _progress(self.tr("Merging lists on remote..."))
+                    _progress_state(
+                        100.0,
+                        self.tr("Merging lists on remote..."),
+                        "",
+                        -1.0,
+                    )
                 gate.checkpoint()
                 ok2, info = remote_merge_lists(
                     client,
@@ -2795,6 +2897,45 @@ class MyTrainDialog(QDialog):
             target=_run, daemon=True, name="xal-dataset-upload"
         ).start()
 
+    def _begin_remote_merge_only(self, remote_root: str, subdirs) -> None:
+        if self._dataset_upload_running:
+            return
+        self._dataset_upload_running = True
+        self._set_upload_controls(False)
+        self.dataset_status_label.setText(self.tr("Merging lists on remote..."))
+        remote_python = self._remote_python_for_exec() or ""
+        client = self.ssh_client
+
+        def _run() -> None:
+            try:
+                ok, info = remote_merge_lists(
+                    client,
+                    remote_root,
+                    subdirs,
+                    remote_python=remote_python or None,
+                )
+                self._upload_bridge.finished.emit(
+                    "dataset_upload",
+                    bool(ok),
+                    {
+                        "remote": remote_root,
+                        "skipped": True,
+                        "info": info,
+                        "stopped": False,
+                        "remote_only": True,
+                    },
+                )
+            except Exception as e:
+                self._upload_bridge.finished.emit(
+                    "dataset_upload",
+                    False,
+                    {"stopped": False, "error": str(e)},
+                )
+
+        threading.Thread(
+            target=_run, daemon=True, name="xal-remote-merge"
+        ).start()
+
     def _on_dataset_upload_finished(self, _task: str, ok: bool, payload) -> None:
         self._dataset_upload_running = False
         self._set_upload_controls(False)
@@ -2826,7 +2967,12 @@ class MyTrainDialog(QDialog):
         )
         self.clear_cache()
         self.refresh_dataset_summary()
-        if data.get("skipped"):
+        if data.get("remote_only"):
+            done = self.tr(
+                "Generated data.yaml on the server from the remote dataset "
+                "(no upload)."
+            )
+        elif data.get("skipped"):
             done = self.tr(
                 "Dataset unchanged, upload skipped. data.yaml is ready on the server."
             )
@@ -2837,6 +2983,9 @@ class MyTrainDialog(QDialog):
         QMessageBox.information(self, self.tr("Success"), done)
 
     def browse_dataset_root(self):
+        if self._remote_dataset_use_existing():
+            self.browse_remote_dataset_root()
+            return
         dir_path = QFileDialog.getExistingDirectory(
             self, self.tr("Select Dataset Root Directory"), ""
         )
@@ -2851,24 +3000,85 @@ class MyTrainDialog(QDialog):
         self.clear_cache()
         self.refresh_dataset_summary()
 
-    def _rebuild_subdir_checks(self, root: str):
+    def browse_remote_dataset_root(self) -> None:
+        if not self._ensure_selected_server_ready():
+            return
+        home = getattr(self.ssh_client, "home", "") or ""
+        default = resolve_remote_base(self._remote_base_dir(), home)
+        dlg = QDialog(self)
+        dlg.setWindowTitle(self.tr("Remote Dataset ROOT"))
+        dlg.setMinimumWidth(520)
+        lay = QVBoxLayout(dlg)
+        hint = QLabel(
+            self.tr(
+                "Absolute path on the server containing classes.txt and "
+                "sub-versions (each with images/, labels/, and split lists)."
+            )
+        )
+        hint.setWordWrap(True)
+        lay.addWidget(hint)
+        path_edit = CustomLineEdit()
+        path_edit.setText(
+            (self.remote_dataset_root or "").strip() or default
+        )
+        lay.addWidget(path_edit)
+        btn_row = QHBoxLayout()
+        ok = PrimaryButton(self.tr("OK"))
+        cancel = SecondaryButton(self.tr("Cancel"))
+        btn_row.addStretch()
+        btn_row.addWidget(cancel)
+        btn_row.addWidget(ok)
+        lay.addLayout(btn_row)
+        ok.clicked.connect(dlg.accept)
+        cancel.clicked.connect(dlg.reject)
+        if dlg.exec() != QDialog.DialogCode.Accepted:
+            return
+        remote_root = path_edit.text().strip().replace("\\", "/")
+        if not remote_root:
+            QMessageBox.warning(
+                self, self.tr("Dataset"), self.tr("Please enter a remote path.")
+            )
+            return
+        remote_python = self._remote_python_for_exec() or ""
+        ok_probe, err, subs = probe_remote_dataset_subdirs(
+            self.ssh_client,
+            remote_root,
+            remote_python=remote_python,
+        )
+        if not ok_probe:
+            QMessageBox.warning(self, self.tr("Dataset"), err)
+            return
+        self.remote_dataset_root = remote_root
+        self.dataset_root = ""
+        self.dataset_root_edit.setText(remote_root)
+        self._rebuild_subdir_checks_from_names(subs)
+        self.data_yaml_path = ""
+        self.dataset_status_label.setText(
+            self.tr("Remote ROOT ready:\n%s") % remote_root
+        )
+        self.clear_cache()
+        self.refresh_dataset_summary()
+
+    def _rebuild_subdir_checks_from_names(self, names: list) -> None:
         while self.subdir_list_layout.count():
             item = self.subdir_list_layout.takeAt(0)
             if item.widget():
                 item.widget().setParent(None)
         self.subdir_checkboxes = {}
-        candidates = list_candidate_subdirs(root)
-        if not candidates:
+        if not names:
             self.subdir_list_layout.addWidget(
                 QLabel(self.tr("No sub-dataset folders found under ROOT."))
             )
             return
-        for name in candidates:
+        for name in names:
             cb = CustomCheckBox(name)
             cb.setChecked(True)
             cb.stateChanged.connect(self._on_subdir_selection_changed)
             self.subdir_checkboxes[name] = cb
             self.subdir_list_layout.addWidget(cb)
+
+    def _rebuild_subdir_checks(self, root: str):
+        self._rebuild_subdir_checks_from_names(list_candidate_subdirs(root))
 
     def _on_subdir_selection_changed(self, *_args):
         # ROOT/all.txt (if present) already covers all versions; otherwise
@@ -2948,8 +3158,35 @@ class MyTrainDialog(QDialog):
                 ),
             )
             return
-        root = self.dataset_root
         subdirs = self._selected_subdirs()
+        if self.train_mode == "remote" and self._remote_dataset_use_existing():
+            if self._dataset_upload_running:
+                return
+            if not self._ensure_selected_server_ready():
+                return
+            remote_root = (self.remote_dataset_root or "").strip()
+            if not remote_root:
+                QMessageBox.warning(
+                    self,
+                    self.tr("Dataset"),
+                    self.tr("Please select a remote dataset ROOT first."),
+                )
+                return
+            remote_python = self._remote_python_for_exec() or ""
+            ok, err = validate_remote_dataset_root(
+                self.ssh_client,
+                remote_root,
+                subdirs,
+                remote_python=remote_python,
+            )
+            if not ok:
+                QMessageBox.warning(self, self.tr("Dataset"), err)
+                return
+            self._save_ssh_settings()
+            self._begin_remote_merge_only(remote_root, subdirs)
+            return
+
+        root = self.dataset_root
         ok, err = validate_dataset_root(root, subdirs)
         if not ok:
             QMessageBox.warning(self, self.tr("Dataset"), err)
@@ -3003,6 +3240,25 @@ class MyTrainDialog(QDialog):
         and matching YOLO ``labels/*.txt``. Classify still uses legacy image_list.
         """
         if self.selected_task_type == "Detect":
+            if self.train_mode == "remote" and self._remote_dataset_use_existing():
+                if not self.remote_dataset_root:
+                    self.summary_table.clear()
+                    return
+                self.summary_table.load_data(
+                    [
+                        ["Class", "ID", "Instances", "Images"],
+                        [
+                            self.tr(
+                                "(Summary requires local ROOT; generate on "
+                                "server when using remote dataset only.)"
+                            ),
+                            "",
+                            "",
+                            "",
+                        ],
+                    ]
+                )
+                return
             if not self.dataset_root:
                 self.summary_table.clear()
                 return

@@ -16,6 +16,9 @@ from anylabeling.services.auto_training.mytrain.dataset_lists import (
     SPLIT_FILES,
     build_remote_merge_script,
 )
+from anylabeling.services.auto_training.mytrain.predict_options import (
+    PredictOptions,
+)
 
 from .remote_paths import dataset_remote_dir, runs_remote_dir
 from .remote_runtime import (
@@ -105,10 +108,11 @@ def _plan_upload_workload(
         if not local_sub.is_dir():
             per[sd] = 0
             continue
-        if any((local_sub / s).is_file() for s in SPLIT_FILES) or (
-            local_sub / "labels"
-        ).is_dir():
-            sub += 1
+        sub += sum(
+            1
+            for rel in entries
+            if rel.startswith(f"{sd}/") and "/images/" not in rel
+        )
         prefix = f"{sd}/images/"
         if _subdir_bulk_images_recommended(
             sd, entries, manifest_files, remote_sizes, orphans
@@ -394,6 +398,27 @@ def _extract_tarball_on_remote(
     tick: Optional[Callable[[], None]] = None,
 ) -> None:
     """Extract ``.tar.gz`` on the server; remove listed paths under ``extract_dir`` first."""
+    dest = extract_dir.rstrip("/")
+    archive_q = shlex.quote(remote_archive)
+    dest_q = shlex.quote(dest)
+    if tick is not None:
+        tick()
+    for name in remove_first:
+        path = f"{dest}/{name}"
+        if name.endswith("/") or name in ("labels", "images"):
+            cmd = f"rm -rf {shlex.quote(path)}"
+        else:
+            cmd = f"rm -f {shlex.quote(path)}"
+        try:
+            client.exec(cmd, timeout=120)
+        except Exception:
+            pass
+    shell_extract = (
+        f"set -e; cd {dest_q} && tar -xzf {archive_q} && rm -f {archive_q}"
+    )
+    code, out, err = client.exec(shell_extract, timeout=3600)
+    if code == 0:
+        return
     script = """# -*- coding: utf-8 -*-
 import json, os, shutil, sys, tarfile
 archive, dest, remove = sys.argv[1], sys.argv[2], json.loads(sys.argv[3])
@@ -1142,14 +1167,113 @@ print(json.dumps({"ok": True}))
     return True, ""
 
 
+def _exec_remote_script_file(
+    client: SSHClient,
+    remote_script: str,
+    *,
+    remote_python: Optional[str] = None,
+    timeout: int = 600,
+) -> Tuple[int, str, str]:
+    """Run a remote ``.py`` file; return (exit_code, merged_output, shell_cmd)."""
+    script_q = shlex.quote(remote_script)
+    py = (remote_python or "").strip()
+    if py:
+        inner = f"{shlex.quote(py)} -u {script_q}"
+    else:
+        inner = f"python3 -u {script_q} || python -u {script_q}"
+    shell_cmd = (
+        f"echo XAL_EXEC_BEGIN; ({inner}) 2>&1; "
+        f"ec=$?; echo XAL_EXEC_EXIT=$ec; exit $ec"
+    )
+    full = f"bash -c {shlex.quote(shell_cmd)}"
+    code, out, err = client.exec(full, timeout=timeout, get_pty=True)
+    merged = "\n".join(
+        part for part in ((out or "").strip(), (err or "").strip()) if part
+    )
+    return code, merged, full
+
+
+def _parse_dataset_check_lines(text: str) -> List[Dict[str, object]]:
+    """Parse ``DATASET_CHECK|name|images|labels`` lines from a remote merge."""
+    issues: List[Dict[str, object]] = []
+    for raw in (text or "").splitlines():
+        line = raw.strip()
+        if not line.startswith("DATASET_CHECK|"):
+            continue
+        parts = line.split("|")
+        if len(parts) < 4:
+            continue
+        try:
+            n_images = int(parts[-2])
+            n_labels = int(parts[-1])
+        except ValueError:
+            continue
+        name = "|".join(parts[1:-2]).strip()
+        if not name:
+            continue
+        issues.append(
+            {"subdir": name, "images": n_images, "labels": n_labels}
+        )
+    return issues
+
+
+def _parse_remote_merge_output(
+    code: int,
+    merged: str,
+    *,
+    remote_root: str,
+    remote_python: Optional[str] = None,
+    shell_cmd: str = "",
+) -> Tuple[bool, str, List[Dict[str, object]]]:
+    text = (merged or "").strip()
+    yaml_path = f"{remote_root.rstrip('/')}/data.yaml"
+    if "OK yaml=" in text:
+        return True, yaml_path, _parse_dataset_check_lines(text)
+    if text:
+        for line in text.splitlines():
+            if line.startswith("MERGE_ERROR:"):
+                msg = line[len("MERGE_ERROR:") :].strip() or line
+                return False, msg, []
+        for line in reversed(text.splitlines()):
+            if line.startswith("XAL_EXEC_EXIT="):
+                try:
+                    ec = int(line.split("=", 1)[1].strip())
+                    if ec != 0 and code == 0:
+                        code = ec
+                except ValueError:
+                    pass
+                break
+        body = "\n".join(
+            ln
+            for ln in text.splitlines()
+            if not ln.startswith("XAL_EXEC_")
+        ).strip()
+        if body:
+            return False, body, []
+        return False, text, []
+    py_hint = (remote_python or "").strip() or "python3 / python"
+    msg = (
+        "Remote merge failed (exit {code}). The server returned no output. "
+        "Check Data → Remote runtime Python ({py}), SSH connection, and "
+        "dataset ROOT: {root}."
+    ).format(code=code, py=py_hint, root=remote_root)
+    if shell_cmd:
+        msg = f"{msg}\n\nRemote command:\n{shell_cmd[:1200]}"
+    return False, msg, []
+
+
 def remote_merge_lists(
     client: SSHClient,
     remote_root: str,
     subdirs: Sequence[str],
     *,
     remote_python: Optional[str] = None,
-) -> Tuple[bool, str]:
-    """Run merge script on remote; return (ok, message_or_yaml_path)."""
+) -> Tuple[bool, str, List[Dict[str, object]]]:
+    """Run merge script on remote; return (ok, message_or_yaml_path, issues)."""
+    remote_root = (remote_root or "").strip().replace("\\", "/")
+    if not remote_root:
+        return False, "Remote dataset ROOT path is empty.", []
+    py = (remote_python or "").strip() or "(system python3/python)"
     script = build_remote_merge_script(remote_root, list(subdirs))
     with tempfile.NamedTemporaryFile(
         mode="w", suffix="_merge_dataset.py", delete=False, encoding="utf-8"
@@ -1157,18 +1281,32 @@ def remote_merge_lists(
         f.write(script)
         local_script = f.name
     try:
-        remote_script = f"{remote_root}/_xal_merge_dataset.py"
+        remote_script = f"{remote_root.rstrip('/')}/_xal_merge_dataset.py"
+        client.mkdir_p(remote_root)
         client.upload_file(local_script, remote_script)
-        code, out, err = client.exec(
-            format_exec_python(remote_python, remote_script),
+        code, merged, shell_cmd = _exec_remote_script_file(
+            client,
+            remote_script,
+            remote_python=remote_python,
             timeout=600,
         )
-        client.exec(f"rm -f {shlex.quote(remote_script)}")
-        text = (out or "") + (err or "")
-        if code != 0:
-            return False, text.strip() or f"merge failed with code {code}"
-        yaml_path = f"{remote_root.rstrip('/')}/data.yaml"
-        return True, yaml_path
+        client.exec(f"rm -f {shlex.quote(remote_script)}", timeout=60)
+        ok, msg, issues = _parse_remote_merge_output(
+            code,
+            merged,
+            remote_root=remote_root,
+            remote_python=remote_python,
+            shell_cmd=shell_cmd,
+        )
+        if not ok and code != 0 and msg and "(exit" not in msg:
+            msg = f"{msg}\n(exit code {code})"
+        if not ok:
+            msg = f"{msg}\nRemote Python: {py}\nRemote ROOT: {remote_root}"
+        return ok, msg, issues
+    except SSHError as e:
+        return False, str(e), []
+    except Exception as e:
+        return False, f"Remote merge failed: {e}", []
     finally:
         try:
             os.unlink(local_script)
@@ -1575,9 +1713,16 @@ def build_remote_predict_script(
     model_path: str,
     source_all_txt: str,
     run_dir: str,
+    opts: Optional[PredictOptions] = None,
+    *,
     imgsz: int = 640,
 ) -> str:
-    """Predict all.txt → YOLO txt under ``{run_dir}/predict/labels`` (no images)."""
+    """Predict all.txt → YOLO txt under ``{run_dir}/predict/labels``."""
+    predict_opts = opts or PredictOptions.for_labels_only(imgsz=int(imgsz))
+    predict_call = predict_opts.render_predict_call(
+        source_expr="source",
+        name_expr="'predict'",
+    )
     return f"""# -*- coding: utf-8 -*-
 import os
 import sys
@@ -1586,7 +1731,6 @@ import traceback
 model_path = {repr(model_path)}
 source = {repr(source_all_txt)}
 run_dir = {repr(run_dir)}
-imgsz = {int(imgsz)}
 labels_dir = os.path.join(run_dir, "predict", "labels")
 
 try:
@@ -1605,18 +1749,7 @@ if not os.path.isfile(source):
 
 try:
     model = YOLO(model_path)
-    model.predict(
-        source=source,
-        save_txt=True,
-        save_conf=False,
-        rect=False,
-        save=False,
-        project=run_dir,
-        name="predict",
-        exist_ok=True,
-        imgsz=imgsz,
-        verbose=True,
-    )
+{predict_call}
     n = 0
     if os.path.isdir(labels_dir):
         n = sum(
@@ -1640,6 +1773,7 @@ def remote_predict_yolo(
     weights_file: str = "best.pt",
     imgsz: int = 640,
     remote_python: Optional[str] = None,
+    predict_options: Optional[PredictOptions] = None,
 ) -> Tuple[bool, str]:
     """
     Run YOLO predict on remote ``all.txt``; write txt labels to
@@ -1663,7 +1797,11 @@ def remote_predict_yolo(
         return False, f"Model weights not found: {model_path}"
 
     script = build_remote_predict_script(
-        model_path, all_txt, run_dir, imgsz=imgsz
+        model_path,
+        all_txt,
+        run_dir,
+        predict_options,
+        imgsz=imgsz,
     )
     with tempfile.NamedTemporaryFile(
         mode="w", suffix="_predict.py", delete=False, encoding="utf-8"
@@ -1741,9 +1879,16 @@ def build_remote_batch_predict_script(
     model_path: str,
     source_dir: str,
     run_dir: str,
+    opts: Optional[PredictOptions] = None,
+    *,
     imgsz: int = 640,
 ) -> str:
     """Predict a folder → YOLO txt under ``{run_dir}/batch_infer/labels``."""
+    predict_opts = opts or PredictOptions.for_labels_only(imgsz=int(imgsz))
+    predict_call = predict_opts.render_predict_call(
+        source_expr="source",
+        name_expr="'batch_infer'",
+    )
     return f"""# -*- coding: utf-8 -*-
 import os
 import sys
@@ -1752,7 +1897,6 @@ import traceback
 model_path = {repr(model_path)}
 source = {repr(source_dir)}
 run_dir = {repr(run_dir)}
-imgsz = {int(imgsz)}
 labels_dir = os.path.join(run_dir, "batch_infer", "labels")
 
 try:
@@ -1771,18 +1915,7 @@ if not os.path.isdir(source):
 
 try:
     model = YOLO(model_path)
-    model.predict(
-        source=source,
-        save_txt=True,
-        save_conf=False,
-        rect=False,
-        save=False,
-        project=run_dir,
-        name="batch_infer",
-        exist_ok=True,
-        imgsz=imgsz,
-        verbose=True,
-    )
+{predict_call}
     n = 0
     if os.path.isdir(labels_dir):
         n = sum(
@@ -1809,6 +1942,7 @@ def remote_batch_predict_yolo(
     model_path: Optional[str] = None,
     local_weight_to_upload: Optional[str] = None,
     remote_python: Optional[str] = None,
+    predict_options: Optional[PredictOptions] = None,
 ) -> Tuple[bool, str]:
     """
     Upload a local image folder and run YOLO predict on the remote server.
@@ -1870,7 +2004,11 @@ def remote_batch_predict_yolo(
         )
 
         script = build_remote_batch_predict_script(
-            model_path, remote_images, run_dir, imgsz=imgsz
+            model_path,
+            remote_images,
+            run_dir,
+            predict_options,
+            imgsz=imgsz,
         )
         with tempfile.NamedTemporaryFile(
             mode="w",

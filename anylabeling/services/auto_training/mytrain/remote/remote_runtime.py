@@ -26,14 +26,14 @@ class RemoteCondaEnv:
 def default_shell_python_cmd(remote_script: str) -> str:
     """Legacy Remote: remote login shell ``python3`` with ``python`` fallback."""
     s = shlex.quote(remote_script)
-    return f"python3 {s} || python {s}"
+    return f"python3 -u {s} || python -u {s}"
 
 
 def conda_python_cmd(remote_python: str, remote_script: str) -> str:
     """Run a script with the chosen env's Python (absolute path on remote host)."""
     py = shlex.quote(remote_python.strip())
     s = shlex.quote(remote_script)
-    return f"{py} {s}"
+    return f"{py} -u {s}"
 
 
 def format_exec_python(

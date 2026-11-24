@@ -22,6 +22,12 @@ from .custom_widgets import (
 from anylabeling.services.auto_training.mytrain.export_naming import (
     build_onnx_export_name,
 )
+from anylabeling.services.auto_training.mytrain.predict_options import (
+    PredictOptions,
+)
+from anylabeling.views.training.widgets.mytrain_widgets.predict_params_widget import (
+    PredictParamsWidget,
+)
 from anylabeling.services.auto_training.mytrain.style import (
     get_ultralytics_dialog_style,
 )
@@ -222,6 +228,7 @@ class RemotePredictDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(self.tr("Remote Infer"))
         self.setMinimumWidth(520)
+        self.setMinimumHeight(640)
         self.setModal(True)
         self.setStyleSheet(get_ultralytics_dialog_style())
         self._imgsz = int(imgsz) if imgsz else 640
@@ -271,15 +278,10 @@ class RemotePredictDialog(QDialog):
         form.addRow(self.tr("Image size:"), self.imgsz_label)
 
         layout.addLayout(form)
-
-        tip = QLabel(
-            self.tr(
-                "Params: save_txt=True, save_conf=False, rect=False, save=False"
-            )
+        self.predict_params = PredictParamsWidget(
+            self, preset="labels_only", show_output_options=True
         )
-        tip.setStyleSheet(f"color: {t['warning']}; font-size: 12px;")
-        tip.setWordWrap(True)
-        layout.addWidget(tip)
+        layout.addWidget(self.predict_params)
 
         buttons = QHBoxLayout()
         buttons.addStretch()
@@ -298,6 +300,9 @@ class RemotePredictDialog(QDialog):
     def get_imgsz(self) -> int:
         return self._imgsz
 
+    def get_predict_options(self) -> PredictOptions:
+        return self.predict_params.options_with_imgsz(self._imgsz)
+
 
 class BatchInferDialog(QDialog):
     """Pick a local image folder and weights for batch YOLO predict."""
@@ -314,6 +319,7 @@ class BatchInferDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(self.tr("Batch Infer"))
         self.setMinimumWidth(560)
+        self.setMinimumHeight(640)
         self.setModal(True)
         self.setStyleSheet(get_ultralytics_dialog_style())
         self._imgsz = int(imgsz) if imgsz else 640
@@ -375,16 +381,19 @@ class BatchInferDialog(QDialog):
         form.addRow(self.tr("Image size:"), self.imgsz_label)
 
         layout.addLayout(form)
+        self.predict_params = PredictParamsWidget(
+            self, preset="labels_only", show_output_options=True
+        )
+        layout.addWidget(self.predict_params)
 
-        tip = QLabel(
+        hint = QLabel(
             self.tr(
-                "Params: save_txt=True, save_conf=False, rect=False, save=False. "
-                "After finish, use “Download Batch Results” to save the labels folder."
+                'After finish, use "Download Batch Results" to save the labels folder.'
             )
         )
-        tip.setStyleSheet(f"color: {t['warning']}; font-size: 12px;")
-        tip.setWordWrap(True)
-        layout.addWidget(tip)
+        hint.setStyleSheet(f"color: {t['text_secondary']}; font-size: 12px;")
+        hint.setWordWrap(True)
+        layout.addWidget(hint)
 
         buttons = QHBoxLayout()
         buttons.addStretch()
@@ -426,6 +435,9 @@ class BatchInferDialog(QDialog):
 
     def get_image_folder(self) -> str:
         return (self._folder or self.folder_edit.text() or "").strip()
+
+    def get_predict_options(self) -> PredictOptions:
+        return self.predict_params.options_with_imgsz(self._imgsz)
 
     def get_imgsz(self) -> int:
         return self._imgsz

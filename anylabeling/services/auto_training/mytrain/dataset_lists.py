@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 SPLIT_FILES = ("train.txt", "val.txt", "test.txt", "all.txt")
+IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tif", ".tiff"}
 
 
 def path_line_for_txt(p: Union[str, Path]) -> str:
@@ -241,6 +242,53 @@ def get_detect_dataset_summary_table(
     return rows
 
 
+def count_subdir_images_and_labels(sub_dir: Union[str, Path]) -> Tuple[int, int]:
+    """Count image files under ``images/`` and ``.txt`` files under ``labels/``."""
+    sub_dir = Path(sub_dir)
+    n_images = 0
+    n_labels = 0
+    images_root = sub_dir / "images"
+    if images_root.is_dir():
+        for _dirpath, dirnames, filenames in os.walk(images_root):
+            dirnames[:] = [d for d in dirnames if d and not d.startswith(".")]
+            for name in filenames:
+                if not name or name.startswith("."):
+                    continue
+                if Path(name).suffix.lower() in IMAGE_EXTS:
+                    n_images += 1
+    labels_root = sub_dir / "labels"
+    if labels_root.is_dir():
+        for _dirpath, dirnames, filenames in os.walk(labels_root):
+            dirnames[:] = [d for d in dirnames if d and not d.startswith(".")]
+            for name in filenames:
+                if not name or name.startswith("."):
+                    continue
+                if name.lower().endswith(".txt"):
+                    n_labels += 1
+    return n_images, n_labels
+
+
+def audit_subdataset_images_labels(
+    root: Union[str, Path], subdirs: Sequence[str]
+) -> List[Dict[str, object]]:
+    """Return sub-datasets whose images/labels are empty or unequal.
+
+    Each item is ``{"subdir", "images", "labels"}``. An empty list means every
+    selected sub-dataset has a non-empty images folder and a non-empty labels
+    folder with the same file count.
+    """
+    root = Path(root)
+    issues: List[Dict[str, object]] = []
+    for sd in subdirs:
+        n_images, n_labels = count_subdir_images_and_labels(root / sd)
+        if n_images > 0 and n_labels > 0 and n_images == n_labels:
+            continue
+        issues.append(
+            {"subdir": sd, "images": n_images, "labels": n_labels}
+        )
+    return issues
+
+
 def yaml_escape_single_quoted(s: str) -> str:
     return "'" + s.replace("'", "''") + "'"
 
@@ -321,6 +369,7 @@ def merge_dataset_lists(
         build_data_yaml(root, classes, path_formatter=path_formatter),
         encoding="utf-8",
     )
+    image_label_issues = audit_subdataset_images_labels(root, subdirs)
 
     return {
         "ok": True,
@@ -335,6 +384,7 @@ def merge_dataset_lists(
         },
         "removed": removed,
         "classes": classes,
+        "image_label_issues": image_label_issues,
     }
 
 
@@ -346,12 +396,20 @@ def build_remote_merge_script(
     ``remote_root`` must be an absolute POSIX path.
     """
     template = r'''# -*- coding: utf-8 -*-
+import os
+import sys
+import traceback
 from pathlib import Path
 
 ROOT = Path(__REMOTE_ROOT__)
 SUBDIRS = __SUBDIRS__
 YAML_NAME = __YAML_NAME__
 SPLIT_FILES = ("train.txt", "val.txt", "test.txt", "all.txt")
+IMAGE_EXTS = set([".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tif", ".tiff"])
+
+def fail(msg, code=1):
+    print("MERGE_ERROR: " + str(msg), flush=True)
+    sys.exit(code)
 
 def path_line(p):
     return str(p.resolve()).replace("\\", "/")
@@ -377,6 +435,30 @@ def merge_split(split_name):
             merged.append(path_line(images_dir / name))
     return merged
 
+def count_images_labels(sub):
+    n_img = 0
+    n_lbl = 0
+    img_root = sub / "images"
+    if img_root.is_dir():
+        for _dirpath, dirnames, filenames in os.walk(str(img_root)):
+            dirnames[:] = [d for d in dirnames if d and not d.startswith(".")]
+            for name in filenames:
+                if not name or name.startswith("."):
+                    continue
+                ext = os.path.splitext(name)[1].lower()
+                if ext in IMAGE_EXTS:
+                    n_img += 1
+    lab_root = sub / "labels"
+    if lab_root.is_dir():
+        for _dirpath, dirnames, filenames in os.walk(str(lab_root)):
+            dirnames[:] = [d for d in dirnames if d and not d.startswith(".")]
+            for name in filenames:
+                if not name or name.startswith("."):
+                    continue
+                if name.lower().endswith(".txt"):
+                    n_lbl += 1
+    return n_img, n_lbl
+
 def yaml_escape(s):
     return "'" + s.replace("'", "''") + "'"
 
@@ -399,42 +481,71 @@ def build_yaml(classes):
     lines.append("")
     return "\n".join(lines)
 
-if not ROOT.is_dir():
-    raise SystemExit("ROOT missing: %s" % ROOT)
-classes_path = ROOT / "classes.txt"
-if not classes_path.is_file():
-    raise SystemExit("missing classes.txt")
-classes = load_classes(classes_path)
-if not classes:
-    raise SystemExit("empty classes.txt")
-for sd in SUBDIRS:
-    sub = ROOT / sd
-    if not sub.is_dir():
-        raise SystemExit("subdir missing: %s" % sub)
-    for sp in SPLIT_FILES:
-        if not (sub / sp).is_file():
-            raise SystemExit("missing %s" % (sub / sp))
+def main():
+    if not ROOT.is_dir():
+        fail("ROOT missing: %s" % ROOT)
+    classes_path = ROOT / "classes.txt"
+    if not classes_path.is_file():
+        fail("missing classes.txt under %s" % ROOT)
+    classes = load_classes(classes_path)
+    if not classes:
+        fail("empty classes.txt")
+    if not SUBDIRS:
+        fail("no sub-dataset versions selected")
+    for sd in SUBDIRS:
+        sub = ROOT / sd
+        if not sub.is_dir():
+            fail("subdir missing: %s" % sub)
+        for sp in SPLIT_FILES:
+            p = sub / sp
+            if not p.is_file():
+                fail("missing %s" % p)
 
-yaml_path = ROOT / YAML_NAME
-for name in list(SPLIT_FILES) + [YAML_NAME]:
-    p = ROOT / name
-    if p.is_file():
-        p.unlink()
+    yaml_path = ROOT / YAML_NAME
+    for name in list(SPLIT_FILES) + [YAML_NAME]:
+        p = ROOT / name
+        if p.is_file():
+            p.unlink()
 
-train_m = merge_split("train.txt")
-val_m = merge_split("val.txt")
-test_m = merge_split("test.txt")
-all_m = merge_split("all.txt")
-for name, lines in (
-    ("train.txt", train_m),
-    ("val.txt", val_m),
-    ("test.txt", test_m),
-    ("all.txt", all_m),
-):
-    (ROOT / name).write_text("".join(x + "\n" for x in lines), encoding="utf-8")
-yaml_path.write_text(build_yaml(classes), encoding="utf-8")
-print("OK yaml=%s train=%d val=%d test=%d all=%d nc=%d" % (
-    yaml_path, len(train_m), len(val_m), len(test_m), len(all_m), len(classes)))
+    train_m = merge_split("train.txt")
+    val_m = merge_split("val.txt")
+    test_m = merge_split("test.txt")
+    all_m = merge_split("all.txt")
+    for name, lines in (
+        ("train.txt", train_m),
+        ("val.txt", val_m),
+        ("test.txt", test_m),
+        ("all.txt", all_m),
+    ):
+        (ROOT / name).write_text(
+            "".join(x + "\n" for x in lines), encoding="utf-8"
+        )
+    yaml_path.write_text(build_yaml(classes), encoding="utf-8")
+    for sd in SUBDIRS:
+        n_img, n_lbl = count_images_labels(ROOT / sd)
+        if n_img > 0 and n_lbl > 0 and n_img == n_lbl:
+            continue
+        print("DATASET_CHECK|%s|%d|%d" % (sd, n_img, n_lbl), flush=True)
+    print(
+        "OK yaml=%s train=%d val=%d test=%d all=%d nc=%d"
+        % (
+            yaml_path,
+            len(train_m),
+            len(val_m),
+            len(test_m),
+            len(all_m),
+            len(classes),
+        ),
+        flush=True,
+    )
+
+if __name__ == "__main__":
+    try:
+        main()
+    except SystemExit:
+        raise
+    except Exception:
+        fail(traceback.format_exc())
 '''
     return (
         template.replace("__REMOTE_ROOT__", repr(remote_root))

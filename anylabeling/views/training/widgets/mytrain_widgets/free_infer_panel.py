@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
     QMessageBox,
     QRadioButton,
+    QSizePolicy,
     QSpinBox,
     QVBoxLayout,
     QWidget,
@@ -31,11 +32,17 @@ from anylabeling.services.auto_training.mytrain.style import (
     get_ultralytics_dialog_style,
 )
 from anylabeling.views.labeling.utils.theme import get_theme
+from anylabeling.services.auto_training.mytrain.predict_options import (
+    PredictOptions,
+)
 from anylabeling.views.training.widgets.mytrain_widgets.custom_widgets import (
     CustomComboBox,
     CustomLineEdit,
     PrimaryButton,
     SecondaryButton,
+)
+from anylabeling.views.training.widgets.mytrain_widgets.predict_params_widget import (
+    PredictParamsWidget,
 )
 
 
@@ -50,6 +57,10 @@ class FreeInferPanel(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding,
+        )
         self.setStyleSheet(get_ultralytics_dialog_style())
         self._weight_entries: List[WeightEntry] = []
         self._uploaded_weight: Optional[WeightEntry] = None
@@ -76,24 +87,35 @@ class FreeInferPanel(QWidget):
         tip.setStyleSheet(f"color: {t['text_secondary']};")
         root.addWidget(tip)
 
-        # Environment
+        # Environment (settings on Data tab; details shown below)
         env_group = QGroupBox(self.tr("Environment"))
-        env_layout = QHBoxLayout(env_group)
+        env_outer = QVBoxLayout(env_group)
+        env_row = QHBoxLayout()
         self.env_combo = CustomComboBox()
         self.env_combo.addItem(self.tr("Local"), "local")
         self.env_combo.addItem(self.tr("Interpreter"), "interpreter")
         self.env_combo.addItem(self.tr("Remote"), "remote")
         self.env_combo.currentIndexChanged.connect(self._on_env_changed)
-        env_layout.addWidget(QLabel(self.tr("Mode:")))
-        env_layout.addWidget(self.env_combo, 1)
+        env_row.addWidget(QLabel(self.tr("Mode:")))
+        env_row.addWidget(self.env_combo, 1)
+        env_outer.addLayout(env_row)
         env_hint = QLabel(
             self.tr(
-                "Uses the same Local / Interpreter / Remote settings as Training Mode "
-                "(interpreter list & SSH profiles on the Data tab)."
+                "Same Local / Interpreter / Remote as Training Mode on the Data tab."
             )
         )
         env_hint.setWordWrap(True)
-        env_layout.addWidget(env_hint, 2)
+        env_hint.setStyleSheet(f"color: {t['text_secondary']}; font-size: 12px;")
+        env_outer.addWidget(env_hint)
+        self.env_detail_label = QLabel("—")
+        self.env_detail_label.setWordWrap(True)
+        self.env_detail_label.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+        self.env_detail_label.setStyleSheet(
+            f"color: {t['text']}; font-size: 12px; padding: 4px 0;"
+        )
+        env_outer.addWidget(self.env_detail_label)
         root.addWidget(env_group)
 
         # Weights
@@ -101,7 +123,7 @@ class FreeInferPanel(QWidget):
         w_form = QFormLayout(w_group)
         weight_row = QHBoxLayout()
         self.weight_combo = CustomComboBox()
-        self.weight_combo.setMinimumWidth(360)
+        self.weight_combo.setMinimumWidth(120)
         weight_row.addWidget(self.weight_combo, 1)
         self.scan_btn = SecondaryButton(self.tr("Scan Projects"))
         self.scan_btn.clicked.connect(self.request_scan_weights.emit)
@@ -116,7 +138,6 @@ class FreeInferPanel(QWidget):
         self.imgsz_spin.setSingleStep(32)
         self.imgsz_spin.setValue(640)
         w_form.addRow(self.tr("Image size:"), self.imgsz_spin)
-        root.addWidget(w_group)
 
         # Material
         m_group = QGroupBox(self.tr("Inference Material"))
@@ -158,7 +179,25 @@ class FreeInferPanel(QWidget):
         interval_row.addWidget(self.video_interval)
         interval_row.addStretch()
         m_layout.addLayout(interval_row)
-        root.addWidget(m_group)
+
+        w_group.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Preferred,
+        )
+        m_group.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Preferred,
+        )
+        weights_material_row = QHBoxLayout()
+        weights_material_row.setSpacing(12)
+        weights_material_row.addWidget(w_group, 1)
+        weights_material_row.addWidget(m_group, 1)
+        root.addLayout(weights_material_row)
+
+        self.predict_params = PredictParamsWidget(
+            self, preset="default", show_output_options=True
+        )
+        root.addWidget(self.predict_params, 0)
 
         # Actions
         action_row = QHBoxLayout()
@@ -186,6 +225,18 @@ class FreeInferPanel(QWidget):
     def _on_env_changed(self, _index: int = 0) -> None:
         mode = self.env_combo.currentData() or "local"
         self.mode_changed.emit(str(mode))
+
+    def set_environment_detail(self, text: str) -> None:
+        self.env_detail_label.setText((text or "").strip() or "—")
+
+    def sync_env_mode(self, mode: str) -> None:
+        mapping = {"local": 0, "interpreter": 1, "remote": 2}
+        idx = mapping.get((mode or "local").lower(), 0)
+        if self.env_combo.currentIndex() == idx:
+            return
+        self.env_combo.blockSignals(True)
+        self.env_combo.setCurrentIndex(idx)
+        self.env_combo.blockSignals(False)
 
     def current_env_mode(self) -> str:
         return str(self.env_combo.currentData() or "local")
@@ -220,6 +271,9 @@ class FreeInferPanel(QWidget):
 
     def imgsz(self) -> int:
         return int(self.imgsz_spin.value())
+
+    def predict_options(self) -> PredictOptions:
+        return self.predict_params.options_with_imgsz(self.imgsz())
 
     def video_frame_interval(self) -> int:
         return int(self.video_interval.value())

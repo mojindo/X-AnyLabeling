@@ -6,9 +6,12 @@ import platform
 import re
 import shutil
 import subprocess
+import sys
 import threading
+from typing import Optional
 
-from PyQt6.QtCore import Qt, QObject, QTimer, pyqtSignal, QCoreApplication
+from PyQt6.QtCore import Qt, QObject, QTimer, pyqtSignal, QCoreApplication, QEvent
+from PyQt6.QtGui import QShowEvent
 from PyQt6.QtGui import QIcon, QPixmap, QTextCursor
 from PyQt6.QtWidgets import (
     QDialog,
@@ -98,6 +101,9 @@ from anylabeling.services.auto_training.mytrain.remote.ssh_profiles import (
     profiles_path,
     save_ssh_profiles,
     upsert_profile,
+)
+from anylabeling.services.auto_training.mytrain.predict_options import (
+    PredictOptions,
 )
 from anylabeling.services.auto_training.mytrain.remote.remote_paths import (
     dataset_remote_dir,
@@ -304,7 +310,7 @@ class MyTrainDialog(QDialog):
         self.tab_widget.addTab(self.data_tab, self.tr("Data"))
         self.tab_widget.addTab(self.config_tab, self.tr("Config"))
         self.tab_widget.addTab(self.train_tab, self.tr("Train"))
-        self.tab_widget.addTab(self.free_infer_tab, self.tr("Free Infer"))
+        self.tab_widget.addTab(self.free_infer_tab, self.tr("Free Inference"))
         self.tab_widget.tabBar().setEnabled(False)
         main_layout = QVBoxLayout(self)
         main_layout.addLayout(workflow_row)
@@ -329,9 +335,28 @@ class MyTrainDialog(QDialog):
         self.tab_widget.setTabVisible(3, is_infer)
         if is_infer:
             self.tab_widget.setCurrentIndex(3)
+            self._sync_free_infer_env_from_training()
+            QTimer.singleShot(0, self._relayout_free_infer_predict_params)
         else:
             self.tab_widget.setCurrentIndex(0)
         self.tab_widget.tabBar().setEnabled(False)
+
+    def _relayout_free_infer_predict_params(self) -> None:
+        panel = getattr(self, "free_infer_panel", None)
+        if panel is None:
+            return
+        params = getattr(panel, "predict_params", None)
+        if params is not None:
+            params.relayout_parameters()
+
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        QTimer.singleShot(0, self._relayout_free_infer_predict_params)
+
+    def changeEvent(self, event: QEvent) -> None:
+        super().changeEvent(event)
+        if event.type() == QEvent.Type.WindowStateChange:
+            QTimer.singleShot(0, self._relayout_free_infer_predict_params)
 
     def init_free_infer_tab(self):
         layout = QVBoxLayout(self.free_infer_tab)
@@ -348,8 +373,9 @@ class MyTrainDialog(QDialog):
         self.free_infer_panel.mode_changed.connect(
             self._on_free_infer_mode_changed
         )
-        layout.addWidget(self.free_infer_panel)
+        layout.addWidget(self.free_infer_panel, 1)
         self._free_infer_mode = "local"
+        self._refresh_free_infer_environment_detail()
 
     def _on_free_infer_mode_changed(self, mode: str):
         self._free_infer_mode = mode or "local"
@@ -360,6 +386,100 @@ class MyTrainDialog(QDialog):
             self.mode_combo.setCurrentIndex(idx)
             self.mode_combo.blockSignals(False)
             self.on_train_mode_changed(self.mode_combo.currentText())
+        self._refresh_free_infer_environment_detail()
+
+    def _sync_free_infer_env_from_training(self) -> None:
+        panel = getattr(self, "free_infer_panel", None)
+        if panel is None:
+            return
+        panel.sync_env_mode(getattr(self, "train_mode", "local"))
+        self._free_infer_mode = panel.current_env_mode()
+        self._refresh_free_infer_environment_detail()
+
+    def _refresh_free_infer_environment_detail(self) -> None:
+        panel = getattr(self, "free_infer_panel", None)
+        if panel is None:
+            return
+        mode = panel.current_env_mode()
+        panel.set_environment_detail(self._free_infer_environment_detail_text(mode))
+
+    def _free_infer_environment_detail_text(self, mode: str) -> str:
+        mode = (mode or "local").strip().lower()
+        if mode == "local":
+            return self.tr("Local Python:\n{exe}").format(exe=sys.executable)
+        if mode == "interpreter":
+            profile = self._selected_interp_profile()
+            name = (
+                local_interp.profile_display_name(profile)
+                if profile
+                else self.tr("(no interpreter selected)")
+            )
+            py = self._selected_interpreter_python()
+            py_disp = py if py else self.tr("(python path not set)")
+            probe = getattr(self, "interpreter_probe_info", None)
+            extra = ""
+            if isinstance(probe, dict) and probe.get("ok"):
+                extra = self.tr("\nLast test: OK")
+            elif profile and profile.get("last_ok") is False:
+                extra = self.tr("\nLast test: failed — re-test on Data tab")
+            return self.tr("Interpreter profile: {name}\nPython: {py}{extra}").format(
+                name=name,
+                py=py_disp,
+                extra=extra,
+            )
+        profile = self._selected_profile()
+        if not profile:
+            return self.tr(
+                "Remote: no SSH profile — configure on Data tab."
+            )
+        label = profile_display_name(profile)
+        host = (profile.get("host") or "?").strip()
+        user = (profile.get("username") or "?").strip()
+        try:
+            port = int(profile.get("port") or 22)
+        except (TypeError, ValueError):
+            port = 22
+        lines = [
+            self.tr("SSH profile: {label}").format(label=label),
+            self.tr("Endpoint: {user}@{host}:{port}").format(
+                user=user, host=host, port=port
+            ),
+        ]
+        base_dir = (profile.get("remote_base_dir") or "").strip()
+        if base_dir:
+            lines.append(
+                self.tr("Remote base: {path}").format(path=base_dir)
+            )
+        runtime = self._remote_runtime_kind()
+        if runtime == "conda":
+            env_name = (profile.get("conda_env_name") or "").strip()
+            if not env_name and hasattr(self, "remote_conda_env_combo"):
+                idx = self.remote_conda_env_combo.currentIndex()
+                if idx >= 0:
+                    data = self.remote_conda_env_combo.itemData(idx)
+                    if isinstance(data, dict):
+                        env_name = str(data.get("name") or "")
+            py = (profile.get("remote_python") or "").strip()
+            if not py:
+                py = (self._conda_python_from_combo() or "").strip()
+            lines.append(
+                self.tr('Runtime: Conda env "{env}"').format(
+                    env=env_name or self.tr("(not selected)")
+                )
+            )
+            if py:
+                lines.append(self.tr("Remote Python: {py}").format(py=py))
+        else:
+            lines.append(
+                self.tr("Runtime: SSH shell (python on remote PATH)")
+            )
+        if self.ssh_client and getattr(self.ssh_client, "connected", False):
+            lines.append(self.tr("Connection: connected"))
+        else:
+            lines.append(
+                self.tr("Connection: not connected — Test Connection on Data tab")
+            )
+        return "\n".join(lines)
 
     def free_infer_scan_weights(self):
         mode = self.free_infer_panel.current_env_mode()
@@ -441,6 +561,7 @@ class MyTrainDialog(QDialog):
         source_dir = os.path.join(job_dir, "source")
         imgsz = panel.imgsz()
         interval = panel.video_frame_interval()
+        predict_opts = panel.predict_options()
 
         def _progress(msg: str):
             self._bg_bridge.log.emit(str(msg))
@@ -477,6 +598,7 @@ class MyTrainDialog(QDialog):
                         progress=_progress,
                         local_weight_to_upload=local_w,
                         remote_python=self._remote_python_for_exec(),
+                        predict_options=predict_opts,
                     )
                 else:
                     remote_run = weight.run_dir
@@ -489,6 +611,7 @@ class MyTrainDialog(QDialog):
                         progress=_progress,
                         model_path=weight.weight_path,
                         remote_python=self._remote_python_for_exec(),
+                        predict_options=predict_opts,
                     )
                 if not ok_pred:
                     return False, payload
@@ -537,6 +660,7 @@ class MyTrainDialog(QDialog):
                 model_path,
                 imgsz,
                 python_executable=py_exe,
+                predict_options=predict_opts,
             )
             if not ok_pred:
                 return False, payload
@@ -1158,6 +1282,7 @@ class MyTrainDialog(QDialog):
             and is_windows_local_path(self.custom_exec_cwd_edit.text())
         ):
             self.custom_exec_cwd_edit.clear()
+        self._sync_free_infer_env_from_training()
 
     def _interp_settings_path(self):
         return local_interp.profiles_path()
@@ -1327,6 +1452,7 @@ class MyTrainDialog(QDialog):
         active = self._selected_interp_id()
         self._sync_interp_rows_to_store()
         self._refresh_interp_profile_combo(active)
+        self._refresh_free_infer_environment_detail()
 
     def _load_interp_settings(self):
         self._interp_profiles = local_interp.load_interpreter_profiles(
@@ -1378,6 +1504,7 @@ class MyTrainDialog(QDialog):
             % local_interp.profile_display_name(profile or {"name": profile_id})
         )
         self.interpreter_probe_info = None
+        self._refresh_free_infer_environment_detail()
 
     def add_interp_profile(self):
         self._sync_interp_rows_to_store()
@@ -1546,6 +1673,7 @@ class MyTrainDialog(QDialog):
                 )
         finally:
             QApplication.restoreOverrideCursor()
+            self._refresh_free_infer_environment_detail()
 
     def _ensure_selected_interpreter_ready(self) -> bool:
         """Gate Start Training for Interpreter mode."""
@@ -1914,6 +2042,7 @@ class MyTrainDialog(QDialog):
         if hasattr(self, "remote_conda_panel"):
             self.remote_conda_panel.setVisible(kind == "conda")
         self._sync_remote_runtime_to_profile()
+        self._refresh_free_infer_environment_detail()
 
     def _sync_remote_runtime_to_profile(self) -> None:
         if getattr(self, "_ssh_loading_profile", False):
@@ -1945,6 +2074,8 @@ class MyTrainDialog(QDialog):
                     s["remote_base_dir"] = self.remote_base_edit.text().strip()
                 break
         self._persist_ssh_profiles()
+        if not getattr(self, "_ssh_loading_profile", False):
+            self._refresh_free_infer_environment_detail()
 
     def _load_remote_runtime_from_profile(self, profile: dict) -> None:
         if not profile or not hasattr(self, "remote_runtime_combo"):
@@ -2020,6 +2151,7 @@ class MyTrainDialog(QDialog):
         if self._ssh_loading_profile:
             return
         self._sync_remote_runtime_to_profile()
+        self._refresh_free_infer_environment_detail()
 
     def test_remote_conda_env(self) -> None:
         if not self.ssh_client.connected:
@@ -2059,6 +2191,7 @@ class MyTrainDialog(QDialog):
             QMessageBox.critical(self, self.tr("Conda"), str(e))
         finally:
             QApplication.restoreOverrideCursor()
+            self._refresh_free_infer_environment_detail()
 
     def _on_ssh_profile_selected(self, index: int) -> None:
         if self._ssh_loading_profile or index < 0:
@@ -2087,12 +2220,14 @@ class MyTrainDialog(QDialog):
                 self.tr("Selected · %s (still connected)")
                 % profile_display_name(profile)
             )
+            self._refresh_free_infer_environment_detail()
             return
 
         self._disconnect_ssh_ui(
             self.tr("Selected: %s (not connected — Test Connection)")
             % profile_display_name(profile or {"name": profile_id})
         )
+        self._refresh_free_infer_environment_detail()
 
     def add_ssh_profile(self):
         self._sync_rows_to_store()
@@ -2250,6 +2385,7 @@ class MyTrainDialog(QDialog):
             QMessageBox.critical(self, self.tr("SSH"), str(e))
         finally:
             QApplication.restoreOverrideCursor()
+            self._refresh_free_infer_environment_detail()
 
     def _current_model_path(self) -> str:
         if "model" in self.config_widgets:
@@ -2864,7 +3000,7 @@ class MyTrainDialog(QDialog):
                         -1.0,
                     )
                 gate.checkpoint()
-                ok2, info = remote_merge_lists(
+                ok2, info, issues = remote_merge_lists(
                     client,
                     remote_root,
                     subdirs,
@@ -2878,6 +3014,7 @@ class MyTrainDialog(QDialog):
                         "skipped": skipped,
                         "info": info,
                         "stopped": False,
+                        "image_label_issues": issues,
                     },
                 )
             except UploadStopped:
@@ -2908,7 +3045,7 @@ class MyTrainDialog(QDialog):
 
         def _run() -> None:
             try:
-                ok, info = remote_merge_lists(
+                ok, info, issues = remote_merge_lists(
                     client,
                     remote_root,
                     subdirs,
@@ -2923,6 +3060,7 @@ class MyTrainDialog(QDialog):
                         "info": info,
                         "stopped": False,
                         "remote_only": True,
+                        "image_label_issues": issues,
                     },
                 )
             except Exception as e:
@@ -2948,13 +3086,22 @@ class MyTrainDialog(QDialog):
             )
             return
         if data.get("error"):
-            self.dataset_status_label.setText(str(data["error"]))
-            QMessageBox.critical(
-                self, self.tr("Upload Error"), str(data["error"])
-            )
+            err = str(data["error"])
+            self.dataset_status_label.setText(err)
+            self.append_training_log(f"[Dataset] upload error: {err[:2000]}")
+            QMessageBox.critical(self, self.tr("Upload Error"), err)
             return
         if not ok:
-            info = str(data.get("info") or "")
+            info = (str(data.get("info") or "")).strip()
+            if not info:
+                info = self.tr(
+                    "Remote merge failed with no server output. "
+                    "On the Data tab, test Remote runtime Python and SSH, "
+                    "confirm upload completed, then try Upload & Generate again."
+                )
+            self.append_training_log(
+                f"[Dataset] remote merge failed: {info[:2000]}"
+            )
             self.dataset_status_label.setText(info[:500])
             QMessageBox.critical(self, self.tr("Remote merge failed"), info)
             return
@@ -2962,9 +3109,13 @@ class MyTrainDialog(QDialog):
         info = data.get("info") or ""
         self.remote_dataset_root = remote_root
         self.data_yaml_path = info
-        self.dataset_status_label.setText(
-            self.tr("Remote dataset ready:\n%s\n%s") % (remote_root, info)
-        )
+        issues = data.get("image_label_issues") or []
+        status = self.tr("Remote dataset ready:\n%s\n%s") % (remote_root, info)
+        if issues:
+            status = status + "\n" + self.tr(
+                "Warning: images and labels do not match. Please check the dataset."
+            )
+        self.dataset_status_label.setText(status)
         self.clear_cache()
         self.refresh_dataset_summary()
         if data.get("remote_only"):
@@ -2980,7 +3131,7 @@ class MyTrainDialog(QDialog):
             done = self.tr(
                 "Uploaded selected sub-datasets and generated data.yaml on the server."
             )
-        QMessageBox.information(self, self.tr("Success"), done)
+        self._notify_dataset_lists_ready(done, issues)
 
     def browse_dataset_root(self):
         if self._remote_dataset_use_existing():
@@ -3209,29 +3360,64 @@ class MyTrainDialog(QDialog):
             return
         self.data_yaml_path = result["yaml_path"]
         counts = result["counts"]
-        self.dataset_status_label.setText(
-            self.tr(
-                "Generated locally: %s\ntrain/val/test/all = %d/%d/%d/%d"
-            )
-            % (
-                self.data_yaml_path,
-                counts["train"],
-                counts["val"],
-                counts["test"],
-                counts["all"],
-            )
+        issues = result.get("image_label_issues") or []
+        status = self.tr(
+            "Generated locally: %s\ntrain/val/test/all = %d/%d/%d/%d"
+        ) % (
+            self.data_yaml_path,
+            counts["train"],
+            counts["val"],
+            counts["test"],
+            counts["all"],
         )
+        if issues:
+            status = status + "\n" + self.tr(
+                "Warning: images and labels do not match. Please check the dataset."
+            )
+        self.dataset_status_label.setText(status)
         try:
             self.names = load_classes(os.path.join(root, "classes.txt"))
         except Exception:
             self.names = result.get("classes") or []
         self.clear_cache()
         self.refresh_dataset_summary()
-        QMessageBox.information(
-            self,
-            self.tr("Success"),
+        self._notify_dataset_lists_ready(
             self.tr("Dataset lists and data.yaml generated."),
+            issues,
         )
+
+    def _format_image_label_check_warning(self, issues) -> str:
+        lines = [
+            self.tr(
+                "Dataset lists were generated, but some sub-datasets need a check."
+            ),
+            self.tr(
+                "Each sub-dataset must have a non-empty images folder and a "
+                "non-empty labels folder with the same number of files."
+            ),
+        ]
+        for item in issues or []:
+            if not isinstance(item, dict):
+                continue
+            lines.append(
+                self.tr("• {name}: images={images}, labels={labels}").format(
+                    name=item.get("subdir") or "",
+                    images=item.get("images", 0),
+                    labels=item.get("labels", 0),
+                )
+            )
+        lines.append(self.tr("Please check the dataset before training."))
+        return "\n".join(lines)
+
+    def _notify_dataset_lists_ready(self, success_text: str, issues) -> None:
+        if issues:
+            warning = self._format_image_label_check_warning(issues)
+            self.append_training_log(
+                "[Dataset] image/label check:\n" + warning
+            )
+            QMessageBox.warning(self, self.tr("Dataset check"), warning)
+            return
+        QMessageBox.information(self, self.tr("Success"), success_text)
 
     def refresh_dataset_summary(self):
         """Refresh summary from training dataset files, not the main UI folder.
@@ -3761,7 +3947,7 @@ class MyTrainDialog(QDialog):
 
         model_layout = QHBoxLayout()
         self.config_widgets["model"] = CustomLineEdit()
-        model_browse_btn = SecondaryButton("Browse")
+        model_browse_btn = SecondaryButton(self.tr("Browse"))
         model_browse_btn.clicked.connect(self.browse_model_file)
         model_layout.addWidget(self.config_widgets["model"])
         model_layout.addWidget(model_browse_btn)
@@ -3769,7 +3955,7 @@ class MyTrainDialog(QDialog):
 
         data_layout = QHBoxLayout()
         self.config_widgets["data"] = CustomLineEdit()
-        data_browse_btn = SecondaryButton("Browse")
+        data_browse_btn = SecondaryButton(self.tr("Browse"))
         data_browse_btn.clicked.connect(self.browse_data_file)
         data_layout.addWidget(self.config_widgets["data"])
         data_layout.addWidget(data_browse_btn)
@@ -3777,7 +3963,7 @@ class MyTrainDialog(QDialog):
 
         pose_config_layout = QHBoxLayout()
         self.config_widgets["pose_config"] = CustomLineEdit()
-        pose_config_browse_btn = SecondaryButton("Browse")
+        pose_config_browse_btn = SecondaryButton(self.tr("Browse"))
         pose_config_browse_btn.clicked.connect(self.browse_pose_config_file)
         pose_config_layout.addWidget(self.config_widgets["pose_config"])
         pose_config_layout.addWidget(pose_config_browse_btn)
@@ -6427,6 +6613,7 @@ class MyTrainDialog(QDialog):
         imgsz: int,
         *,
         python_executable: str = "",
+        predict_options: Optional[PredictOptions] = None,
     ) -> tuple:
         """Run local YOLO predict with UTF-8-safe reading of all.txt.
 
@@ -6457,6 +6644,13 @@ class MyTrainDialog(QDialog):
 
         labels_dir = os.path.join(run_dir, "predict", "labels")
         all_txt_key = os.path.normcase(os.path.abspath(all_txt))
+        opts = predict_options or PredictOptions.for_labels_only(imgsz=int(imgsz))
+        predict_call = opts.render_predict_call(
+            source_expr="all_txt",
+            project_expr=repr(run_dir),
+            name_expr="'predict'",
+            indent="    ",
+        )
         py_exe = (python_executable or "").strip()
         if py_exe:
             if not os.path.isfile(py_exe):
@@ -6511,18 +6705,8 @@ builtins.open = _open_utf8
 Path.read_text = _read_text_utf8
 try:
     model = YOLO({model_path!r})
-    model.predict(
-        source={all_txt!r},
-        save_txt=True,
-        save_conf=False,
-        rect=False,
-        save=False,
-        project={run_dir!r},
-        name="predict",
-        exist_ok=True,
-        imgsz={int(imgsz)},
-        verbose=True,
-    )
+    all_txt = {all_txt!r}
+{predict_call}
 finally:
     builtins.open = _orig_open
     Path.read_text = _orig_read_text
@@ -6617,16 +6801,11 @@ print("PREDICT_OK:" + {labels_dir!r}, flush=True)
             Path.read_text = _read_text_utf8
             model = YOLO(model_path)
             model.predict(
-                source=all_txt,
-                save_txt=True,
-                save_conf=False,
-                rect=False,
-                save=False,
-                project=run_dir,
-                name="predict",
-                exist_ok=True,
-                imgsz=int(imgsz),
-                verbose=True,
+                **opts.predict_kwargs(
+                    source=all_txt,
+                    project=run_dir,
+                    name="predict",
+                )
             )
         except Exception as e:
             return False, str(e)
@@ -6694,6 +6873,7 @@ print("PREDICT_OK:" + {labels_dir!r}, flush=True)
             return
 
         weights_file = dlg.get_weights_file()
+        predict_opts = dlg.get_predict_options()
         self.append_training_log(
             f"Starting predict: model={weights_file}, source={all_txt}"
         )
@@ -6714,6 +6894,7 @@ print("PREDICT_OK:" + {labels_dir!r}, flush=True)
                     weights_file=weights_arg,
                     imgsz=imgsz_arg,
                     remote_python=self._remote_python_for_exec(),
+                    predict_options=predict_opts,
                 )
             return self._run_local_predict(
                 run_dir_arg,
@@ -6721,6 +6902,7 @@ print("PREDICT_OK:" + {labels_dir!r}, flush=True)
                 weights_arg,
                 imgsz_arg,
                 python_executable=py_exe,
+                predict_options=predict_opts,
             )
 
         self._start_bg_task("predict", _job)
@@ -6743,6 +6925,7 @@ print("PREDICT_OK:" + {labels_dir!r}, flush=True)
         imgsz: int,
         *,
         python_executable: str = "",
+        predict_options: Optional[PredictOptions] = None,
     ) -> tuple:
         """Predict all images in a folder → ``{run_dir}/batch_infer/labels``."""
         import tempfile
@@ -6761,6 +6944,13 @@ print("PREDICT_OK:" + {labels_dir!r}, flush=True)
             return False, f"Model weights not found: {model_path}"
 
         labels_dir = os.path.join(run_dir, "batch_infer", "labels")
+        opts = predict_options or PredictOptions.for_labels_only(imgsz=int(imgsz))
+        predict_call = opts.render_predict_call(
+            source_expr="image_folder",
+            project_expr=repr(run_dir),
+            name_expr="'batch_infer'",
+            indent="",
+        )
         # Clear previous batch results so stems don't mix runs
         batch_root = os.path.join(run_dir, "batch_infer")
         if os.path.isdir(batch_root):
@@ -6781,19 +6971,9 @@ if sys.platform.startswith("win"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 from ultralytics import YOLO
+image_folder = {image_folder!r}
 model = YOLO({model_path!r})
-model.predict(
-    source={image_folder!r},
-    save_txt=True,
-    save_conf=False,
-    rect=False,
-    save=False,
-    project={run_dir!r},
-    name="batch_infer",
-    exist_ok=True,
-    imgsz={int(imgsz)},
-    verbose=True,
-)
+{predict_call}
 labels_dir = {labels_dir!r}
 n = 0
 if os.path.isdir(labels_dir):
@@ -6836,16 +7016,11 @@ print("BATCH_PREDICT_OK:" + labels_dir + " (%d txt)" % n, flush=True)
         try:
             model = YOLO(model_path)
             model.predict(
-                source=image_folder,
-                save_txt=True,
-                save_conf=False,
-                rect=False,
-                save=False,
-                project=run_dir,
-                name="batch_infer",
-                exist_ok=True,
-                imgsz=int(imgsz),
-                verbose=True,
+                **opts.predict_kwargs(
+                    source=image_folder,
+                    project=run_dir,
+                    name="batch_infer",
+                )
             )
         except Exception as e:
             return False, str(e)
@@ -6898,6 +7073,7 @@ print("BATCH_PREDICT_OK:" + labels_dir + " (%d txt)" % n, flush=True)
 
         image_folder = dlg.get_image_folder()
         weights_file = dlg.get_weights_file()
+        predict_opts = dlg.get_predict_options()
         n_img = count_local_images(image_folder)
         self.append_training_log(
             f"Starting batch predict: model={weights_file}, "
@@ -6920,6 +7096,7 @@ print("BATCH_PREDICT_OK:" + labels_dir + " (%d txt)" % n, flush=True)
                     weights_file=weights_arg,
                     imgsz=imgsz_arg,
                     remote_python=self._remote_python_for_exec(),
+                    predict_options=predict_opts,
                 )
             return self._run_local_batch_predict(
                 run_dir_arg,
@@ -6927,6 +7104,7 @@ print("BATCH_PREDICT_OK:" + labels_dir + " (%d txt)" % n, flush=True)
                 weights_arg,
                 imgsz_arg,
                 python_executable=py_exe,
+                predict_options=predict_opts,
             )
 
         self._start_bg_task("batch_predict", _job)

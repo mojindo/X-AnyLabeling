@@ -312,7 +312,7 @@ class SecondaryButton(QPushButton):
 class TrainingConfirmDialog(QDialog):
     def __init__(self, cmd_parts, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Start Training")
+        self.setWindowTitle(self.tr("Start Training"))
         self.setFixedSize(752, 320)
         t = get_theme()
         self.setStyleSheet(f"""
@@ -330,13 +330,15 @@ class TrainingConfirmDialog(QDialog):
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
 
-        title_label = QLabel("Ready to Start Training")
+        title_label = QLabel(self.tr("Ready to Start Training"))
         title_label.setStyleSheet(
             f"font-size: 16px; font-weight: bold; color: {t['text']};"
         )
         layout.addWidget(title_label)
 
-        desc_label = QLabel("The following command will be executed:")
+        desc_label = QLabel(
+            self.tr("The following command will be executed:")
+        )
         desc_label.setStyleSheet(
             f"color: {t['text_secondary']}; font-size: 13px;"
         )
@@ -364,11 +366,11 @@ class TrainingConfirmDialog(QDialog):
         button_layout = QHBoxLayout()
         button_layout.addStretch()
 
-        self.cancel_btn = SecondaryButton("Cancel")
+        self.cancel_btn = SecondaryButton(self.tr("Cancel"))
         self.cancel_btn.clicked.connect(self.reject)
         button_layout.addWidget(self.cancel_btn)
 
-        self.start_btn = PrimaryButton("Start")
+        self.start_btn = PrimaryButton(self.tr("Start"))
         self.start_btn.clicked.connect(self.accept)
         button_layout.addWidget(self.start_btn)
 

@@ -13,6 +13,8 @@ from anylabeling.views.labeling.advanced.ops.dataset_filter import (
     SUSPECT_ATTR_MODEL_FALSE,
     SUSPECT_ATTR_NORMAL,
     SUSPECT_ATTR_SUSPECT_FN,
+    count_label_files,
+    delete_image_and_label,
     image_matches_filter,
     is_strict_empty_annotation,
 )
@@ -222,6 +224,29 @@ class TestDatasetFilter(unittest.TestCase):
                 output_dir=self.root,
             )
         )
+
+
+    def test_delete_removes_image_and_label_only(self):
+        other = os.path.join(self.root, "keep.jpg")
+        open(other, "wb").close()
+        self._write_json([])
+        label = os.path.join(self.root, "a.json")
+        self.assertEqual(count_label_files([self.image_path, other], output_dir=self.root), 1)
+
+        ok, _msg = delete_image_and_label(self.image_path, output_dir=self.root)
+        self.assertTrue(ok)
+        self.assertFalse(os.path.isfile(self.image_path))
+        self.assertFalse(os.path.isfile(label))
+        self.assertTrue(os.path.isfile(other))
+
+        ok, msg = delete_image_and_label(self.image_path, output_dir=self.root)
+        self.assertFalse(ok)
+        self.assertEqual(msg, "missing image")
+
+    def test_delete_image_without_label(self):
+        ok, _msg = delete_image_and_label(self.image_path, output_dir=self.root)
+        self.assertTrue(ok)
+        self.assertFalse(os.path.isfile(self.image_path))
 
 
 if __name__ == "__main__":

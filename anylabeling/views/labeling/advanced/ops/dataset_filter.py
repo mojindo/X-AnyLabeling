@@ -324,6 +324,47 @@ def transfer_image_and_label(
     return True, dst_img
 
 
+def delete_image_and_label(
+    image_path: str,
+    *,
+    output_dir: Optional[str] = None,
+) -> Tuple[bool, str]:
+    """Delete one image and its label JSON when that file exists.
+
+    The annotation is removed first. If that fails, the image is left in place.
+    """
+    if not image_path or not osp.isfile(image_path):
+        return False, "missing image"
+    label_path = get_label_file_path(image_path, output_dir)
+    has_label = bool(label_path and osp.isfile(label_path))
+    if has_label:
+        try:
+            os.remove(label_path)
+        except Exception as e:
+            return False, str(e)
+    try:
+        os.remove(image_path)
+    except Exception as e:
+        return False, str(e)
+    return True, image_path
+
+
+def count_label_files(
+    image_paths: Sequence[str],
+    *,
+    output_dir: Optional[str] = None,
+) -> int:
+    """How many of ``image_paths`` currently have a label JSON."""
+    count = 0
+    for path in image_paths or []:
+        if not path:
+            continue
+        label_path = get_label_file_path(str(path), output_dir)
+        if label_path and osp.isfile(label_path):
+            count += 1
+    return count
+
+
 def filter_matching_images(
     image_list: Sequence[str],
     *,

@@ -3518,6 +3518,70 @@ pip install "x-anylabeling-cvhub[advance]"</source>
         <translation type="unfinished" />
     </message>
     <message>
+        <source>Delete</source>
+        <translation>削除</translation>
+    </message>
+    <message>
+        <source>Delete the matched images and their annotation files. No output folder is used.</source>
+        <translation>一致した画像と注釈ファイルを削除します。出力フォルダは使いません。</translation>
+    </message>
+    <message>
+        <source>(none)</source>
+        <translation>（なし）</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>はい</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>いいえ</translation>
+    </message>
+    <message>
+        <source>Category labels: %s</source>
+        <translation>カテゴリラベル: %s</translation>
+    </message>
+    <message>
+        <source>Suspect attributes: %s</source>
+        <translation>疑い属性: %s</translation>
+    </message>
+    <message>
+        <source>Strict empty images: %s</source>
+        <translation>厳密な空画像: %s</translation>
+    </message>
+    <message>
+        <source>Matched positions: unknown.</source>
+        <translation>一致位置: 不明。</translation>
+    </message>
+    <message>
+        <source>Matched positions: %d-%d (continuous, %d selected).</source>
+        <translation>一致位置: %d-%d（連続、%d 件選択）。</translation>
+    </message>
+    <message>
+        <source>Matched positions: %d-%d (%d selected, not continuous).</source>
+        <translation>一致位置: %d-%d（%d 件選択、連続ではありません）。</translation>
+    </message>
+    <message>
+        <source>About to delete %d image(s) and %d annotation file(s).
+Opened set: %d image(s).
+%s
+Filter:
+%s
+
+This cannot be undone. Continue?</source>
+        <translation>画像 %d 件と注釈ファイル %d 件を削除します。
+開いている画像: %d 件。
+%s
+絞り込み:
+%s
+
+この操作は元に戻せません。続行しますか？</translation>
+    </message>
+    <message>
+        <source>Deleted</source>
+        <translation>削除済み</translation>
+    </message>
+    <message>
         <location filename="..\..\views\labeling\advanced\ops\dataset_filter_dialog.py" line="233" />
         <source>Close</source>
         <translation type="unfinished">閉じる</translation>

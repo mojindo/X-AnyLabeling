@@ -1,4 +1,4 @@
-"""Advanced dialog: filter dataset by labels / empty images, then copy or move."""
+"""Advanced dialog: filter dataset by labels / empty images, then copy, move, or delete."""
 
 from __future__ import annotations
 
@@ -32,6 +32,8 @@ from anylabeling.views.labeling.advanced.ops.dataset_filter import (
     SUSPECT_ATTR_NORMAL,
     SUSPECT_ATTR_SUSPECT_FN,
     SUSPECT_ATTR_SUSPECT_FP,
+    count_label_files,
+    delete_image_and_label,
     filter_matching_images,
     transfer_image_and_label,
 )
@@ -80,12 +82,18 @@ class _DatasetFilterWorker(QtCore.QThread):
                 if self._cancel:
                     break
                 self.progress.emit(i + 1, total, img_path)
-                success, _msg = transfer_image_and_label(
-                    img_path,
-                    target_dir=self._target_dir,
-                    mode=self._mode,
-                    output_dir=self._output_dir,
-                )
+                if self._mode == "delete":
+                    success, _msg = delete_image_and_label(
+                        img_path,
+                        output_dir=self._output_dir,
+                    )
+                else:
+                    success, _msg = transfer_image_and_label(
+                        img_path,
+                        target_dir=self._target_dir,
+                        mode=self._mode,
+                        output_dir=self._output_dir,
+                    )
                 if success:
                     ok_count += 1
                     transferred.append(img_path)
@@ -107,6 +115,7 @@ class DatasetFilterDialog(QDialog):
         self._parent = parent
         self._worker: Optional[_DatasetFilterWorker] = None
         self._progress: Optional[QtWidgets.QProgressDialog] = None
+        self._run_mode = "copy"
 
         self._build_ui()
         self.refresh_labels()
@@ -204,23 +213,35 @@ class DatasetFilterDialog(QDialog):
         )
         self.ed_out.setClearButtonEnabled(True)
         self.ed_out.setStyleSheet(get_lineedit_style())
-        btn_browse = QPushButton(self.tr("Browse…"))
-        btn_browse.setStyleSheet(get_cancel_btn_style())
-        btn_browse.clicked.connect(self._browse_out)
+        self.btn_browse = QPushButton(self.tr("Browse…"))
+        self.btn_browse.setStyleSheet(get_cancel_btn_style())
+        self.btn_browse.clicked.connect(self._browse_out)
         out_row.addWidget(self.ed_out, 1)
-        out_row.addWidget(btn_browse)
+        out_row.addWidget(self.btn_browse)
         root.addLayout(out_row)
 
         mode_row = QHBoxLayout()
         mode_row.addWidget(QLabel(self.tr("Mode:")))
         self.rb_copy = QRadioButton(self.tr("Copy"))
         self.rb_move = QRadioButton(self.tr("Move"))
+        self.rb_delete = QRadioButton(self.tr("Delete"))
+        self.rb_delete.setToolTip(
+            self.tr(
+                "Delete the matched images and their annotation files. "
+                "No output folder is used."
+            )
+        )
         self.rb_copy.setChecked(True)
         self._mode_group = QButtonGroup(self)
         self._mode_group.addButton(self.rb_copy)
         self._mode_group.addButton(self.rb_move)
+        self._mode_group.addButton(self.rb_delete)
+        self.rb_copy.toggled.connect(self._sync_output_enabled)
+        self.rb_move.toggled.connect(self._sync_output_enabled)
+        self.rb_delete.toggled.connect(self._sync_output_enabled)
         mode_row.addWidget(self.rb_copy)
         mode_row.addWidget(self.rb_move)
+        mode_row.addWidget(self.rb_delete)
         mode_row.addStretch(1)
         root.addLayout(mode_row)
 
@@ -324,6 +345,63 @@ class DatasetFilterDialog(QDialog):
             if not item.isHidden():
                 item.setCheckState(Qt.CheckState.Unchecked)
 
+    def _current_mode(self) -> str:
+        if self.rb_delete.isChecked():
+            return "delete"
+        if self.rb_move.isChecked():
+            return "move"
+        return "copy"
+
+    def _sync_output_enabled(self, _checked: bool = False) -> None:
+        enabled = self._current_mode() != "delete"
+        self.ed_out.setEnabled(enabled)
+        self.btn_browse.setEnabled(enabled)
+
+    def _filter_summary(
+        self,
+        labels: Sequence[str],
+        suspect_attrs: Sequence[str],
+        include_empty: bool,
+    ) -> str:
+        label_text = ", ".join(labels) if labels else self.tr("(none)")
+        attr_names = [
+            self._suspect_checks[key].text()
+            for key in suspect_attrs
+            if key in self._suspect_checks
+        ]
+        attr_text = ", ".join(attr_names) if attr_names else self.tr("(none)")
+        empty_text = self.tr("Yes") if include_empty else self.tr("No")
+        return "\n".join(
+            (
+                self.tr("Category labels: %s") % label_text,
+                self.tr("Suspect attributes: %s") % attr_text,
+                self.tr("Strict empty images: %s") % empty_text,
+            )
+        )
+
+    def _matched_span_text(self, images: Sequence[str], matched: Sequence[str]) -> str:
+        index_of = {
+            osp.normcase(osp.normpath(path)): i for i, path in enumerate(images)
+        }
+        positions = []
+        for path in matched:
+            key = osp.normcase(osp.normpath(path))
+            if key in index_of:
+                positions.append(index_of[key])
+        if not positions:
+            return self.tr("Matched positions: unknown.")
+        positions.sort()
+        first = positions[0] + 1
+        last = positions[-1] + 1
+        selected = len(positions)
+        if last - first + 1 == selected:
+            return self.tr(
+                "Matched positions: %d-%d (continuous, %d selected)."
+            ) % (first, last, selected)
+        return self.tr(
+            "Matched positions: %d-%d (%d selected, not continuous)."
+        ) % (first, last, selected)
+
     def _browse_out(self) -> None:
         path = QFileDialog.getExistingDirectory(
             self,
@@ -359,24 +437,26 @@ class DatasetFilterDialog(QDialog):
             )
             return
 
+        mode = self._current_mode()
         out_dir = (self.ed_out.text() or "").strip()
-        if not out_dir:
-            QMessageBox.warning(
-                self,
-                self.tr("Dataset Filter"),
-                self.tr("Please select an output folder."),
-            )
-            return
-        if not osp.isdir(out_dir):
-            try:
-                os.makedirs(out_dir, exist_ok=True)
-            except Exception as e:
+        if mode != "delete":
+            if not out_dir:
                 QMessageBox.warning(
                     self,
                     self.tr("Dataset Filter"),
-                    self.tr("Cannot create output folder: %s") % str(e),
+                    self.tr("Please select an output folder."),
                 )
                 return
+            if not osp.isdir(out_dir):
+                try:
+                    os.makedirs(out_dir, exist_ok=True)
+                except Exception as e:
+                    QMessageBox.warning(
+                        self,
+                        self.tr("Dataset Filter"),
+                        self.tr("Cannot create output folder: %s") % str(e),
+                    )
+                    return
 
         matched = filter_matching_images(
             images,
@@ -393,25 +473,47 @@ class DatasetFilterDialog(QDialog):
             )
             return
 
-        mode = "move" if self.rb_move.isChecked() else "copy"
-        if mode == "move":
+        if mode == "delete":
+            label_count = count_label_files(
+                matched, output_dir=self._output_dir()
+            )
+            confirm = self.tr(
+                "About to delete %d image(s) and %d annotation file(s).\n"
+                "Opened set: %d image(s).\n"
+                "%s\n"
+                "Filter:\n%s\n\n"
+                "This cannot be undone. Continue?"
+            ) % (
+                len(matched),
+                label_count,
+                len(images),
+                self._matched_span_text(images, matched),
+                self._filter_summary(labels, suspect_attrs, include_empty),
+            )
+            default_button = QMessageBox.StandardButton.No
+        elif mode == "move":
             confirm = self.tr(
                 "About to move %d image(s) (with annotation files when present) "
                 "to:\n%s\n\nContinue?"
             ) % (len(matched), out_dir)
+            default_button = QMessageBox.StandardButton.Yes
         else:
             confirm = self.tr(
                 "About to copy %d image(s) (with annotation files when present) "
                 "to:\n%s\n\nContinue?"
             ) % (len(matched), out_dir)
+            default_button = QMessageBox.StandardButton.Yes
         reply = QMessageBox.question(
             self,
             self.tr("Dataset Filter"),
             confirm,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            default_button,
         )
         if reply != QMessageBox.StandardButton.Yes:
             return
 
+        self._run_mode = mode
         self.btn_run.setEnabled(False)
         self.btn_close.setEnabled(False)
 
@@ -467,11 +569,10 @@ class DatasetFilterDialog(QDialog):
             self._progress = None
         self.btn_run.setEnabled(True)
         self.btn_close.setEnabled(True)
-        mode = "move" if self.rb_move.isChecked() else "copy"
-        worker = self._worker
+        mode = self._run_mode
         self._worker = None
 
-        if mode == "move" and transferred:
+        if mode in ("move", "delete") and transferred:
             self._remove_transferred_from_parent(transferred)
 
         if not ok:
@@ -482,7 +583,12 @@ class DatasetFilterDialog(QDialog):
             )
             return
 
-        verb = self.tr("Moved") if mode == "move" else self.tr("Copied")
+        if mode == "delete":
+            verb = self.tr("Deleted")
+        elif mode == "move":
+            verb = self.tr("Moved")
+        else:
+            verb = self.tr("Copied")
         msg = self.tr("%s %d image(s).") % (verb, int(ok_count))
         if fail_count:
             msg += " " + self.tr("Failed: %d.") % int(fail_count)

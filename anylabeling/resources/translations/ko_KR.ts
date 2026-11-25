@@ -3519,6 +3519,70 @@ pip install "x-anylabeling-cvhub[advance]"</source>
         <translation type="unfinished" />
     </message>
     <message>
+        <source>Delete</source>
+        <translation>삭제</translation>
+    </message>
+    <message>
+        <source>Delete the matched images and their annotation files. No output folder is used.</source>
+        <translation>일치한 이미지와 주석 파일을 삭제합니다. 출력 폴더는 사용하지 않습니다.</translation>
+    </message>
+    <message>
+        <source>(none)</source>
+        <translation>(없음)</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>예</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>아니오</translation>
+    </message>
+    <message>
+        <source>Category labels: %s</source>
+        <translation>범주 라벨: %s</translation>
+    </message>
+    <message>
+        <source>Suspect attributes: %s</source>
+        <translation>의심 속성: %s</translation>
+    </message>
+    <message>
+        <source>Strict empty images: %s</source>
+        <translation>엄격한 빈 이미지: %s</translation>
+    </message>
+    <message>
+        <source>Matched positions: unknown.</source>
+        <translation>일치 위치: 알 수 없음.</translation>
+    </message>
+    <message>
+        <source>Matched positions: %d-%d (continuous, %d selected).</source>
+        <translation>일치 위치: %d-%d (연속, %d장 선택).</translation>
+    </message>
+    <message>
+        <source>Matched positions: %d-%d (%d selected, not continuous).</source>
+        <translation>일치 위치: %d-%d (%d장 선택, 연속 아님).</translation>
+    </message>
+    <message>
+        <source>About to delete %d image(s) and %d annotation file(s).
+Opened set: %d image(s).
+%s
+Filter:
+%s
+
+This cannot be undone. Continue?</source>
+        <translation>이미지 %d장과 주석 파일 %d개를 삭제합니다.
+열린 이미지: %d장.
+%s
+필터:
+%s
+
+이 작업은 취소할 수 없습니다. 계속할까요?</translation>
+    </message>
+    <message>
+        <source>Deleted</source>
+        <translation>삭제함</translation>
+    </message>
+    <message>
         <location filename="..\..\views\labeling\advanced\ops\dataset_filter_dialog.py" line="233" />
         <source>Close</source>
         <translation type="unfinished">닫기</translation>

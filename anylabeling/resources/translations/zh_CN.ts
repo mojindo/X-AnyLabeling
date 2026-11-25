@@ -3537,6 +3537,70 @@ pip install "x-anylabeling-cvhub[advance]"</translation>
         <translation>移动</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>Delete the matched images and their annotation files. No output folder is used.</source>
+        <translation>删除匹配到的图片及其标注文件。不使用输出目录。</translation>
+    </message>
+    <message>
+        <source>(none)</source>
+        <translation>（无）</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>是</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>否</translation>
+    </message>
+    <message>
+        <source>Category labels: %s</source>
+        <translation>类别标签：%s</translation>
+    </message>
+    <message>
+        <source>Suspect attributes: %s</source>
+        <translation>疑是属性：%s</translation>
+    </message>
+    <message>
+        <source>Strict empty images: %s</source>
+        <translation>严格空图：%s</translation>
+    </message>
+    <message>
+        <source>Matched positions: unknown.</source>
+        <translation>匹配位置：未知。</translation>
+    </message>
+    <message>
+        <source>Matched positions: %d-%d (continuous, %d selected).</source>
+        <translation>匹配位置：%d-%d（连续，选中 %d 张）。</translation>
+    </message>
+    <message>
+        <source>Matched positions: %d-%d (%d selected, not continuous).</source>
+        <translation>匹配位置：%d-%d（选中 %d 张，不连续）。</translation>
+    </message>
+    <message>
+        <source>About to delete %d image(s) and %d annotation file(s).
+Opened set: %d image(s).
+%s
+Filter:
+%s
+
+This cannot be undone. Continue?</source>
+        <translation>即将删除 %d 张图片和 %d 个标注文件。
+已打开图片：%d 张。
+%s
+筛选条件：
+%s
+
+此操作无法撤销。继续？</translation>
+    </message>
+    <message>
+        <source>Deleted</source>
+        <translation>已删除</translation>
+    </message>
+    <message>
         <location filename="..\..\views\labeling\advanced\ops\dataset_filter_dialog.py" line="233" />
         <source>Close</source>
         <translation>关闭</translation>

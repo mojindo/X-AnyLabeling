@@ -24,7 +24,9 @@ from PyQt6.QtWidgets import (
 
 from anylabeling.views.labeling.classifier.utils import get_label_file_path
 from anylabeling.views.labeling.advanced.ops.label_jump import (
+    EMPTY_IMAGE_JUMP_KEY,
     collect_available_labels_with_counts,
+    count_strict_empty_images,
     find_image_with_labels,
     fuzzy_match_label,
 )
@@ -67,14 +69,17 @@ class LabelJumpDialog(QDialog):
         canvas = getattr(parent, "canvas", None)
         if canvas is None:
             return
-        labels = set(self.selected_labels())
+        labels = set(self.selected_labels()) - {EMPTY_IMAGE_JUMP_KEY}
         matching = [
             s
             for s in (getattr(canvas, "shapes", None) or [])
             if str(getattr(s, "label", "") or "").strip() in labels
         ]
-        parent._label_jump_highlight_active = True
-        canvas.select_shapes(matching)
+        parent._label_jump_highlight_active = bool(labels and matching)
+        if matching:
+            canvas.select_shapes(matching)
+        elif parent._label_jump_highlight_active:
+            canvas.deselect_shape()
 
     def _clear_jump_highlight(self) -> None:
         """Restore shapes by clearing canvas selection from label-jump highlight."""
@@ -98,8 +103,8 @@ class LabelJumpDialog(QDialog):
 
         tip = QLabel(
             self.tr(
-                "Select one or more labels. Next / Previous jumps to an image "
-                "that contains any of the selected labels."
+                "Select one or more labels or empty images. Next / Previous "
+                "jumps to an image that matches any selected item."
             )
         )
         tip.setWordWrap(True)
@@ -219,6 +224,28 @@ class LabelJumpDialog(QDialog):
         )
 
         self.list_widget.clear()
+        empty_count = count_strict_empty_images(image_list, output_dir=output_dir)
+        empty_item = QListWidgetItem(
+            self.tr("Empty image ({count})").format(count=empty_count)
+        )
+        empty_item.setFlags(
+            empty_item.flags()
+            | Qt.ItemFlag.ItemIsUserCheckable
+            | Qt.ItemFlag.ItemIsEnabled
+        )
+        empty_item.setCheckState(
+            Qt.CheckState.Checked
+            if EMPTY_IMAGE_JUMP_KEY in previous
+            else Qt.CheckState.Unchecked
+        )
+        empty_item.setData(Qt.ItemDataRole.UserRole, EMPTY_IMAGE_JUMP_KEY)
+        empty_item.setToolTip(
+            self.tr(
+                "No normal annotation labels. Suspect or model-eval marks are ignored."
+            )
+        )
+        self.list_widget.addItem(empty_item)
+
         for name, count in labels_with_counts:
             item = QListWidgetItem(f"{name} ({count})")
             item.setFlags(
@@ -260,7 +287,11 @@ class LabelJumpDialog(QDialog):
         total = self.list_widget.count()
         for row in range(total):
             item = self.list_widget.item(row)
-            name = str(item.data(Qt.ItemDataRole.UserRole) or item.text())
+            key = item.data(Qt.ItemDataRole.UserRole)
+            if key == EMPTY_IMAGE_JUMP_KEY:
+                name = self.tr("Empty image")
+            else:
+                name = str(key or item.text())
             matched = fuzzy_match_label(name, query)
             item.setHidden(not matched)
             if matched:
@@ -336,7 +367,7 @@ class LabelJumpDialog(QDialog):
             QMessageBox.warning(
                 self,
                 self.tr("Jump by Labels"),
-                self.tr("Please select at least one label."),
+                self.tr("Please select at least one label or empty images."),
             )
             return
 
@@ -361,11 +392,9 @@ class LabelJumpDialog(QDialog):
         )
         if not target:
             msg = (
-                self.tr("No later image contains the selected label(s).")
+                self.tr("No later image matches the selection.")
                 if direction >= 0
-                else self.tr(
-                    "No earlier image contains the selected label(s)."
-                )
+                else self.tr("No earlier image matches the selection.")
             )
             self.status_label.setText(msg)
             QMessageBox.information(self, self.tr("Jump by Labels"), msg)

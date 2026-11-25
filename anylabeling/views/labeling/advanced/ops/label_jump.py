@@ -6,7 +6,14 @@ import json
 import os
 from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
+from anylabeling.views.labeling.advanced.compare.annotation_compare import (
+    PENDING_REVIEW_STATUSES,
+    get_compare_status,
+)
 from anylabeling.views.labeling.classifier.utils import get_label_file_path
+
+# QListWidget UserRole value for the synthetic empty-image jump target.
+EMPTY_IMAGE_JUMP_KEY = "__empty_image__"
 
 
 def _load_label_json(label_path: str) -> Optional[dict]:
@@ -43,6 +50,67 @@ def collect_labels_from_json(label_path: str) -> Set[str]:
             if value and str(key).strip():
                 found.add(str(key).strip())
     return found
+
+
+def image_is_empty_for_jump(
+    image_path: str,
+    *,
+    output_dir: Optional[str] = None,
+) -> bool:
+    """True when the image has no normal annotation labels.
+
+    Suspect / model-eval marks are ignored; only non-review shapes count.
+    """
+    label_path = get_label_file_path(str(image_path), output_dir)
+    data = _load_label_json(label_path)
+    if not data:
+        return True
+    shapes = data.get("shapes")
+    if not isinstance(shapes, list) or not shapes:
+        return True
+    for shape in shapes:
+        if not isinstance(shape, dict):
+            continue
+        if get_compare_status(shape) in PENDING_REVIEW_STATUSES:
+            continue
+        if str(shape.get("label") or "").strip():
+            return False
+    return True
+
+
+def count_strict_empty_images(
+    image_list: Sequence[str],
+    *,
+    output_dir: Optional[str] = None,
+) -> int:
+    """How many images have no normal annotation labels (for empty-image jump)."""
+    n = 0
+    for image_path in image_list or []:
+        if not image_path:
+            continue
+        if image_is_empty_for_jump(str(image_path), output_dir=output_dir):
+            n += 1
+    return n
+
+
+def image_matches_jump_targets(
+    image_path: str,
+    labels: Iterable[str],
+    output_dir: Optional[str] = None,
+) -> bool:
+    """True if the image matches any selected jump target (labels and/or empty)."""
+    wanted = {str(x).strip() for x in labels if str(x).strip()}
+    if not wanted:
+        return False
+    want_empty = EMPTY_IMAGE_JUMP_KEY in wanted
+    label_names = wanted - {EMPTY_IMAGE_JUMP_KEY}
+    if want_empty and image_is_empty_for_jump(str(image_path), output_dir=output_dir):
+        return True
+    if label_names and image_has_any_label(
+        str(image_path), label_names, output_dir=output_dir
+    ):
+        return True
+    return False
 
 
 def image_has_any_label(
@@ -95,7 +163,7 @@ def find_image_with_labels(
         indices = range(cur_index - 1, -1, -1)
 
     for i in indices:
-        if image_has_any_label(paths[i], wanted, output_dir):
+        if image_matches_jump_targets(paths[i], wanted, output_dir):
             return paths[i]
     return None
 

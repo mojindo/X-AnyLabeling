@@ -6615,8 +6615,8 @@ Original images backed up to:
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\ops\label_jump_dialog.py" line="100" />
-        <source>Select one or more labels. Next / Previous jumps to an image that contains any of the selected labels.</source>
-        <translation>选择一个或多个标签。下一项/上一项会跳到包含任一已选标签的图片。</translation>
+        <source>Select one or more labels or empty images. Next / Previous jumps to an image that matches any selected item.</source>
+        <translation>选择一个或多个标签，或勾选空图。上一张/下一张会跳到符合任一选中项的图片。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\ops\label_jump_dialog.py" line="109" />
@@ -6687,6 +6687,30 @@ Original images backed up to:
         <location filename="..\..\views\labeling\advanced\ops\label_jump_dialog.py" line="196" />
         <source>Select at least one label.</source>
         <translation>请至少选择一个标签。</translation>
+    </message>
+    <message>
+        <source>Empty image ({count})</source>
+        <translation>空图（{count}）</translation>
+    </message>
+    <message>
+        <source>No normal annotation labels. Suspect or model-eval marks are ignored.</source>
+        <translation>无正常标注标签；疑是标记或模型评测标记不计入。</translation>
+    </message>
+    <message>
+        <source>Empty image</source>
+        <translation>空图</translation>
+    </message>
+    <message>
+        <source>Please select at least one label or empty images.</source>
+        <translation>请至少选择一个标签或空图。</translation>
+    </message>
+    <message>
+        <source>No later image matches the selection.</source>
+        <translation>后面没有符合当前选择的图片。</translation>
+    </message>
+    <message>
+        <source>No earlier image matches the selection.</source>
+        <translation>前面没有符合当前选择的图片。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\ops\label_jump_dialog.py" line="246" />

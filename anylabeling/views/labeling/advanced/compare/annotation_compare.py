@@ -822,7 +822,6 @@ def compare_shapes(
         check_fn=bool(settings.check_fn),
         review_mode=review_mode,
     )
-    merged = dedup_shapes_ios(merged, settings.dedup_ios_thresh)
     merged = gt_skip + merged
     stats = CompareStats(
         matched=n_matched,

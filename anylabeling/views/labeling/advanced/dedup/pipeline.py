@@ -44,8 +44,14 @@ def run_records(cfg: Config, recs: list[ImageRecord], progress=None) -> ScanResu
 
     labels = sorted({b.label for r in recs for b in r.boxes})
     filt = cfg.feature.box_label_filter
-    cfg.feature.box_classes = tuple(labels if not filt else [c for c in labels if c in filt])
-    log(f"labels: {list(cfg.feature.box_classes)}")
+    if cfg.strict.use_instance_gate and filt:
+        cfg.feature.box_classes = tuple(c for c in labels if c in filt)
+    else:
+        cfg.feature.box_classes = tuple(labels)
+    log(
+        f"labels: {list(cfg.feature.box_classes)} "
+        f"(instance_gate={cfg.strict.use_instance_gate})"
+    )
 
     t = time.time()
     feats: list[Features] = []
@@ -110,7 +116,8 @@ def run_records(cfg: Config, recs: list[ImageRecord], progress=None) -> ScanResu
         "L0_exact_groups": len(exact_groups),
         "L1_candidates": len(pairs_sorted),
         "G1_scene_match": len(g1_pass),
-        "G3_no_boxes": 0,
+        "G3_no_boxes_bypass": 0,
+        "G3_instance_presence_mismatch": 0,
     }
     g2 = cfg.strict.gate2
     g2_pass = []
@@ -132,14 +139,20 @@ def run_records(cfg: Config, recs: list[ImageRecord], progress=None) -> ScanResu
         return rgb_cache[i]
 
     g3_pass = []
-    for a, b in g2_pass:
-        judged: InstanceResult = judge_instance(
-            recs[a], recs[b], vcache[(a, b)], get_rgb(a), get_rgb(b), cfg
-        )
-        if judged.reason == "no_boxes":
-            gate_stats["G3_no_boxes"] += 1
-        if judged.passed:
-            g3_pass.append((a, b))
+    if cfg.strict.use_instance_gate:
+        for a, b in g2_pass:
+            judged: InstanceResult = judge_instance(
+                recs[a], recs[b], vcache[(a, b)], get_rgb(a), get_rgb(b), cfg
+            )
+            if judged.reason == "no_boxes_both_pass":
+                gate_stats["G3_no_boxes_bypass"] += 1
+            elif judged.reason == "instance_presence_mismatch":
+                gate_stats["G3_instance_presence_mismatch"] += 1
+            if judged.passed:
+                g3_pass.append((a, b))
+    else:
+        g3_pass = list(g2_pass)
+        gate_stats["G3_instance_skipped"] = len(g3_pass)
     gate_stats["G3_instance_same"] = len(g3_pass)
 
     g4_pass = []

@@ -155,13 +155,18 @@ def judge_instance(rec_a: ImageRecord, rec_b: ImageRecord, v: VerifyResult,
     ca, cb = _class_counts(ba), _class_counts(bb)
     res = InstanceResult(False, count_a=ca, count_b=cb)
 
-    # 1) 按类计数一致
+    if not ba and not bb:
+        # 两边都无参与实例判定的框：实例层不拦截，交给场景/画质门控。
+        return InstanceResult(True, reason="no_boxes_both_pass", count_a=ca, count_b=cb)
+
+    # 一边有框、一边没有：不做实例“直通”，与双有框一样走下面判定。
+    if not ba or not bb:
+        res.reason = "instance_presence_mismatch"
+        return res
+
+    # 按类计数一致
     if cfg_i.require_count_equal and ca != cb:
         res.reason = "count_mismatch"
-        return res
-    if not ba:
-        # 两边都无框：无法做实例层判定，保守判多样性（不删）
-        res.reason = "no_boxes"
         return res
 
     H = v.H

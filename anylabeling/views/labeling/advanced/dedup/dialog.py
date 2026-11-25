@@ -326,7 +326,8 @@ class DatasetDedupDialog(QDialog):
         labels_layout = QVBoxLayout(labels_box)
         labels_hint = QLabel(
             self.tr(
-                "Loaded from Label Manager. Checked labels take part in the instance check."
+                "Loaded from Label Manager. When none are checked, dedup uses scene "
+                "change and quality only. Checked labels take part in the instance check."
             )
         )
         labels_hint.setWordWrap(True)
@@ -450,9 +451,9 @@ class DatasetDedupDialog(QDialog):
             cb, spin = row
             metric.enabled = gate_on and cb.isChecked()
             metric.rel_tol = float(spin.value()) / 100.0
-        cfg.feature.box_label_filter = tuple(
-            name for name, box in self._label_checks if box.isChecked()
-        )
+        checked = [name for name, box in self._label_checks if box.isChecked()]
+        cfg.feature.box_label_filter = tuple(checked)
+        cfg.strict.use_instance_gate = bool(checked)
         return cfg
 
     def _reload_labels(self) -> None:
@@ -481,13 +482,6 @@ class DatasetDedupDialog(QDialog):
 
     def _start_scan(self) -> None:
         images = [str(p) for p in (getattr(self._host, "image_list", None) or []) if p]
-        if self._label_checks and not any(box.isChecked() for _name, box in self._label_checks):
-            QMessageBox.information(
-                self,
-                self.tr("Dataset Dedup"),
-                self.tr("Select at least one label."),
-            )
-            return
         if len(images) < 2:
             QMessageBox.information(
                 self,
@@ -532,7 +526,7 @@ class DatasetDedupDialog(QDialog):
                 "Images: {images}. Exact groups: {exact}. "
                 "Candidates: {candidates}. Scene matches: {scene}. "
                 "Small camera motion: {view}. Same instance: {instance}. "
-                "Pairs without boxes (kept): {nobox}. "
+                "Both without boxes (passed instance): {nobox}. "
                 "Groups to review: {groups}."
             ).format(
                 images=stats.get("images", 0),
@@ -541,7 +535,7 @@ class DatasetDedupDialog(QDialog):
                 scene=stats.get("G1_scene_match", 0),
                 view=stats.get("G2_small_view_change", 0),
                 instance=stats.get("G3_instance_same", 0),
-                nobox=stats.get("G3_no_boxes", 0),
+                nobox=stats.get("G3_no_boxes_bypass", 0),
                 groups=stats.get("groups", 0),
             )
         )

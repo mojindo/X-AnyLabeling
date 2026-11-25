@@ -3288,8 +3288,8 @@ pip install "x-anylabeling-cvhub[advance]"</source>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="328" />
-        <source>Loaded from Label Manager. Checked labels take part in the instance check.</source>
-        <translation type="unfinished" />
+        <source>Loaded from Label Manager. When none are checked, dedup uses scene change and quality only. Checked labels take part in the instance check.</source>
+        <translation>라벨 관리자에서 불러옵니다. 선택 없음이면 장면 변화와 화질만으로 중복을 판단합니다. 선택한 라벨은 인스턴스 검사에 사용됩니다.</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="344" />
@@ -3348,7 +3348,8 @@ pip install "x-anylabeling-cvhub[advance]"</source>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="531" />
-        <source>Images: {images}. Exact groups: {exact}. Candidates: {candidates}. Scene matches: {scene}. Small camera motion: {view}. Same instance: {instance}. Pairs without boxes (kept): {nobox}. Groups to review: {groups}.</source>
+        <source>Images: {images}. Exact groups: {exact}. Candidates: {candidates}. Scene matches: {scene}. Small camera motion: {view}. Same instance: {instance}. Both without boxes (passed instance): {nobox}. Groups to review: {groups}.</source>
+        <translation>이미지: {images}. 완전 일치 그룹: {exact}. 후보 쌍: {candidates}. 장면 일치: {scene}. 미세 카메라 이동: {view}. 동일 인스턴스: {instance}. 양쪽 모두 박스 없음(인스턴스 통과): {nobox}. 검토 그룹: {groups}.</translation>
         <translation type="unfinished" />
     </message>
     <message>

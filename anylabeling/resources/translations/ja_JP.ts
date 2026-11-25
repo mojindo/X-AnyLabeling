@@ -3287,8 +3287,8 @@ pip install "x-anylabeling-cvhub[advance]"</source>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="328" />
-        <source>Loaded from Label Manager. Checked labels take part in the instance check.</source>
-        <translation type="unfinished" />
+        <source>Loaded from Label Manager. When none are checked, dedup uses scene change and quality only. Checked labels take part in the instance check.</source>
+        <translation>ラベル管理から読み込みます。未選択時はシーン変化と画質のみで重複判定します。選択したラベルはインスタンス判定に使います。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="344" />
@@ -3347,8 +3347,8 @@ pip install "x-anylabeling-cvhub[advance]"</source>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="531" />
-        <source>Images: {images}. Exact groups: {exact}. Candidates: {candidates}. Scene matches: {scene}. Small camera motion: {view}. Same instance: {instance}. Pairs without boxes (kept): {nobox}. Groups to review: {groups}.</source>
-        <translation type="unfinished" />
+        <source>Images: {images}. Exact groups: {exact}. Candidates: {candidates}. Scene matches: {scene}. Small camera motion: {view}. Same instance: {instance}. Both without boxes (passed instance): {nobox}. Groups to review: {groups}.</source>
+        <translation>画像: {images}。完全一致グループ: {exact}。候補ペア: {candidates}。シーン一致: {scene}。カメラ微動: {view}。同一インスタンス: {instance}。双方無框でインスタンス通過: {nobox}。確認グループ: {groups}。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="561" />

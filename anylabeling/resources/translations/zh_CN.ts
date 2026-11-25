@@ -3305,8 +3305,8 @@ pip install "x-anylabeling-cvhub[advance]"</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="328" />
-        <source>Loaded from Label Manager. Checked labels take part in the instance check.</source>
-        <translation>标签来自标签管理器。勾选的类别参与实例判定，未勾选的类别不参与。</translation>
+        <source>Loaded from Label Manager. When none are checked, dedup uses scene change and quality only. Checked labels take part in the instance check.</source>
+        <translation>标签来自标签管理器。全部不勾选时仅按场景变化与画质去重；勾选的类别参与实例判定。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="344" />
@@ -3365,8 +3365,8 @@ pip install "x-anylabeling-cvhub[advance]"</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="531" />
-        <source>Images: {images}. Exact groups: {exact}. Candidates: {candidates}. Scene matches: {scene}. Small camera motion: {view}. Same instance: {instance}. Pairs without boxes (kept): {nobox}. Groups to review: {groups}.</source>
-        <translation>图片：{images}。精确重复组：{exact}。候选对：{candidates}。场景匹配：{scene}。相机运动很小：{view}。实例相同：{instance}。无标注框因而保留的对：{nobox}。待审核组：{groups}。</translation>
+        <source>Images: {images}. Exact groups: {exact}. Candidates: {candidates}. Scene matches: {scene}. Small camera motion: {view}. Same instance: {instance}. Both without boxes (passed instance): {nobox}. Groups to review: {groups}.</source>
+        <translation>图片：{images}。精确重复组：{exact}。候选对：{candidates}。场景匹配：{scene}。相机运动很小：{view}。实例相同：{instance}。双方无框而通过实例门控的对：{nobox}。待审核组：{groups}。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\dedup\dialog.py" line="561" />

@@ -17,7 +17,7 @@ class FeatureConfig:
     dhash_hamming_max: int = 6
     hash_require_both: bool = True
     box_grid: int = 3
-    # Empty means every label in the opened dataset participates.
+    # Checked labels in the dedup dialog. Used only when instance gate is on.
     box_label_filter: tuple[str, ...] = ()
     box_multilabel: bool = True
     box_max_per_image: int = 64
@@ -99,6 +99,8 @@ class StrictConfig:
     gate2: Gate2Config = field(default_factory=Gate2Config)
     instance: InstanceConfig = field(default_factory=InstanceConfig)
     require_quality: bool = True
+    # When False, pairs that pass scene motion go straight to the quality gate.
+    use_instance_gate: bool = True
 
 
 @dataclass

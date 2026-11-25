@@ -154,7 +154,15 @@ class PredictParamsWidget(QWidget):
         self.agnostic_cb.setToolTip(
             self.tr("When enabled, NMS ignores class ids.")
         )
-        grid.addWidget(self.agnostic_cb, 2, 0, 1, 2)
+        self.rect_cb = QCheckBox(self.tr("rect"))
+        self.rect_cb.setToolTip(
+            self.tr(
+                "Rectangular inference: pad each image to a rectangle "
+                "close to its aspect ratio instead of a square."
+            )
+        )
+        grid.addWidget(self.agnostic_cb, 2, 0)
+        grid.addWidget(self.rect_cb, 2, 1)
 
         if self._show_output:
             self.save_cb = QCheckBox(self.tr("save"))
@@ -213,39 +221,19 @@ class PredictParamsWidget(QWidget):
             self.apply_options(PredictOptions())
         QTimer.singleShot(0, self.relayout_parameters)
 
-    def _layout_width_hint(self) -> int:
-        side_margins = 56
-        win = self.window()
-        candidates = []
-        if win is not None:
-            candidates.append(win.width() - side_margins)
-        probe = self._params_group or self
-        candidates.append(probe.width())
-        parent = self.parentWidget()
-        while parent is not None:
-            candidates.append(parent.width() - side_margins)
-            parent = parent.parentWidget()
-        for w in candidates:
-            if w >= 200:
-                return w
-        return max(candidates) if candidates else 640
-
     def relayout_parameters(self) -> None:
+        """Keep the two parameter columns equal without forcing window-sized minima.
+
+        Minimum widths taken from the whole window made the grid taller than
+        its real space when maximized, so the fields collapsed into one line.
+        """
         grid = self._param_grid
         if grid is None:
             return
-        avail = self._layout_width_hint()
-        if avail < 200:
-            return
-        inner = max(0, avail - grid.contentsMargins().left() - grid.contentsMargins().right())
-        half = max(140, (inner - grid.horizontalSpacing()) // 2)
-        grid.setColumnMinimumWidth(0, half)
-        grid.setColumnMinimumWidth(1, half)
-        grid.invalidate()
-        root = self.layout()
-        if root is not None:
-            root.activate()
-        self.updateGeometry()
+        grid.setColumnMinimumWidth(0, 0)
+        grid.setColumnMinimumWidth(1, 0)
+        grid.setColumnStretch(0, 1)
+        grid.setColumnStretch(1, 1)
 
     def showEvent(self, event: QShowEvent) -> None:
         super().showEvent(event)
@@ -266,6 +254,7 @@ class PredictParamsWidget(QWidget):
         else:
             self.classes_edit.clear()
         self.agnostic_cb.setChecked(bool(opts.agnostic_nms))
+        self.rect_cb.setChecked(bool(opts.rect))
         if self._show_output:
             self.save_cb.setChecked(bool(opts.save))
             self.save_txt_cb.setChecked(bool(opts.save_txt))
@@ -293,6 +282,7 @@ class PredictParamsWidget(QWidget):
             max_det=self.max_det_spin.value(),
             classes=parse_classes_value(self.classes_edit.text()),
             agnostic_nms=self.agnostic_cb.isChecked(),
+            rect=self.rect_cb.isChecked(),
             save=save,
             save_txt=save_txt,
             save_conf=save_conf,

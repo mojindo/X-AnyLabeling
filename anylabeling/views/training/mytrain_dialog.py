@@ -77,6 +77,8 @@ from anylabeling.services.auto_training.mytrain.validators import (
 from anylabeling.services.auto_training.mytrain.free_infer import (
     create_free_infer_job_dir,
     delete_local_project,
+    describe_infer_project,
+    get_free_infer_root,
     list_local_free_infer_projects,
     list_local_train_projects,
     package_results,
@@ -166,10 +168,16 @@ class _BgTaskBridge(QObject):
 
 class MyTrainDialog(QDialog):
     def tr(self, source_text, /, disambiguation=None, n=-1):
-        """Reuse UltralyticsDialog translations for the forked training UI."""
-        return QCoreApplication.translate(
+        """Prefer this dialog's own translations, then the upstream dialog."""
+        own = QCoreApplication.translate(
+            "MyTrainDialog", source_text, disambiguation, n
+        )
+        if own != source_text:
+            return own
+        shared = QCoreApplication.translate(
             "UltralyticsDialog", source_text, disambiguation, n
         )
+        return shared if shared != source_text else own
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -227,8 +235,12 @@ class MyTrainDialog(QDialog):
         self._bg_bridge.finished.connect(
             self._on_bg_task_finished, Qt.ConnectionType.QueuedConnection
         )
+        self._bg_task_name = ""
         self._bg_bridge.log.connect(
             self.append_training_log, Qt.ConnectionType.QueuedConnection
+        )
+        self._bg_bridge.log.connect(
+            self._on_free_infer_log, Qt.ConnectionType.QueuedConnection
         )
         self._upload_bridge = _BgTaskBridge()
         self._upload_bridge.log.connect(
@@ -361,6 +373,15 @@ class MyTrainDialog(QDialog):
     def init_free_infer_tab(self):
         layout = QVBoxLayout(self.free_infer_tab)
         layout.setContentsMargins(0, 0, 0, 0)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+        scroll.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
         self.free_infer_panel = FreeInferPanel(self)
         self.free_infer_panel.request_scan_weights.connect(
             self.free_infer_scan_weights
@@ -370,10 +391,14 @@ class MyTrainDialog(QDialog):
             self.free_infer_download
         )
         self.free_infer_panel.request_cleanup.connect(self.free_infer_cleanup)
+        self.free_infer_panel.request_open_project.connect(
+            self.free_infer_open_project
+        )
         self.free_infer_panel.mode_changed.connect(
             self._on_free_infer_mode_changed
         )
-        layout.addWidget(self.free_infer_panel, 1)
+        scroll.setWidget(self.free_infer_panel)
+        layout.addWidget(scroll, 1)
         self._free_infer_mode = "local"
         self._refresh_free_infer_environment_detail()
 
@@ -618,8 +643,17 @@ class MyTrainDialog(QDialog):
                 local_labels = os.path.join(job_dir, "batch_infer", "labels")
                 os.makedirs(local_labels, exist_ok=True)
                 _progress("Downloading remote labels…")
+                downloaded = {"n": 0}
+
+                def _download_progress(remote_path: str) -> None:
+                    downloaded["n"] += 1
+                    base = os.path.basename(
+                        str(remote_path).replace("\\", "/")
+                    )
+                    _progress(f"Downloading label {downloaded['n']} {base}")
+
                 self.ssh_client.download_directory(
-                    payload, local_labels, progress=_progress
+                    payload, local_labels, progress=_download_progress
                 )
                 job = FreeInferJob(
                     job_id=job_id,
@@ -661,6 +695,7 @@ class MyTrainDialog(QDialog):
                 imgsz,
                 python_executable=py_exe,
                 predict_options=predict_opts,
+                progress=_progress,
             )
             if not ok_pred:
                 return False, payload
@@ -698,7 +733,11 @@ class MyTrainDialog(QDialog):
             }
 
         panel.set_busy(True)
+        panel.clear_infer_log()
         panel.set_status(self.tr("Preparing material and running inference…"))
+        panel.append_infer_log(
+            self.tr("Preparing material and running inference…")
+        )
         self.append_training_log(
             f"[Free Infer] start job={job_id} mode={mode} material={material}"
         )
@@ -821,6 +860,68 @@ class MyTrainDialog(QDialog):
                 self.tr("Cleanup"),
                 self.tr("Selected project(s) deleted."),
             )
+
+    def _free_infer_project_list(self):
+        """Local free-inference jobs, plus remote jobs when SSH is connected."""
+        infer_projects = list_local_free_infer_projects()
+        mode = self.free_infer_panel.current_env_mode()
+        if mode == "remote":
+            ok, _err = self._ensure_ssh_for_free_infer()
+            if ok:
+                try:
+                    home = self.ssh_client.home
+                    base = runs_remote_dir(
+                        "free_infer", home, self._remote_base_dir()
+                    )
+                    names = self.ssh_client.listdir(base)
+                    for name in sorted(names):
+                        if name in (".", "..") or name.startswith("."):
+                            continue
+                        path = f"{base.rstrip('/')}/{name}"
+                        infer_projects.append((f"remote:free_infer/{name}", path))
+                except Exception as e:
+                    logger.warning(f"Remote infer project list failed: {e}")
+        return infer_projects
+
+    def free_infer_open_project(self):
+        dialog = OpenInferProjectDialog(
+            self, infer_projects=self._free_infer_project_list()
+        )
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        selected = dialog.selected_project()
+        if not selected:
+            return
+        project_id, path = selected
+        local_path = path if os.path.isdir(path) else ""
+        if not local_path:
+            name = str(path).rstrip("/").replace("\\", "/").split("/")[-1]
+            candidate = os.path.join(get_free_infer_root(), name)
+            if os.path.isdir(candidate):
+                local_path = candidate
+        if not local_path:
+            QMessageBox.information(
+                self,
+                self.tr("Open Project"),
+                self.tr(
+                    "This inference project is only on the server:\n{path}\n\n"
+                    "Open it after the local result folder has been downloaded."
+                ).format(path=path),
+            )
+            return
+        info = describe_infer_project(local_path)
+        if not info.get("images"):
+            QMessageBox.warning(
+                self,
+                self.tr("Open Project"),
+                self.tr(
+                    "No result images were found in:\n{path}"
+                ).format(path=local_path),
+            )
+            return
+        InferResultViewer(
+            self, project_id=str(project_id), project_path=local_path
+        ).exec()
 
     def save_training_logs_to_file(self):
         """Save training logs to a local file with timestamp"""
@@ -5345,6 +5446,14 @@ class MyTrainDialog(QDialog):
                 self._remote_preview_paths = paths
                 self._show_training_image_paths(paths)
 
+    def _on_free_infer_log(self, text: str) -> None:
+        if getattr(self, "_bg_task_name", "") != "free_infer":
+            return
+        panel = getattr(self, "free_infer_panel", None)
+        if panel is None:
+            return
+        panel.append_infer_log(str(text or ""))
+
     def append_training_log(self, text):
         if not hasattr(self, "log_display"):
             return
@@ -6236,6 +6345,7 @@ class MyTrainDialog(QDialog):
             )
             return False
         self._bg_busy = True
+        self._bg_task_name = task_name
         self._set_post_train_job_buttons_enabled(False)
 
         def _run():
@@ -6253,6 +6363,7 @@ class MyTrainDialog(QDialog):
     def _on_bg_task_finished(self, task_name: str, ok: bool, payload) -> None:
         try:
             self._bg_busy = False
+            self._bg_task_name = ""
             self._set_post_train_job_buttons_enabled(True)
         except RuntimeError:
             return
@@ -6336,14 +6447,19 @@ class MyTrainDialog(QDialog):
                 QMessageBox.information(
                     self,
                     self.tr("Saved"),
-                    self.tr(f"Batch labels folder saved to:\n{payload}"),
+                    self.tr(
+                        "Batch labels folder saved to:\n{payload}"
+                    ).format(payload=payload),
                 )
             elif task_name == "free_infer":
                 if hasattr(self, "free_infer_panel"):
                     self.free_infer_panel.set_busy(False)
+                    self.free_infer_panel.mark_infer_finished(bool(ok))
                 if not ok:
                     self.append_training_log(f"[Free Infer] ERROR: {payload}")
                     if hasattr(self, "free_infer_panel"):
+                        self.free_infer_panel.append_infer_log(str(payload))
+                        self.free_infer_panel.mark_infer_finished(False)
                         self.free_infer_panel.set_status(str(payload))
                     QMessageBox.warning(
                         self,
@@ -6360,12 +6476,12 @@ class MyTrainDialog(QDialog):
                     self.free_infer_panel.set_last_result(
                         job_dir, source_dir, labels_dir
                     )
-                    self.free_infer_panel.set_status(
-                        self.tr(
-                            "Inference complete ({kind}). "
-                            "Use Download Images + Labels to export."
-                        ).format(kind=kind or "images")
-                    )
+                    done_text = self.tr(
+                        "Inference complete ({kind}). "
+                        "Use Download Images + Labels to export."
+                    ).format(kind=kind or "images")
+                    self.free_infer_panel.append_infer_log(done_text)
+                    self.free_infer_panel.set_status(done_text)
                 self.append_training_log(
                     f"[Free Infer] done labels={labels_dir} source={source_dir}"
                 )
@@ -6511,7 +6627,9 @@ class MyTrainDialog(QDialog):
             QMessageBox.warning(
                 self,
                 self.tr("Model Not Found"),
-                self.tr(f"Model weights not found at: {weights_path}"),
+                self.tr(
+                    "Model weights not found at: {weights_path}"
+                ).format(weights_path=weights_path),
             )
             return
 
@@ -6572,7 +6690,9 @@ class MyTrainDialog(QDialog):
             QMessageBox.information(
                 self,
                 self.tr("Saved"),
-                self.tr(f"Training folder saved to:\n{local_run}"),
+                self.tr(
+                    "Training folder saved to:\n{local_run}"
+                ).format(local_run=local_run),
             )
             return
 
@@ -6926,6 +7046,7 @@ print("PREDICT_OK:" + {labels_dir!r}, flush=True)
         *,
         python_executable: str = "",
         predict_options: Optional[PredictOptions] = None,
+        progress=None,
     ) -> tuple:
         """Predict all images in a folder → ``{run_dir}/batch_infer/labels``."""
         import tempfile
@@ -6945,7 +7066,7 @@ print("PREDICT_OK:" + {labels_dir!r}, flush=True)
 
         labels_dir = os.path.join(run_dir, "batch_infer", "labels")
         opts = predict_options or PredictOptions.for_labels_only(imgsz=int(imgsz))
-        predict_call = opts.render_predict_call(
+        predict_call = opts.render_predict_stream_loop(
             source_expr="image_folder",
             project_expr=repr(run_dir),
             name_expr="'batch_infer'",
@@ -6987,8 +7108,34 @@ print("BATCH_PREDICT_OK:" + labels_dir + " (%d txt)" % n, flush=True)
             try:
                 with open(script_path, "w", encoding="utf-8") as f:
                     f.write(script)
+                if progress:
+                    proc = subprocess.Popen(
+                        [py_exe, "-u", script_path],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT,
+                        text=True,
+                        encoding="utf-8",
+                        errors="replace",
+                        bufsize=1,
+                    )
+                    collected = []
+                    if proc.stdout is not None:
+                        for line in proc.stdout:
+                            line = line.strip()
+                            if not line:
+                                continue
+                            collected.append(line)
+                            progress(line)
+                    code = proc.wait()
+                    out = "\n".join(collected)
+                    if code != 0:
+                        return (
+                            False,
+                            out.strip() or f"batch predict exited {code}",
+                        )
+                    return True, labels_dir
                 proc = subprocess.run(
-                    [py_exe, script_path],
+                    [py_exe, "-u", script_path],
                     capture_output=True,
                     text=True,
                     encoding="utf-8",
@@ -7015,13 +7162,28 @@ print("BATCH_PREDICT_OK:" + labels_dir + " (%d txt)" % n, flush=True)
 
         try:
             model = YOLO(model_path)
-            model.predict(
-                **opts.predict_kwargs(
-                    source=image_folder,
-                    project=run_dir,
-                    name="batch_infer",
-                )
+            kwargs = opts.predict_kwargs(
+                source=image_folder,
+                project=run_dir,
+                name="batch_infer",
             )
+            if progress:
+                kwargs["stream"] = True
+                progress(f"PREDICT_TOTAL {n_img}")
+                done = 0
+                for result in model.predict(**kwargs):
+                    done += 1
+                    path = getattr(result, "path", "") or ""
+                    progress(
+                        "PREDICT %d/%d %s"
+                        % (
+                            done,
+                            n_img or done,
+                            os.path.basename(str(path)),
+                        )
+                    )
+            else:
+                model.predict(**kwargs)
         except Exception as e:
             return False, str(e)
         return True, labels_dir
@@ -7200,7 +7362,9 @@ print("BATCH_PREDICT_OK:" + labels_dir + " (%d txt)" % n, flush=True)
             QMessageBox.warning(
                 self,
                 self.tr("Download Failed"),
-                self.tr(f"Labels folder not found:\n{labels_arg}"),
+                self.tr(
+                    "Labels folder not found:\n{labels_arg}"
+                ).format(labels_arg=labels_arg),
             )
             return
 

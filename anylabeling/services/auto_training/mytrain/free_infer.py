@@ -356,6 +356,57 @@ def resolve_model_path(weight: WeightEntry, job_dir: str) -> Tuple[bool, str]:
     return True, weight.weight_path
 
 
+def describe_infer_project(project_path: str) -> Dict:
+    """Locate result images and YOLO labels for a free-inference job directory.
+
+    Prefer annotated images saved beside ``labels/``. Otherwise use the source
+    images so boxes can be drawn from the label files.
+    """
+    project_path = os.path.abspath(project_path or "")
+    images_dir = os.path.join(project_path, "source")
+    labels_dir = os.path.join(project_path, "batch_infer", "labels")
+    meta_path = os.path.join(project_path, "meta.json")
+    if os.path.isfile(meta_path):
+        try:
+            with open(meta_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                if data.get("source_dir"):
+                    images_dir = str(data["source_dir"])
+                if data.get("labels_dir"):
+                    labels_dir = str(data["labels_dir"])
+        except (OSError, json.JSONDecodeError):
+            pass
+
+    def _images_in(folder: str) -> List[str]:
+        if not folder or not os.path.isdir(folder):
+            return []
+        names = []
+        for name in sorted(os.listdir(folder)):
+            path = os.path.join(folder, name)
+            if not os.path.isfile(path):
+                continue
+            if os.path.splitext(name)[1].lower() in IMAGE_EXTS:
+                names.append(path)
+        return names
+
+    annotated_dir = os.path.dirname(labels_dir) if labels_dir else ""
+    annotated = _images_in(annotated_dir)
+    if annotated:
+        return {
+            "images": annotated,
+            "labels_dir": labels_dir,
+            "annotated": True,
+            "images_dir": annotated_dir,
+        }
+    return {
+        "images": _images_in(images_dir),
+        "labels_dir": labels_dir,
+        "annotated": False,
+        "images_dir": images_dir,
+    }
+
+
 def delete_local_project(path: str) -> Tuple[bool, str]:
     path = os.path.abspath(path or "")
     if not path or not os.path.isdir(path):

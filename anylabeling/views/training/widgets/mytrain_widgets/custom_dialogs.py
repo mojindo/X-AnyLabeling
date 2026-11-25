@@ -183,7 +183,9 @@ class ExportFormatDialog(QDialog):
             self._subdir,
             self.version_edit.text(),
         )
-        self.preview_label.setText(self.tr(f"Preview: {name}"))
+        self.preview_label.setText(
+            self.tr("Preview: {name}").format(name=name)
+        )
 
     def get_selected_format(self):
         return self.format_combo.currentData() or "onnx"

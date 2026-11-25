@@ -931,75 +931,75 @@ Example: person.car.bicycle</source>
 </context><context>
     <name>BatchInferDialog</name>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="426" />
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="320" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="428" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="322" />
         <source>Batch Infer</source>
-        <translation type="unfinished" />
+        <translation>批量推理</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="335" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="337" />
         <source>Select a local folder of images. YOLO will write one txt label per image (same stem) under the results folder. Annotated images are not saved.</source>
-        <translation type="unfinished" />
+        <translation>选择一个本地图片文件夹。YOLO 会在结果目录下为每张图片写一个同名 txt 标签。不保存带框图。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="341" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="343" />
         <source> Remote: folder is uploaded first, then inferred.</source>
-        <translation type="unfinished" />
+        <translation> 远程：先上传文件夹，再进行推理。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="359" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="361" />
         <source>Weights:</source>
-        <translation type="unfinished" />
+        <translation>权重：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="364" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="366" />
         <source>Local image folder…</source>
-        <translation type="unfinished" />
+        <translation>本地图片文件夹…</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="367" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="369" />
         <source>Browse</source>
         <translation>浏览</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="371" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="373" />
         <source>Image folder:</source>
         <translation>图片文件夹：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="378" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="380" />
         <source>Labels output:</source>
-        <translation type="unfinished" />
+        <translation>标签输出：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="381" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="383" />
         <source>Image size:</source>
-        <translation type="unfinished" />
+        <translation>图像尺寸：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="390" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="392" />
         <source>After finish, use "Download Batch Results" to save the labels folder.</source>
         <translation>完成后使用「下载批量结果」保存 labels 文件夹。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="400" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="402" />
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="403" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="405" />
         <source>Start Batch Infer</source>
-        <translation type="unfinished" />
+        <translation>开始批量推理</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="412" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="414" />
         <source>Select image folder</source>
-        <translation type="unfinished" />
+        <translation>选择图片文件夹</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="427" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="429" />
         <source>Please select a valid local image folder.</source>
-        <translation type="unfinished" />
+        <translation>请选择有效的本地图片文件夹。</translation>
     </message>
 </context><context>
     <name>BatchProcessDialog</name>
@@ -2260,61 +2260,63 @@ Example: person.car.bicycle</source>
 </context><context>
     <name>CleanupProjectsDialog</name>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="363" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="459" />
         <source>Cleanup Projects</source>
-        <translation type="unfinished" />
+        <translation>清理项目</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="372" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="468" />
         <source>Select projects to delete. Training and free-inference projects are listed separately. Nothing is deleted until you confirm.</source>
-        <translation type="unfinished" />
+        <translation>选择要删除的项目。训练项目和自由推理项目分开列出。确认之前不会删除任何内容。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="381" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="477" />
         <source>Training projects</source>
-        <translation type="unfinished" />
+        <translation>训练项目</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="382" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="478" />
         <source>Free inference projects</source>
-        <translation type="unfinished" />
+        <translation>自由推理项目</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="385" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="481" />
         <source>Scope:</source>
-        <translation type="unfinished" />
+        <translation>范围：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="401" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="497" />
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="403" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="499" />
         <source>Delete Selected</source>
-        <translation type="unfinished" />
+        <translation>删除所选</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="423" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="519" />
         <source>Cleanup</source>
-        <translation type="unfinished" />
+        <translation>清理</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="424" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="520" />
         <source>Please select at least one project.</source>
-        <translation type="unfinished" />
+        <translation>请至少选择一个项目。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="433" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="529" />
         <source>Confirm delete</source>
-        <translation type="unfinished" />
+        <translation>确认删除</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="434" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="530" />
         <source>Permanently delete the following project(s)?
 
 {names}</source>
-        <translation type="unfinished" />
+        <translation>永久删除以下项目？
+
+{names}</translation>
     </message>
 </context><context>
     <name>ComponentDialog</name>
@@ -4696,37 +4698,37 @@ Original images backed up to:
     <message>
         <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="68" />
         <source>Convert weights to ONNX and save under the run's weights/ folder.</source>
-        <translation type="unfinished" />
+        <translation>将权重转为 ONNX，并保存到本次训练的 weights/ 目录。</translation>
     </message>
     <message>
         <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="84" />
         <source>Weights:</source>
-        <translation type="unfinished" />
+        <translation>权重：</translation>
     </message>
     <message>
         <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="110" />
         <source>Format:</source>
-        <translation type="unfinished" />
+        <translation>格式：</translation>
     </message>
     <message>
         <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="119" />
         <source>Project name:</source>
-        <translation type="unfinished" />
+        <translation>项目名称：</translation>
     </message>
     <message>
         <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="125" />
         <source>Sub-dataset version:</source>
-        <translation type="unfinished" />
+        <translation>子数据集版本：</translation>
     </message>
     <message>
         <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="131" />
         <source>Model version:</source>
-        <translation type="unfinished" />
+        <translation>模型版本：</translation>
     </message>
     <message>
         <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="147" />
         <source>ONNX will be written to: &lt;run&gt;/weights/&lt;name&gt;.onnx</source>
-        <translation type="unfinished" />
+        <translation>ONNX 将写入：&lt;run&gt;/weights/&lt;name&gt;.onnx</translation>
     </message>
     <message>
         <location filename="..\..\views\training\widgets\ultralytics_widgets\custom_dialogs.py" line="105" />
@@ -4744,7 +4746,12 @@ Original images backed up to:
     <message>
         <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="175" />
         <source>Preview: default export name for selected format</source>
-        <translation type="unfinished" />
+        <translation>预览：当前格式的默认导出文件名</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="187" />
+        <source>Preview: {name}</source>
+        <translation>预览：{name}</translation>
     </message>
     <message>
         <location filename="..\..\views\training\widgets\ultralytics_widgets\custom_dialogs.py" line="36" />
@@ -4948,159 +4955,195 @@ Original images backed up to:
 </context><context>
     <name>FreeInferPanel</name>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="75" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="88" />
         <source>Free Inference is independent of Data / Config / Train. Pick an environment, weight, and material (image / folder / video), then run batch-style YOLO predict and download images + labels.</source>
-        <translation type="unfinished" />
+        <translation>自由推理独立于数据 / 配置 / 训练。选择环境、权重和素材（单张图片 / 文件夹 / 视频），然后运行 YOLO 批量推理并下载图片和标签。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="86" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="99" />
         <source>Environment</source>
-        <translation type="unfinished" />
+        <translation>环境</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="90" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="103" />
         <source>Local</source>
-        <translation type="unfinished" />
+        <translation>本地</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="91" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="104" />
         <source>Interpreter</source>
-        <translation type="unfinished" />
+        <translation>解释器</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="92" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="105" />
         <source>Remote</source>
-        <translation type="unfinished" />
+        <translation>远程</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="94" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="107" />
         <source>Mode:</source>
         <translation>模式：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="98" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="111" />
         <source>Same Local / Interpreter / Remote as Training Mode on the Data tab.</source>
-        <translation>与 Data 页训练模式共用 Local / 解释器 / 远程设置。</translation>
+        <translation>与数据页的训练模式共用本地 / 解释器 / 远程设置。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="117" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="130" />
         <source>Weights</source>
-        <translation type="unfinished" />
+        <translation>权重</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="123" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="136" />
         <source>Scan Projects</source>
-        <translation type="unfinished" />
+        <translation>扫描项目</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="126" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="139" />
         <source>Upload Local Weight</source>
-        <translation type="unfinished" />
+        <translation>上传本地权重</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="129" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="142" />
         <source>Weight:</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="135" />
-        <source>Image size:</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="144" />
-        <source>Inference Material</source>
-        <translation type="unfinished" />
+        <translation>权重：</translation>
     </message>
     <message>
         <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="148" />
+        <source>Image size:</source>
+        <translation>图像尺寸：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="151" />
+        <source>Inference Material</source>
+        <translation>推理素材</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="155" />
         <source>Single image</source>
-        <translation type="unfinished" />
+        <translation>单张图片</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="149" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="156" />
         <source>Image folder</source>
-        <translation type="unfinished" />
+        <translation>图片文件夹</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="150" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="157" />
         <source>Video</source>
-        <translation type="unfinished" />
+        <translation>视频</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="164" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="171" />
         <source>Select image / folder / video…</source>
-        <translation type="unfinished" />
+        <translation>选择图片 / 文件夹 / 视频…</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="166" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="173" />
         <source>Browse</source>
         <translation>浏览</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="173" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="180" />
         <source>Video frame interval:</source>
-        <translation type="unfinished" />
+        <translation>视频抽帧间隔：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="178" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="185" />
         <source>Keep 1 frame every N frames when extracting video.</source>
-        <translation type="unfinished" />
+        <translation>从视频抽帧时，每 N 帧保留 1 帧。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="187" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="212" />
         <source>Start Inference</source>
-        <translation type="unfinished" />
+        <translation>开始推理</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="190" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="215" />
         <source>Download Images + Labels</source>
-        <translation type="unfinished" />
+        <translation>下载图片和标签</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="194" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="219" />
         <source>Cleanup Projects…</source>
-        <translation type="unfinished" />
+        <translation>清理项目…</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="202" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="221" />
+        <source>Open Project…</source>
+        <translation>打开项目…</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="230" />
         <source>Ready.</source>
-        <translation type="unfinished" />
+        <translation>就绪。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="238" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="235" />
+        <source>Inference log</source>
+        <translation>推理日志</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="276" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="240" />
+        <source>Idle</source>
+        <translation>空闲</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="295" />
+        <source>Done</source>
+        <translation>完成</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="295" />
+        <source>Failed</source>
+        <translation>失败</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="329" />
         <source>[Upload] </source>
-        <translation type="unfinished" />
+        <translation>[上传] </translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="304" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="396" />
         <source>Select weight file</source>
-        <translation type="unfinished" />
+        <translation>选择权重文件</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="306" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="398" />
         <source>Weights (*.pt *.onnx);;All files (*)</source>
-        <translation type="unfinished" />
+        <translation>权重 (*.pt *.onnx);;所有文件 (*)</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="328" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="414" />
+        <source>Uploaded weight selected: {path}</source>
+        <translation>已选择上传的权重：{path}</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="422" />
         <source>Select image</source>
-        <translation type="unfinished" />
+        <translation>选择图片</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="330" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="424" />
         <source>Images (*.jpg *.jpeg *.png *.bmp *.webp *.tif *.tiff);;All files (*)</source>
-        <translation type="unfinished" />
+        <translation>图片 (*.jpg *.jpeg *.png *.bmp *.webp *.tif *.tiff);;所有文件 (*)</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="339" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="433" />
         <source>Select video</source>
-        <translation type="unfinished" />
+        <translation>选择视频</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="345" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="435" />
+        <source>Videos ({filters});;All files (*)</source>
+        <translation>视频 ({filters});;所有文件 (*)</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="441" />
         <source>Select image folder</source>
-        <translation type="unfinished" />
+        <translation>选择图片文件夹</translation>
     </message>
 </context><context>
     <name>GroupIDFilterComboBox</name>
@@ -6217,6 +6260,48 @@ Original images backed up to:
         <location filename="..\..\views\labeling\widgets\image_tags_widget.py" line="836" />
         <source>Delete %d selected tags?</source>
         <translation>删除选中的 %d 个标签？</translation>
+    </message>
+</context><context>
+    <name>InferResultViewer</name>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="636" />
+        <source>Inference results — {name}</source>
+        <translation>推理结果 — {name}</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="664" />
+        <source>Previous</source>
+        <translation>上一张</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="665" />
+        <source>Next</source>
+        <translation>下一张</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="668" />
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="694" />
+        <source>Cannot display this image.</source>
+        <translation>无法显示这张图片。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="712" />
+        <source>annotated images</source>
+        <translation>已标注图片</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="714" />
+        <source>source images with label boxes</source>
+        <translation>原图叠加标签框</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="717" />
+        <source>{current}/{total} · {name} · {mode}</source>
+        <translation>{current}/{total} · {name} · {mode}</translation>
     </message>
 </context><context>
     <name>LabelDedupDialog</name>
@@ -8658,14 +8743,17 @@ Reset the label as {}.</source>
         <location filename="..\..\views\labeling\label_widget.py" line="4847" />
         <source>Locked labels will keep their annotations:
 {labels}</source>
-        <translation type="unfinished" />
+        <translation>锁定的标签会保留标注：
+{labels}</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\label_widget.py" line="4855" />
         <source>Keep {keep_count} label(s) and remove all annotations for {remove_count} other label(s) across the entire dataset?
 
 This cannot be undone.{extra}</source>
-        <translation type="unfinished" />
+        <translation>保留 {keep_count} 个标签，并删除整个数据集中其余 {remove_count} 个标签的全部标注？
+
+此操作无法撤销。{extra}</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\label_widget.py" line="4889" />
@@ -8677,7 +8765,9 @@ This cannot be undone.{extra}</source>
         <source>Delete label '{label}' and remove all matching annotations from the entire dataset?
 
 This cannot be undone.</source>
-        <translation type="unfinished" />
+        <translation>删除标签「{label}」，并移除整个数据集中所有对应标注？
+
+此操作无法撤销。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\label_widget.py" line="4936" />
@@ -8695,14 +8785,17 @@ This cannot be undone.</source>
         <location filename="..\..\views\labeling\label_widget.py" line="4923" />
         <source>Merge '{label}' into which existing label?
 All matching annotations in the dataset will be updated.</source>
-        <translation type="unfinished" />
+        <translation>把「{label}」合并到哪个已有标签？
+数据集中所有对应标注都会更新。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\label_widget.py" line="4938" />
         <source>Merge label '{source}' into '{target}' across the entire dataset?
 
 The source label will be removed from the Labels panel.</source>
-        <translation type="unfinished" />
+        <translation>把整个数据集中的标签「{source}」合并到「{target}」？
+
+源标签会从标签面板中移除。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\label_widget.py" line="4981" />
@@ -8715,7 +8808,8 @@ The source label will be removed from the Labels panel.</source>
         <location filename="..\..\views\labeling\label_widget.py" line="4957" />
         <source>Enter a new name for '{label}'.
 All matching annotations in the dataset will be updated.</source>
-        <translation type="unfinished" />
+        <translation>为「{label}」输入新名称。
+数据集中所有对应标注都会更新。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\label_widget.py" line="4971" />
@@ -8727,7 +8821,9 @@ All matching annotations in the dataset will be updated.</source>
         <source>Label '{target}' already exists.
 
 Merge '{source}' into '{target}' instead?</source>
-        <translation type="unfinished" />
+        <translation>标签「{target}」已存在。
+
+改为把「{source}」合并到「{target}」？</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\label_widget.py" line="5030" />
@@ -9016,7 +9112,7 @@ This warning will only be shown once. Do you want to continue?</source>
     <message>
         <location filename="..\..\views\labeling\advanced\bootstrap.py" line="125" />
         <source>Failed to open dialog: %s</source>
-        <translation type="unfinished" />
+        <translation>无法打开对话框：%s</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\bootstrap.py" line="199" />
@@ -9027,7 +9123,7 @@ This warning will only be shown once. Do you want to continue?</source>
     <message>
         <location filename="..\..\views\labeling\advanced\bootstrap.py" line="145" />
         <source>Failed to open: %s</source>
-        <translation type="unfinished" />
+        <translation>无法打开：%s</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\bootstrap.py" line="153" />
@@ -9047,7 +9143,7 @@ This warning will only be shown once. Do you want to continue?</source>
     <message>
         <location filename="..\..\views\labeling\advanced\bootstrap.py" line="184" />
         <source>Please load an image folder before proceeding!</source>
-        <translation type="unfinished" />
+        <translation>请先加载图片文件夹。</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\bootstrap.py" line="198" />
@@ -9579,7 +9675,7 @@ Results have been saved to:
     <message>
         <location filename="..\..\services\auto_labeling\model.py" line="333" />
         <source>Checking local model: {filename}...</source>
-        <translation type="unfinished" />
+        <translation>正在检查本地模型：{filename}...</translation>
     </message>
     <message>
         <location filename="..\..\services\auto_labeling\model.py" line="367" />
@@ -10089,1359 +10185,1452 @@ Failed: %d</source>
 </context><context>
     <name>MyTrainDialog</name>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="298" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="305" />
         <source>Workspace:</source>
-        <translation type="unfinished" />
+        <translation>工作区：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="311" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="300" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="318" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="307" />
         <source>Train</source>
         <translation>训练</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="536" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="529" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="312" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="301" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="564" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="557" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="319" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="308" />
         <source>Free Inference</source>
         <translation>自由推理</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="309" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="316" />
         <source>Data</source>
         <translation>数据</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="310" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="317" />
         <source>Config</source>
         <translation>配置</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="390" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="418" />
         <source>Local Python:
 {exe}</source>
-        <translation type="unfinished" />
+        <translation>本地 Python：
+{exe}</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="396" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="424" />
         <source>(no interpreter selected)</source>
         <translation>（未选择解释器）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="399" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="427" />
         <source>(python path not set)</source>
         <translation>（未设置 Python 路径）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="403" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="431" />
         <source>
 Last test: OK</source>
-        <translation type="unfinished" />
+        <translation>
+上次测试：通过</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="405" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="433" />
         <source>
 Last test: failed — re-test on Data tab</source>
-        <translation type="unfinished" />
+        <translation>
+上次测试：失败 — 请在数据页重新测试</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="406" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="434" />
         <source>Interpreter profile: {name}
 Python: {py}{extra}</source>
-        <translation type="unfinished" />
+        <translation>解释器配置：{name}
+Python：{py}{extra}</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="413" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="441" />
         <source>Remote: no SSH profile — configure on Data tab.</source>
-        <translation>远程：未配置 SSH — 请在 Data 页设置。</translation>
+        <translation>远程：未配置 SSH — 请在 数据页设置。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="424" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="452" />
         <source>SSH profile: {label}</source>
         <translation>SSH 配置：{label}</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="425" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="453" />
         <source>Endpoint: {user}@{host}:{port}</source>
         <translation>连接：{user}@{host}:{port}</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="432" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="460" />
         <source>Remote base: {path}</source>
         <translation>远程根目录：{path}</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="447" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="475" />
         <source>Runtime: Conda env "{env}"</source>
         <translation>运行环境：Conda "{env}"</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="448" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="476" />
         <source>(not selected)</source>
         <translation>（未选择）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="452" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="480" />
         <source>Remote Python: {py}</source>
         <translation>远程 Python：{py}</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="455" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="483" />
         <source>Runtime: SSH shell (python on remote PATH)</source>
         <translation>运行环境：SSH Shell（远程 PATH 上的 python）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="458" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="486" />
         <source>Connection: connected</source>
         <translation>连接状态：已连接</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="461" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="489" />
         <source>Connection: not connected — Test Connection on Data tab</source>
-        <translation>连接状态：未连接 — 请在 Data 页测试连接</translation>
+        <translation>连接状态：未连接 — 请在 数据页测试连接</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="467" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="495" />
         <source>Scanning weights…</source>
-        <translation type="unfinished" />
+        <translation>正在扫描权重…</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3833" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="472" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3987" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="500" />
         <source>Remote</source>
-        <translation type="unfinished" />
+        <translation>远程</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="483" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="511" />
         <source>Found {n} weight file(s).</source>
-        <translation type="unfinished" />
+        <translation>找到 {n} 个权重文件。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="487" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="515" />
         <source>Scan Failed</source>
-        <translation type="unfinished" />
+        <translation>扫描失败</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="530" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="558" />
         <source>Please scan or upload a weight file first.</source>
-        <translation type="unfinished" />
+        <translation>请先扫描或上传权重文件。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="537" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="565" />
         <source>Please select inference material.</source>
-        <translation type="unfinished" />
+        <translation>请选择推理素材。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="682" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="723" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="721" />
         <source>Preparing material and running inference…</source>
-        <translation type="unfinished" />
+        <translation>正在准备素材并运行推理…</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="696" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="738" />
         <source>Download</source>
         <translation>下载</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="697" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="739" />
         <source>No inference results available yet.</source>
-        <translation type="unfinished" />
+        <translation>还没有可下载的推理结果。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="701" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="743" />
         <source>Select download folder</source>
-        <translation type="unfinished" />
+        <translation>选择下载文件夹</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="714" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="756" />
         <source>Packaging images and labels…</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="802" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="796" />
-        <source>Cleanup</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="797" />
-        <source>Some deletions failed:
-</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="803" />
-        <source>Selected project(s) deleted.</source>
-        <translation type="unfinished" />
+        <translation>正在打包图片和标签…</translation>
     </message>
     <message>
         <location filename="..\..\views\training\mytrain_dialog.py" line="844" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="838" />
+        <source>Cleanup</source>
+        <translation>清理</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="839" />
+        <source>Some deletions failed:
+</source>
+        <translation>部分删除失败：
+</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="845" />
+        <source>Selected project(s) deleted.</source>
+        <translation>所选项目已删除。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="900" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="889" />
+        <source>Open Project</source>
+        <translation>打开项目</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="890" />
+        <source>This inference project is only on the server:
+{path}
+
+Open it after the local result folder has been downloaded.</source>
+        <translation>该推理项目只在服务器上：
+{path}
+
+请在本机结果目录下载完成后再打开。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="901" />
+        <source>No result images were found in:
+{path}</source>
+        <translation>这里没有找到结果图片：
+{path}</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="948" />
         <source>Training window hidden; training continues in the background. Re-open via Train menu to show this window.</source>
-        <translation type="unfinished" />
+        <translation>训练窗口已隐藏，训练在后台继续。可通过训练菜单重新打开此窗口。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="884" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="988" />
         <source>Export Running</source>
-        <translation type="unfinished" />
+        <translation>正在导出</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="885" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="989" />
         <source>An export task is still running. Stop it and exit?</source>
-        <translation type="unfinished" />
+        <translation>仍有导出任务在运行。停止并退出？</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="971" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1075" />
         <source>Task Type:</source>
         <translation>任务类型：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="985" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1089" />
         <source>Training Mode</source>
-        <translation type="unfinished" />
+        <translation>训练模式</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="989" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1093" />
         <source>Mode:</source>
         <translation>模式：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1004" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1108" />
         <source>Selected interpreter:</source>
-        <translation type="unfinished" />
+        <translation>已选解释器：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1160" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1011" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1264" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1115" />
         <source>Test Environment</source>
-        <translation type="unfinished" />
+        <translation>测试环境</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1017" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1121" />
         <source>Pick a Conda/venv python.exe for local training.</source>
-        <translation type="unfinished" />
+        <translation>选择用于本地训练的 Conda/venv python.exe。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1022" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1126" />
         <source>Interpreter list:</source>
-        <translation type="unfinished" />
+        <translation>解释器列表：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1740" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1844" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1391" />
         <location filename="..\..\views\training\mytrain_dialog.py" line="1287" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1183" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1026" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1130" />
         <source>Name</source>
         <translation>名称</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1027" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1131" />
         <source>Python path</source>
-        <translation type="unfinished" />
+        <translation>Python 路径</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1047" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1151" />
         <source>Add Interpreter</source>
-        <translation type="unfinished" />
+        <translation>添加解释器</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1208" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1049" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1312" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1153" />
         <source>Save</source>
         <translation>保存</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1057" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1161" />
         <source>Tip: choose Anaconda/Miniconda env python.exe (or Browse). App and training stay separate — like Remote, but on this PC.</source>
-        <translation type="unfinished" />
+        <translation>提示：选择 Anaconda/Miniconda 环境的 python.exe（或浏览）。应用与训练相互独立，和远程模式一样，只是在本机。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1075" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1179" />
         <source>Selected server:</source>
-        <translation type="unfinished" />
+        <translation>已选服务器：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1082" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1186" />
         <source>Test Connection</source>
-        <translation type="unfinished" />
+        <translation>测试连接</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1084" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1188" />
         <source>Reattach Job</source>
-        <translation type="unfinished" />
+        <translation>重新连接任务</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1925" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1091" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2029" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1195" />
         <source>Not connected</source>
-        <translation type="unfinished" />
+        <translation>未连接</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1932" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1096" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2036" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1200" />
         <source>GPU: (connect to probe remote GPUs)</source>
-        <translation type="unfinished" />
+        <translation>GPU：（连接后探测远程 GPU）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1102" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1206" />
         <source>Remote base directory:</source>
         <translation>远程基础目录：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1105" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1209" />
         <source>Optional. Empty uses ~/xanylabeling_datasets</source>
         <translation>可选。留空则使用 ~/xanylabeling_datasets</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3897" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3889" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3881" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3782" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1295" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1111" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4051" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4043" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4035" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3936" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1399" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1215" />
         <source>Browse</source>
         <translation>浏览</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1117" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1221" />
         <source>Remote runtime:</source>
-        <translation type="unfinished" />
+        <translation>远程运行时：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1120" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1224" />
         <source>Shell (default)</source>
-        <translation type="unfinished" />
+        <translation>Shell（默认）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1123" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1227" />
         <source>Conda environment</source>
-        <translation type="unfinished" />
+        <translation>Conda 环境</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1138" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1242" />
         <source>Conda executable:</source>
-        <translation type="unfinished" />
+        <translation>Conda 可执行文件：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1141" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1245" />
         <source>Optional, e.g. /home/user/miniconda3/bin/conda</source>
-        <translation type="unfinished" />
+        <translation>可选，例如 /home/user/miniconda3/bin/conda</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1147" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1251" />
         <source>Scan Environments</source>
-        <translation type="unfinished" />
+        <translation>扫描环境</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1153" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1257" />
         <source>Conda env:</source>
-        <translation type="unfinished" />
+        <translation>Conda 环境：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1166" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1270" />
         <source>Conda mode runs training with the env's python (e.g. …/envs/yolo/bin/python). Shell mode keeps legacy remote python3/python.</source>
-        <translation type="unfinished" />
+        <translation>Conda 模式使用该环境的 python 运行训练（例如 …/envs/yolo/bin/python）。Shell 模式仍使用远程的 python3/python。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1179" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1283" />
         <source>Server list:</source>
-        <translation type="unfinished" />
+        <translation>服务器列表：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1184" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1288" />
         <source>IP</source>
-        <translation type="unfinished" />
+        <translation>IP</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1185" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1289" />
         <source>Port</source>
-        <translation type="unfinished" />
+        <translation>端口</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1186" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1290" />
         <source>Username</source>
-        <translation type="unfinished" />
+        <translation>用户名</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1753" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1187" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1857" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1291" />
         <source>Password</source>
-        <translation type="unfinished" />
+        <translation>密码</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1206" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1310" />
         <source>Add Server</source>
-        <translation type="unfinished" />
+        <translation>添加服务器</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1216" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1320" />
         <source>Tip: each row is one server. Choose the target in “Selected server”, then Test Connection. Upload, training, and remote tests use that server. Remote base directory is the root for datasets and runs; leave it empty for ~/xanylabeling_datasets.</source>
         <translation>提示：每一行是一台服务器。在“已选服务器”中选择目标后测试连接。上传、训练和远程测试都使用该服务器。远程基础目录是数据集和训练结果的根目录；留空则使用 ~/xanylabeling_datasets。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1301" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1405" />
         <source>Select python.exe</source>
-        <translation type="unfinished" />
+        <translation>选择 python.exe</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1303" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1407" />
         <source>Python (python.exe);;All files (*)</source>
-        <translation type="unfinished" />
+        <translation>Python (python.exe);;所有文件 (*)</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1760" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1313" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1864" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1417" />
         <source>Del</source>
-        <translation type="unfinished" />
+        <translation>删除</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1444" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1548" />
         <source>Interpreter 1</source>
-        <translation type="unfinished" />
+        <translation>解释器 1</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1484" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1588" />
         <source>Selected: %s — click Test Environment before train.</source>
-        <translation type="unfinished" />
+        <translation>已选：%s — 训练前请点击测试环境。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1494" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1598" />
         <source>Interpreter %d</source>
-        <translation type="unfinished" />
+        <translation>解释器 %d</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1505" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1609" />
         <source>Added a row — set python.exe, select it, then Test.</source>
-        <translation type="unfinished" />
+        <translation>已添加一行 — 设置 python.exe，选中后再测试。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1709" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1677" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1667" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1647" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1638" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1606" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1596" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1565" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1550" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1515" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1813" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1781" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1771" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1751" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1742" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1710" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1700" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1669" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1654" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1619" />
         <source>Interpreter</source>
-        <translation type="unfinished" />
+        <translation>解释器</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1516" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1620" />
         <source>At least one interpreter profile is required.</source>
-        <translation type="unfinished" />
+        <translation>至少需要保留一个解释器配置。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1527" />
-        <source>Delete Interpreter</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1528" />
-        <source>Delete interpreter “%s”?</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1542" />
-        <source>Profile deleted.</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1551" />
-        <source>No interpreters to save.</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1557" />
-        <source>Saved %d interpreter(s). Selected: %s</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1566" />
-        <source>Interpreter list saved.</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1597" />
-        <source>Please select an interpreter first.</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1607" />
-        <source>Python executable not found. Browse to python.exe (or a Conda env folder), then Test again.</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1702" />
         <location filename="..\..\views\training\mytrain_dialog.py" line="1631" />
+        <source>Delete Interpreter</source>
+        <translation>删除解释器</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1632" />
+        <source>Delete interpreter “%s”?</source>
+        <translation>删除解释器“%s”？</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1646" />
+        <source>Profile deleted.</source>
+        <translation>配置已删除。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1655" />
+        <source>No interpreters to save.</source>
+        <translation>没有可保存的解释器。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1661" />
+        <source>Saved %d interpreter(s). Selected: %s</source>
+        <translation>已保存 %d 个解释器。当前选择：%s</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1670" />
+        <source>Interpreter list saved.</source>
+        <translation>解释器列表已保存。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1701" />
+        <source>Please select an interpreter first.</source>
+        <translation>请先选择一个解释器。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1711" />
+        <source>Python executable not found. Browse to python.exe (or a Conda env folder), then Test again.</source>
+        <translation>找不到 Python 可执行文件。请浏览到 python.exe（或 Conda 环境目录）后再测试。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1806" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1735" />
         <source>Ready · %s
 %s</source>
-        <translation type="unfinished" />
+        <translation>就绪 · %s
+%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1642" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1746" />
         <source>Failed · %s
 %s</source>
-        <translation type="unfinished" />
+        <translation>失败 · %s
+%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1648" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1752" />
         <source>Environment check failed.
 
 %s
 
 Install in that env:
   pip install torch (ultralytics optional for custom training)</source>
-        <translation type="unfinished" />
+        <translation>环境检查失败。
+
+%s
+
+请在该环境中安装：
+  pip install torch（自定义训练可选装 ultralytics）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1668" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1772" />
         <source>Please add and select a local interpreter.</source>
-        <translation type="unfinished" />
+        <translation>请添加并选择一个本地解释器。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1678" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1782" />
         <source>Selected interpreter python.exe was not found:
 %s</source>
-        <translation type="unfinished" />
+        <translation>找不到已选解释器的 python.exe：
+%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1710" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1814" />
         <source>Cannot start training — environment check failed:
 
 %s</source>
-        <translation type="unfinished" />
+        <translation>无法开始训练 — 环境检查失败：
+
+%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1893" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="1997" />
         <source>Server 1</source>
-        <translation type="unfinished" />
+        <translation>服务器 1</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2172" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2169" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2165" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2155" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2127" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2110" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1977" />
-        <source>Conda</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="1978" />
-        <source>Conda runtime is selected. Scan environments, pick one, and click Test Environment before training or inference.</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3253" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3240" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3222" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2719" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2498" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2486" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2366" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2309" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2296" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2287" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2276" />
         <location filename="..\..\views\training\mytrain_dialog.py" line="2273" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2235" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2141" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2097" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2006" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2269" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2259" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2231" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2214" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2081" />
+        <source>Conda</source>
+        <translation>Conda</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2082" />
+        <source>Conda runtime is selected. Scan environments, pick one, and click Test Environment before training or inference.</source>
+        <translation>已选择 Conda 运行时。请扫描环境、选中一个，并在训练或推理前点击测试环境。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3372" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3359" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3341" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2823" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2602" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2590" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2470" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2413" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2400" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2391" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2377" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2339" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2245" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2201" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2110" />
         <source>SSH</source>
-        <translation type="unfinished" />
+        <translation>SSH</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2098" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2007" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2202" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2111" />
         <source>Connect to the remote server first (Test Connection).</source>
-        <translation type="unfinished" />
+        <translation>请先连接远程服务器（测试连接）。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2123" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2227" />
         <source>%s
 %s</source>
-        <translation type="unfinished" />
+        <translation>%s
+%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3834" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2142" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3988" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2246" />
         <source>Connect to the remote server first.</source>
-        <translation type="unfinished" />
+        <translation>请先连接远程服务器。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2156" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2260" />
         <source>Select a conda environment first.</source>
-        <translation type="unfinished" />
+        <translation>请先选择一个 Conda 环境。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2201" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2305" />
         <source>Selected · %s (still connected)</source>
-        <translation type="unfinished" />
+        <translation>已选 · %s（仍保持连接）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2208" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2312" />
         <source>Selected: %s (not connected — Test Connection)</source>
-        <translation type="unfinished" />
+        <translation>已选：%s（未连接 — 请测试连接）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2216" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2320" />
         <source>Server %d</source>
-        <translation type="unfinished" />
+        <translation>服务器 %d</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2225" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2329" />
         <source>Added a server row — fill fields, select it, then Test.</source>
-        <translation type="unfinished" />
+        <translation>已添加服务器行 — 填写后选中并测试。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2236" />
-        <source>At least one server profile is required.</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2247" />
-        <source>Delete Server</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2248" />
-        <source>Delete server “%s”?</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2266" />
-        <source>Profile deleted. Not connected.</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2273" />
-        <source>No servers to save.</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2279" />
-        <source>Saved %d server(s). Selected: %s</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2288" />
-        <source>Server list saved.</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2296" />
-        <source>Please select a server first.</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2310" />
-        <source>Selected server is missing host or username. Fill the row, then Test again.</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2325" />
-        <source>Connected · %s (%s)</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2648" />
         <location filename="..\..\views\training\mytrain_dialog.py" line="2340" />
-        <source>Remote Job Found</source>
-        <translation type="unfinished" />
+        <source>At least one server profile is required.</source>
+        <translation>至少需要保留一台服务器。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2649" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2341" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2351" />
+        <source>Delete Server</source>
+        <translation>删除服务器</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2352" />
+        <source>Delete server “%s”?</source>
+        <translation>删除服务器“%s”？</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2370" />
+        <source>Profile deleted. Not connected.</source>
+        <translation>配置已删除。当前未连接。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2377" />
+        <source>No servers to save.</source>
+        <translation>没有可保存的服务器。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2383" />
+        <source>Saved %d server(s). Selected: %s</source>
+        <translation>已保存 %d 台服务器。当前选择：%s</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2392" />
+        <source>Server list saved.</source>
+        <translation>服务器列表已保存。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2400" />
+        <source>Please select a server first.</source>
+        <translation>请先选择一台服务器。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2414" />
+        <source>Selected server is missing host or username. Fill the row, then Test again.</source>
+        <translation>所选服务器缺少主机或用户名。请填写该行后再测试。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2429" />
+        <source>Connected · %s (%s)</source>
+        <translation>已连接 · %s（%s）</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2752" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2444" />
+        <source>Remote Job Found</source>
+        <translation>发现远程任务</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2753" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2445" />
         <source>A remote training job is still running:
 %s
 
 Reattach to continue watching logs?</source>
-        <translation type="unfinished" />
+        <translation>远程仍有训练任务在运行：
+%s
+
+重新连接并继续查看日志？</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2358" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2462" />
         <source>Connection failed · %s</source>
-        <translation type="unfinished" />
+        <translation>连接失败 · %s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2365" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2469" />
         <source>GPU: (not connected)</source>
-        <translation type="unfinished" />
+        <translation>GPU：（未连接）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2406" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2510" />
         <source>Remote GPU</source>
-        <translation type="unfinished" />
+        <translation>远程 GPU</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2407" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2511" />
         <source>GPU check OK.
 
 %s
 
 Batch / image size were adjusted for remaining VRAM (reserve kept for other users).</source>
-        <translation type="unfinished" />
+        <translation>GPU 检查通过。
+
+%s
+
+已按剩余显存调整批次 / 图像尺寸（为其他用户保留了余量）。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2526" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2418" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2630" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2522" />
         <source>Insufficient GPU Memory</source>
-        <translation type="unfinished" />
+        <translation>GPU 显存不足</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2419" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2523" />
         <source>Remote free VRAM is not enough for training (need at least ~%.1f GB usable after reserve).
 
 %s
 
 You can still upload the dataset, but starting training is blocked until enough GPU memory is available.</source>
-        <translation type="unfinished" />
+        <translation>远程可用显存在预留之后不足以训练（至少需要约 %.1f GB）。
+
+%s
+
+仍可上传数据集，但在显存足够之前不能开始训练。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2473" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2577" />
         <source>Reconnected · %s (%s)</source>
-        <translation type="unfinished" />
+        <translation>已重连 · %s（%s）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2487" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2591" />
         <source>SSH session expired or dropped.
 
 %s
 
 Please Test Connection again, then start training.</source>
-        <translation type="unfinished" />
+        <translation>SSH 会话已过期或断开。
+
+%s
+
+请重新测试连接后再开始训练。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2720" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2499" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2824" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2603" />
         <source>Please connect to the remote server first.</source>
-        <translation type="unfinished" />
+        <translation>请先连接远程服务器。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2513" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2617" />
         <source>Remote GPU Check Failed</source>
-        <translation type="unfinished" />
+        <translation>远程 GPU 检查失败</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2514" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2618" />
         <source>Could not check remote GPU status (SSH/command failed).
 
 %s
 
 The previous connection may have timed out. Test Connection again, then retry training.</source>
-        <translation type="unfinished" />
+        <translation>无法检查远程 GPU 状态（SSH/命令失败）。
+
+%s
+
+先前的连接可能已超时。请重新测试连接后再试训练。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2527" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2631" />
         <source>Cannot start remote training: not enough free GPU memory for other users' safety.
 
 %s
 
 Dataset upload is still allowed. Free GPU memory or wait, then Test Connection again.</source>
-        <translation type="unfinished" />
+        <translation>无法开始远程训练：剩余 GPU 显存不足以保证其他用户使用。
+
+%s
+
+仍可上传数据集。请释放显存或等待后再测试连接。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2597" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2701" />
         <source>Uploading: %s</source>
-        <translation type="unfinished" />
+        <translation>正在上传：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2609" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2713" />
         <source>Training Job Found</source>
-        <translation type="unfinished" />
+        <translation>发现训练任务</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2610" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2714" />
         <source>A local training job is still running:
 %s
 
 Reattach to continue watching logs?</source>
-        <translation type="unfinished" />
+        <translation>本地仍有训练任务在运行：
+%s
+
+重新连接并继续查看日志？</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2625" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2729" />
         <source>Previous Training</source>
-        <translation type="unfinished" />
+        <translation>上次训练</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2626" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2730" />
         <source>The last local training session has finished:
 %s
 
 Open that run and show logs/metrics?</source>
-        <translation type="unfinished" />
+        <translation>上次本地训练已结束：
+%s
+
+打开该次运行并显示日志/指标？</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2664" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2768" />
         <source>Previous Remote Training</source>
-        <translation type="unfinished" />
+        <translation>上次远程训练</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2665" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2769" />
         <source>The last remote training session has finished:
 %s
 
 Restore project paths and show saved log offset?</source>
-        <translation type="unfinished" />
+        <translation>上次远程训练已结束：
+%s
+
+恢复项目路径并显示已保存的日志位置？</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2678" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2782" />
         <source>Saved remote training metadata found. Connect SSH and use Reattach Job if training is still running.</source>
-        <translation type="unfinished" />
+        <translation>已找到保存的远程训练信息。若训练仍在运行，请连接 SSH 并使用重新连接任务。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2726" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2691" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2830" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2795" />
         <source>Training</source>
-        <translation type="unfinished" />
+        <translation>训练</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2727" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2692" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2831" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2796" />
         <source>Already attached to a running training session.</source>
-        <translation type="unfinished" />
+        <translation>已经连接到正在运行的训练会话。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2743" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2705" />
-        <source>Reattach</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2753" />
-        <source>Detect Dataset (make_dataset layout)</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2757" />
-        <source>Select ROOT containing classes.txt and sub-versions (each with train/val/test/all.txt and images/).</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2769" />
-        <source>Upload local dataset to remote</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2772" />
-        <source>Use existing dataset on remote (no upload)</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2859" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2790" />
-        <source>Open Dataset Folder</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2797" />
-        <source>Sub-dataset versions:</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2842" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2847" />
         <location filename="..\..\views\training\mytrain_dialog.py" line="2809" />
-        <source>Generate Dataset Lists</source>
-        <translation type="unfinished" />
+        <source>Reattach</source>
+        <translation>重新连接</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2813" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2857" />
+        <source>Detect Dataset (make_dataset layout)</source>
+        <translation>检测数据集（make_dataset 布局）</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2861" />
+        <source>Select ROOT containing classes.txt and sub-versions (each with train/val/test/all.txt and images/).</source>
+        <translation>选择包含 classes.txt 和子版本的根目录（每个子版本含 train/val/test/all.txt 和 images/）。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2873" />
+        <source>Upload local dataset to remote</source>
+        <translation>上传本地数据集到远程</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2876" />
+        <source>Use existing dataset on remote (no upload)</source>
+        <translation>使用远程已有数据集（不上传）</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2963" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2894" />
+        <source>Open Dataset Folder</source>
+        <translation>打开数据集文件夹</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2901" />
+        <source>Sub-dataset versions:</source>
+        <translation>子数据集版本：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2946" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2913" />
+        <source>Generate Dataset Lists</source>
+        <translation>生成数据集列表</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2917" />
         <source>Pause Upload</source>
         <translation>暂停上传</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2817" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2921" />
         <source>Resume Upload</source>
         <translation>恢复上传</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2822" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2926" />
         <source>Stop Upload</source>
         <translation>终止上传</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2844" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2948" />
         <source>Generate on Server</source>
-        <translation type="unfinished" />
+        <translation>在服务器上生成</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2846" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2950" />
         <source>Upload &amp; Generate</source>
-        <translation type="unfinished" />
+        <translation>上传并生成</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2857" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="2961" />
         <source>Select Remote ROOT…</source>
-        <translation type="unfinished" />
+        <translation>选择远程根目录…</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2898" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3002" />
         <source>Upload paused. Click Resume Upload to continue.</source>
         <translation>上传已暂停。点击恢复上传可继续。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2926" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2906" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3030" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3010" />
         <source>Uploading dataset...</source>
         <translation>正在上传数据集...</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2915" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3019" />
         <source>Stopping upload...</source>
         <translation>正在终止上传...</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2942" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3046" />
         <source>Overall {overall:.0f}% · {subdir} {subpct:.0f}% — {detail}</source>
-        <translation type="unfinished" />
+        <translation>总进度 {overall:.0f}% · {subdir} {subpct:.0f}% — {detail}</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2951" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3055" />
         <source>Overall {overall:.0f}% — {detail}</source>
-        <translation type="unfinished" />
+        <translation>总进度 {overall:.0f}% — {detail}</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2971" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3075" />
         <source>Remote dataset unchanged, skipped upload: %s</source>
-        <translation type="unfinished" />
+        <translation>远程数据集未变化，已跳过上传：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3022" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="2979" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3127" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3083" />
         <source>Merging lists on remote...</source>
-        <translation type="unfinished" />
+        <translation>正在远程合并列表...</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3062" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3168" />
         <source>Upload stopped. Click Generate Dataset Lists to upload again.</source>
         <translation>上传已终止。请重新点击生成数据集列表后再上传。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3070" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3177" />
         <source>Upload Error</source>
-        <translation type="unfinished" />
+        <translation>上传错误</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3076" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3182" />
+        <source>Remote merge failed with no server output. On the Data tab, test Remote runtime Python and SSH, confirm upload completed, then try Upload &amp; Generate again.</source>
+        <translation>远程合并没有返回服务器输出。请在数据页测试远程运行环境的 Python 和 SSH，确认上传已完成，然后重新点击「上传并生成」。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3191" />
         <source>Remote merge failed</source>
-        <translation type="unfinished" />
+        <translation>远程合并失败</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3083" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3198" />
         <source>Remote dataset ready:
 %s
 %s</source>
-        <translation type="unfinished" />
+        <translation>远程数据集已就绪：
+%s
+%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3088" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3459" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3200" />
+        <source>Warning: images and labels do not match. Please check the dataset.</source>
+        <translation>警告：images 与 labels 为空或数量不一致，请检查数据集。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3207" />
         <source>Generated data.yaml on the server from the remote dataset (no upload).</source>
-        <translation type="unfinished" />
+        <translation>已根据远程数据集生成 data.yaml（未上传）。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3093" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3212" />
         <source>Dataset unchanged, upload skipped. data.yaml is ready on the server.</source>
         <translation>数据集没有变化，已跳过上传。服务器上的 data.yaml 已就绪。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3097" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3216" />
         <source>Uploaded selected sub-datasets and generated data.yaml on the server.</source>
         <translation>已上传勾选的子数据集，并在服务器上生成了 data.yaml。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4718" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4574" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3349" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3100" />
-        <source>Success</source>
-        <translation>成功</translation>
-    </message>
-    <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3107" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3226" />
         <source>Select Dataset Root Directory</source>
-        <translation type="unfinished" />
+        <translation>选择数据集根目录</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3126" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3245" />
         <source>Remote Dataset ROOT</source>
-        <translation type="unfinished" />
+        <translation>远程数据集根目录</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3130" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3249" />
         <source>Absolute path on the server containing classes.txt and sub-versions (each with images/, labels/, and split lists).</source>
-        <translation type="unfinished" />
+        <translation>服务器上的绝对路径，需包含 classes.txt 和子版本（每个子版本含 images/、labels/ 和划分列表）。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3143" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3262" />
         <source>OK</source>
-        <translation type="unfinished">确认</translation>
+        <translation>确定</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3144" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3263" />
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3478" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3324" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3309" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3300" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3288" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3166" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3156" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3632" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3443" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3428" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3419" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3407" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3285" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3275" />
         <source>Dataset</source>
-        <translation type="unfinished" />
+        <translation>数据集</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3156" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3275" />
         <source>Please enter a remote path.</source>
-        <translation type="unfinished" />
+        <translation>请输入远程路径。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3174" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3293" />
         <source>Remote ROOT ready:
 %s</source>
-        <translation type="unfinished" />
+        <translation>远程根目录已就绪：
+%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3187" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3306" />
         <source>No sub-dataset folders found under ROOT.</source>
-        <translation type="unfinished" />
+        <translation>根目录下没有找到子数据集文件夹。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3223" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3342" />
         <source>Please select a server from the dropdown.</source>
-        <translation type="unfinished" />
+        <translation>请从下拉列表选择一台服务器。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3241" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3360" />
         <source>SSH session expired.
 
 %s
 
 Please Test Connection, then retry.</source>
-        <translation type="unfinished" />
+        <translation>SSH 会话已过期。
+
+%s
+
+请重新测试连接后再试。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3254" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3373" />
         <source>Selected server (%s) is not the connected host (%s).
 Choose it in “Selected server” and Test Connection again.</source>
-        <translation type="unfinished" />
+        <translation>所选服务器（%s）不是当前连接的主机（%s）。
+请在“已选服务器”中选中它并重新测试连接。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3272" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3391" />
         <source>Task Type</source>
-        <translation type="unfinished" />
+        <translation>任务类型</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3273" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3392" />
         <source>Dataset list workflow currently supports Detect only.</source>
-        <translation type="unfinished" />
+        <translation>数据集列表流程目前仅支持检测任务。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3289" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3408" />
         <source>Please select a remote dataset ROOT first.</source>
-        <translation type="unfinished" />
+        <translation>请先选择远程数据集根目录。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3330" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3449" />
         <source>Generated locally: %s
 train/val/test/all = %d/%d/%d/%d</source>
-        <translation type="unfinished" />
+        <translation>已在本地生成：%s
+train/val/test/all = %d/%d/%d/%d</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3350" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3470" />
         <source>Dataset lists and data.yaml generated.</source>
-        <translation type="unfinished" />
+        <translation>已生成数据集列表和 data.yaml。</translation>
     </message>
     <message>
-        <source>Warning: images and labels do not match. Please check the dataset.</source>
-        <translation>警告：images 与 labels 为空或数量不一致，请检查数据集。</translation>
-    </message>
-    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3476" />
         <source>Dataset lists were generated, but some sub-datasets need a check.</source>
         <translation>数据集列表已生成，但部分子数据集需要检查。</translation>
     </message>
     <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3479" />
         <source>Each sub-dataset must have a non-empty images folder and a non-empty labels folder with the same number of files.</source>
         <translation>每个子数据集的 images 与 labels 都不能为空，且两边文件数量必须相同。</translation>
     </message>
     <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3488" />
         <source>• {name}: images={images}, labels={labels}</source>
         <translation>• {name}：images={images}，labels={labels}</translation>
     </message>
     <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3494" />
         <source>Please check the dataset before training.</source>
         <translation>请先检查该数据集，再进行训练。</translation>
     </message>
     <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3503" />
         <source>Dataset check</source>
         <translation>数据集检查</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3368" />
-        <source>(Summary requires local ROOT; generate on server when using remote dataset only.)</source>
-        <translation type="unfinished" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4872" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4728" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3505" />
+        <source>Success</source>
+        <translation>成功</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3458" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3522" />
+        <source>(Summary requires local ROOT; generate on server when using remote dataset only.)</source>
+        <translation>（汇总需要本地根目录；仅使用远程数据集时请在服务器上生成。）</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3612" />
         <source>Dataset Summary:</source>
         <translation>数据集概要：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4819" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3471" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4973" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3625" />
         <source>Validation Error</source>
         <translation>验证错误</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3479" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3633" />
         <source>Please generate dataset lists (data.yaml) first.</source>
-        <translation type="unfinished" />
+        <translation>请先生成数据集列表（data.yaml）。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3519" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3673" />
         <source>Load Images (legacy)</source>
-        <translation type="unfinished" />
+        <translation>加载图片（旧版）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4882" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3525" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5036" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3679" />
         <source>Next</source>
         <translation>下一步</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3553" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3707" />
         <source>Select Model File</source>
         <translation>选择模型文件</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3563" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3717" />
         <source>Select Classification Dataset Directory</source>
         <translation>选择分类数据集目录</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3570" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3724" />
         <source>Select Data File</source>
         <translation>选择数据文件</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3582" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3736" />
         <source>Invalid Data File</source>
         <translation>无效的数据文件</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3590" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3744" />
         <source>Select Pose Config File</source>
         <translation>选择姿态估计任务配置文件</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3732" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3886" />
         <source>Training backend:</source>
-        <translation type="unfinished" />
+        <translation>训练后端：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3737" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3891" />
         <source>Ultralytics wizard</source>
-        <translation type="unfinished" />
+        <translation>Ultralytics 向导</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3749" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3740" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3903" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3894" />
         <source>Custom command</source>
-        <translation type="unfinished" />
+        <translation>自定义命令</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3753" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3907" />
         <source>Basic Settings supply effective paths (after upload/mapping). Use placeholders {model}, {data}, {project}, {name}, {run_dir}, {device} in your command. Values in the command for those fields are ignored. Multi-line commands with a trailing backslash (\) are merged into one line before execution (required on Windows).</source>
-        <translation type="unfinished" />
+        <translation>基本设置提供生效路径（上传/映射之后）。命令中可使用占位符 {model}、{data}、{project}、{name}、{run_dir}、{device}。命令里这些字段的原值会被忽略。以反斜杠（\）结尾的多行命令会在执行前合并成一行（Windows 必需）。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3764" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3918" />
         <source>Training command:</source>
-        <translation type="unfinished" />
+        <translation>训练命令：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3767" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3921" />
         <source>e.g. python train.py --weights "{model}" --data "{data}"</source>
-        <translation type="unfinished" />
+        <translation>例如 python train.py --weights "{model}" --data "{data}"</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3775" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3929" />
         <source>Execution directory:</source>
-        <translation type="unfinished" />
+        <translation>执行目录：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3811" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3778" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3965" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3932" />
         <source>Optional — leave empty for default (like Ultralytics)</source>
-        <translation type="unfinished" />
+        <translation>可选 — 留空使用默认值（与 Ultralytics 相同）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3805" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="3959" />
         <source>Optional remote directory. Browse the server, or leave empty.</source>
         <translation>可选的远程目录。浏览服务器选择，或留空。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3849" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4003" />
         <source>Execution directory</source>
-        <translation type="unfinished" />
+        <translation>执行目录</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3856" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4010" />
         <source>Basic Settings</source>
         <translation>基础设置</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3957" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4111" />
         <source>Train Settings</source>
         <translation>训练设置</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3962" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4116" />
         <source>Basic</source>
         <translation>基础</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="3998" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4152" />
         <source>Class indices (e.g., 0,1,2) or leave empty for all</source>
         <translation>类别索引（例如：0,1,2）或留空表示全部</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4021" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4175" />
         <source>Advanced Settings</source>
         <translation>高级设置</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4077" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4231" />
         <source>Multi Scale:</source>
-        <translation type="unfinished" />
+        <translation>多尺度：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4089" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4243" />
         <source>Model init and runtime</source>
-        <translation type="unfinished" />
+        <translation>模型初始化与运行</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4091" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4245" />
         <source>Freeze:</source>
-        <translation type="unfinished" />
+        <translation>冻结：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4094" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4248" />
         <source>e.g. 10 or 0,1,2 — empty for none</source>
-        <translation type="unfinished" />
+        <translation>例如 10 或 0,1,2 — 留空表示不冻结</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4102" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4256" />
         <source>Seed:</source>
-        <translation type="unfinished" />
+        <translation>随机种子：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4110" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4264" />
         <source>NBS:</source>
-        <translation type="unfinished" />
+        <translation>NBS：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4119" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4273" />
         <source>Pretrained</source>
-        <translation type="unfinished" />
+        <translation>预训练</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4126" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4280" />
         <source>Deterministic</source>
-        <translation type="unfinished" />
+        <translation>确定性</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4132" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4286" />
         <source>Profile</source>
-        <translation type="unfinished" />
+        <translation>性能分析</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4137" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4291" />
         <source>Compile</source>
-        <translation type="unfinished" />
+        <translation>编译</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4270" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4424" />
         <source>Flip UD:</source>
-        <translation type="unfinished" />
+        <translation>上下翻转：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4278" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4432" />
         <source>Flip LR:</source>
-        <translation type="unfinished" />
+        <translation>左右翻转：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4310" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4464" />
         <source>Copy-Paste:</source>
-        <translation type="unfinished" />
+        <translation>复制粘贴：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4869" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4564" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5023" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4718" />
         <source>Import Config</source>
         <translation>导入配置</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4575" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4729" />
         <source>Config imported successfully</source>
         <translation>配置导入成功</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6972" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6963" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6782" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6762" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6755" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6388" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4840" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4827" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4721" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4579" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7193" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7184" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6958" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6938" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6931" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6557" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4994" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4981" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4875" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4733" />
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4579" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4733" />
         <source>Failed to import config</source>
         <translation>导入配置失败</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4716" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4870" />
         <source>Configuration saved successfully to %s</source>
         <translation>配置已成功保存到 %s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4728" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4882" />
         <source>Training in Progress</source>
         <translation>训练进行中</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4729" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4883" />
         <source>Training is currently in progress. Please stop the training first if you need to reconfigure.</source>
         <translation>训练正在进行中。如需重新配置，请先停止训练。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4750" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4904" />
         <source>Custom training</source>
-        <translation type="unfinished" />
+        <translation>自定义训练</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4751" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4905" />
         <source>Please enter a training command.</source>
-        <translation type="unfinished" />
+        <translation>请输入训练命令。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4768" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4922" />
         <source>Existing Model Detected</source>
         <translation>检测到已有模型</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4769" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4923" />
         <source>A trained model already exists at this location.
 
 Do you want to:
@@ -11454,387 +11643,397 @@ No - Continue to retrain (will overwrite)</source>
 否 - 继续重新训练（将覆盖原模型）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="7073" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6092" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4797" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7294" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6254" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4951" />
         <source>Directory Exists</source>
         <translation>目录已存在</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4798" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4952" />
         <source>Project directory already exists! Do you want to overwrite it?
 If not, please manually modify the `Name` field value.</source>
         <translation>项目目录已存在！是否要覆盖？
-如果不想覆盖，请手动修改"Name"字段的值。</translation>
+如果不想覆盖，请手动修改「名称」字段的值。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4828" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4982" />
         <source>Please select a task type first</source>
         <translation>请先选择任务类型</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4841" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="4995" />
         <source>Please select a valid pose configuration file for pose detection tasks</source>
         <translation>请为姿态估计任务选择有效的姿态配置文件</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4850" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5004" />
         <source>Reset Training</source>
         <translation>重置训练</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4851" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5005" />
         <source>Training traces detected. Do you want to reset the training tab?</source>
         <translation>检测到训练记录。是否要重置训练标签页？</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4873" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5027" />
         <source>Save Config</source>
         <translation>保存配置</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5885" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="4878" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6047" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5032" />
         <source>Previous</source>
         <translation>上一张</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="7158" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5382" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5147" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5099" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5094" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5088" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7381" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5544" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5301" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5253" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5248" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5242" />
         <source>No image</source>
         <translation>无图像</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5121" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5275" />
         <source>Training…</source>
-        <translation type="unfinished" />
+        <translation>训练中…</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5231" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5385" />
         <source>Connection Lost</source>
-        <translation type="unfinished" />
+        <translation>连接丢失</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5232" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5386" />
         <source>Lost contact with the training monitor.
 The training job is still running.
 
 Re-open MyTrain and click Reattach Job to continue.</source>
-        <translation type="unfinished" />
+        <translation>与训练监视器失去联系。
+训练任务仍在运行。
+
+重新打开我的训练并点击重新连接任务以继续。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5247" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5401" />
         <source>Training stopped by user</source>
         <translation>训练已被用户停止</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5297" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5459" />
         <source>Training Status</source>
         <translation>训练状态</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5300" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5462" />
         <source>Ready to train</source>
         <translation>准备训练</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5305" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5467" />
         <source>Progress:</source>
         <translation>进度：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5319" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5481" />
         <source>Clear Logs</source>
         <translation>清除日志</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5320" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5482" />
         <source>Are you sure you want to clear all training logs?</source>
         <translation>确定要清除所有训练日志吗？</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5336" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5498" />
         <source>Training Logs</source>
         <translation>训练日志</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5351" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5513" />
         <source>Clear</source>
         <translation>清除</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5355" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5517" />
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5363" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5525" />
         <source>Training Images</source>
         <translation>训练图像</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5472" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5466" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5634" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5628" />
         <source>Info</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5473" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5635" />
         <source>No training directory available</source>
         <translation>无可用的训练目录</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5479" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5641" />
         <source>Confirm Stop</source>
         <translation>确认停止</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5480" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5642" />
         <source>Are you sure you want to stop the training?</source>
         <translation>确定要停止训练吗？</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5488" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5650" />
         <source>Stopping training...</source>
         <translation>正在停止训练...</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5490" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5652" />
         <source>Cancel to stop training</source>
         <translation>取消以停止训练</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5554" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5716" />
         <source>Uploaded local model to %s</source>
         <translation>已将本地模型上传到 %s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5641" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5803" />
         <source>Custom command is empty</source>
-        <translation type="unfinished" />
+        <translation>自定义命令为空</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5643" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5805" />
         <source>Resolving training paths...</source>
-        <translation type="unfinished" />
+        <translation>正在解析训练路径...</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5675" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5837" />
         <source>Interpreter: using YOLO CLI from this env (not system yolo on PATH): %s</source>
-        <translation type="unfinished" />
+        <translation>解释器：使用该环境中的 YOLO 命令行（不是系统 PATH 上的 yolo）：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5688" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5850" />
         <source>Remote: %s is first on PATH so 'yolo' resolves inside this env.</source>
         <translation>远程：已将 %s 放到 PATH 前面，使该环境中的 yolo 可以被找到。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5697" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5859" />
         <source>Ignored local execution directory for remote training: %s</source>
         <translation>远程训练已忽略本机执行目录：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5706" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5868" />
         <source>Effective model: %s</source>
-        <translation type="unfinished" />
+        <translation>生效模型：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5707" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5869" />
         <source>Effective data: %s</source>
-        <translation type="unfinished" />
+        <translation>生效数据：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5709" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5871" />
         <source>Effective device (Basic Settings): %s</source>
-        <translation type="unfinished" />
+        <translation>生效设备（基本设置）：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5712" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5874" />
         <source>Basic fields (model, data, project, name, device) in the command are replaced by Config values.</source>
-        <translation type="unfinished" />
+        <translation>命令中的基本字段（model、data、project、name、device）会被配置中的值替换。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5717" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5879" />
         <source>Resolved command: %s</source>
-        <translation type="unfinished" />
+        <translation>解析后的命令：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5772" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5934" />
         <source>Preparing training...</source>
         <translation>正在准备训练...</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5776" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5938" />
         <source>Training Python: %s</source>
-        <translation type="unfinished" />
+        <translation>训练 Python：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5787" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5949" />
         <source>Remote Python: %s</source>
-        <translation type="unfinished" />
+        <translation>远程 Python：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5826" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5815" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5988" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="5977" />
         <source>Training Error</source>
         <translation>训练错误</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5858" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6020" />
         <source>TensorBoard</source>
-        <translation type="unfinished" />
+        <translation>TensorBoard</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5859" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6021" />
         <source>TensorBoard URL is not available yet.</source>
-        <translation type="unfinished" />
+        <translation>TensorBoard 地址尚不可用。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5870" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6032" />
         <source>Open Directory</source>
         <translation>打开目录</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5874" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6036" />
         <source>Open TensorBoard</source>
-        <translation type="unfinished" />
+        <translation>打开 TensorBoard</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5880" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6042" />
         <source>Stop Training</source>
         <translation>停止训练</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5892" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6054" />
         <source>Start Training</source>
         <translation>开始训练</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5898" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6060" />
         <source>Export ONNX</source>
-        <translation type="unfinished" />
+        <translation>导出 ONNX</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6472" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5903" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6643" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6065" />
         <source>Download Folder</source>
-        <translation type="unfinished" />
+        <translation>下载文件夹</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5908" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6070" />
         <source>Infer</source>
-        <translation type="unfinished" />
+        <translation>推理</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5913" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6075" />
         <source>Batch Infer</source>
-        <translation type="unfinished" />
+        <translation>批量推理</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="7053" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5919" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7274" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6081" />
         <source>Download Batch Results</source>
-        <translation type="unfinished" />
+        <translation>下载批量结果</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5953" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6115" />
         <source>Export started...</source>
         <translation>导出已开始...</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6202" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5965" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6366" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6127" />
         <source>Export Successful</source>
         <translation>导出成功</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6464" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6416" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6196" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="5974" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6635" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6585" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6360" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6136" />
         <source>Export Error</source>
         <translation>导出错误</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6057" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6219" />
         <source>Local Copy Found</source>
-        <translation type="unfinished" />
+        <translation>发现本地副本</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6082" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6244" />
         <source>Select folder to save the training run</source>
-        <translation type="unfinished" />
+        <translation>选择保存训练结果的文件夹</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6161" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6323" />
         <source>Busy</source>
-        <translation type="unfinished" />
+        <translation>忙碌</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6162" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6324" />
         <source>Another job is still running (export / infer / batch infer / download). Please wait for it to finish.</source>
-        <translation type="unfinished" />
+        <translation>另有任务仍在运行（导出 / 推理 / 批量推理 / 下载）。请等待其完成。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6212" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6376" />
         <source>Infer Failed</source>
-        <translation type="unfinished" />
+        <translation>推理失败</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6222" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6386" />
         <source>Infer Complete</source>
-        <translation type="unfinished" />
+        <translation>推理完成</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6235" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6399" />
         <source>Batch Infer Failed</source>
-        <translation type="unfinished" />
+        <translation>批量推理失败</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6249" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6413" />
         <source>Batch Infer Complete</source>
-        <translation type="unfinished" />
+        <translation>批量推理完成</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="7127" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="7101" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="7087" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7348" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7322" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7308" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6660" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6653" />
         <location filename="..\..\views\training\mytrain_dialog.py" line="6489" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6482" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6320" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6260" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6424" />
         <source>Download Failed</source>
-        <translation type="unfinished" />
+        <translation>下载失败</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6505" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6348" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6331" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6269" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6676" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6517" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6500" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6433" />
         <source>Saved</source>
         <translation>已保存</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6281" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6434" />
+        <source>Batch labels folder saved to:
+{payload}</source>
+        <translation>批量标签文件夹已保存到：
+{payload}</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6450" />
         <source>Free Inference Failed</source>
-        <translation type="unfinished" />
+        <translation>自由推理失败</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6295" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6463" />
         <source>Inference complete ({kind}). Use Download Images + Labels to export.</source>
-        <translation type="unfinished" />
+        <translation>推理完成（{kind}）。使用“下载图片和标签”导出。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6305" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6474" />
         <source>Free Inference Complete</source>
-        <translation type="unfinished" />
+        <translation>自由推理完成</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6306" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6475" />
         <source>Inference finished.
 
 Labels:
@@ -11844,84 +12043,111 @@ Source images (frames for video):
 {source}
 
 Click “Download Images + Labels” to save both (original video is not included).</source>
-        <translation type="unfinished" />
+        <translation>推理已完成。
+
+标签：
+{labels}
+
+源图片（视频则为抽帧）：
+{source}
+
+点击“下载图片和标签”保存两者（不含原始视频）。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6499" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6337" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6670" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6506" />
         <source>Save Failed</source>
         <translation>保存失败</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6389" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6558" />
         <source>No training project available for export</source>
         <translation>没有可供导出的训练项目</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6417" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6586" />
         <source>Remote SSH is not connected; reconnect to export.</source>
-        <translation type="unfinished" />
+        <translation>远程 SSH 未连接；请重新连接后再导出。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6444" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6613" />
         <source>Model Not Found</source>
         <translation>未找到模型</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6453" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6614" />
+        <source>Model weights not found at: {weights_path}</source>
+        <translation>找不到模型权重：{weights_path}</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6624" />
         <source>Export Python: %s</source>
-        <translation type="unfinished" />
+        <translation>导出 Python：%s</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6473" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6644" />
         <source>Local training results are already on disk. Use Open Directory to browse them.</source>
-        <translation type="unfinished" />
+        <translation>本地训练结果已在磁盘上。使用打开目录浏览。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="7102" />
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6483" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7323" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6654" />
         <source>Remote SSH is not connected; reconnect to download.</source>
-        <translation type="unfinished" />
+        <translation>远程 SSH 未连接；请重新连接后再下载。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6490" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6661" />
         <source>No remote training folder available.</source>
-        <translation type="unfinished" />
+        <translation>没有可用的远程训练文件夹。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6756" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6677" />
+        <source>Training folder saved to:
+{local_run}</source>
+        <translation>训练文件夹已保存到：
+{local_run}</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6932" />
         <source>No training project available for inference.</source>
-        <translation type="unfinished" />
+        <translation>没有可用于推理的训练项目。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6763" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6939" />
         <source>Dataset data.yaml path is unknown; cannot find all.txt.</source>
-        <translation type="unfinished" />
+        <translation>不知道 data.yaml 路径，无法找到 all.txt。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6783" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="6959" />
         <source>Remote SSH is not connected; reconnect to infer.</source>
-        <translation type="unfinished" />
+        <translation>远程 SSH 未连接；请重新连接后再推理。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6964" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7185" />
         <source>No training project available for batch inference.</source>
-        <translation type="unfinished" />
+        <translation>没有可用于批量推理的训练项目。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="6973" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7194" />
         <source>Remote SSH is not connected; reconnect to batch infer.</source>
-        <translation type="unfinished" />
+        <translation>远程 SSH 未连接；请重新连接后再批量推理。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="7054" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7275" />
         <source>No batch inference results yet. Run “Batch Infer” first.</source>
-        <translation type="unfinished" />
+        <translation>还没有批量推理结果。请先运行“批量推理”。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\mytrain_dialog.py" line="7063" />
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7284" />
         <source>Select folder to save batch labels</source>
-        <translation type="unfinished" />
+        <translation>选择保存批量标签的文件夹</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\mytrain_dialog.py" line="7349" />
+        <source>Labels folder not found:
+{labels_arg}</source>
+        <translation>找不到标签文件夹：
+{labels_arg}</translation>
     </message>
 </context><context>
     <name>NavigatorDialog</name>
@@ -12061,6 +12287,38 @@ Continue?</source>
 3. 向匹配的文件添加新标签
 
 是否继续？</translation>
+    </message>
+</context><context>
+    <name>OpenInferProjectDialog</name>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="552" />
+        <source>Open Inference Project</source>
+        <translation>打开推理项目</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="561" />
+        <source>Select a free-inference project to view its images and detection results.</source>
+        <translation>选择一个自由推理项目，查看图片和检测结果。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="580" />
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="582" />
+        <source>Open</source>
+        <translation>打开</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="593" />
+        <source>Open Project</source>
+        <translation>打开项目</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\free_infer_panel.py" line="594" />
+        <source>Please select a project.</source>
+        <translation>请选择一个项目。</translation>
     </message>
 </context><context>
     <name>OverviewDialog</name>
@@ -13827,87 +14085,97 @@ The main application remains available.</source>
 </context><context>
     <name>PredictParamsWidget</name>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="56" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="93" />
         <source>Predict parameters</source>
         <translation>推理参数</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="66" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="110" />
         <source>Confidence threshold; higher = fewer boxes.</source>
         <translation>置信度阈值；越高框越少、误报越少、易漏检。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="68" />
-        <source>conf:</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="75" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="119" />
         <source>NMS IoU threshold.</source>
         <translation>NMS 的 IoU 阈值。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="76" />
-        <source>iou:</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="81" />
-        <source>max_det:</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="85" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="129" />
         <source>All classes if empty, e.g. 0 or 0,1</source>
         <translation>留空表示全部类别，例如 0 或 0,1</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="87" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="137" />
+        <source>conf:</source>
+        <translation>置信度 conf：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="140" />
+        <source>iou:</source>
+        <translation>IoU：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="143" />
+        <source>max_det:</source>
+        <translation>最大检测数：</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="148" />
         <source>classes:</source>
-        <translation type="unfinished" />
+        <translation>类别：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="89" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="153" />
         <source>agnostic_nms</source>
-        <translation type="unfinished" />
+        <translation>类别无关 NMS</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="91" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="155" />
         <source>When enabled, NMS ignores class ids.</source>
         <translation>启用时 NMS 不区分类别。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="99" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="157" />
+        <source>rect</source>
+        <translation>rect（矩形推理）</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="159" />
+        <source>Rectangular inference: pad each image to a rectangle close to its aspect ratio instead of a square.</source>
+        <translation>矩形推理：按接近原图宽高比的矩形填充，而不是补成正方形。</translation>
+    </message>
+    <message>
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="168" />
         <source>save</source>
-        <translation type="unfinished" />
+        <translation>保存图片</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="100" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="169" />
         <source>save_txt</source>
-        <translation type="unfinished" />
+        <translation>保存 txt</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="101" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="170" />
         <source>save_conf</source>
-        <translation type="unfinished" />
+        <translation>保存置信度</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="102" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="171" />
         <source>save_crop</source>
-        <translation type="unfinished" />
+        <translation>保存裁剪</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="111" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="190" />
         <source>Output:</source>
         <translation>输出：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="115" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="200" />
         <source>Custom predict CLI (optional)</source>
         <translation>自定义推理 CLI（可选）</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="118" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\predict_params_widget.py" line="204" />
         <source>Extra or overriding arguments, space-separated, e.g. conf=0.3 iou=0.5 classes=0 save_txt=True</source>
         <translation>额外或覆盖参数，空格分隔，例如 conf=0.3 iou=0.5 classes=0 save_txt=True</translation>
     </message>
@@ -14165,72 +14433,72 @@ The main application remains available.</source>
 </context><context>
     <name>RemoteDirBrowserDialog</name>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="456" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="458" />
         <source>Remote directory</source>
-        <translation type="unfinished" />
+        <translation>远程目录</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="472" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="474" />
         <source>Up</source>
-        <translation type="unfinished" />
+        <translation>上级</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="476" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="478" />
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="479" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="481" />
         <source>Select</source>
         <translation>选择</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="535" />
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="495" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="537" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="497" />
         <source>parent</source>
-        <translation type="unfinished" />
+        <translation>上级目录</translation>
     </message>
 </context><context>
     <name>RemotePredictDialog</name>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="229" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="231" />
         <source>Remote Infer</source>
-        <translation type="unfinished" />
+        <translation>远程推理</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="242" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="244" />
         <source>Run YOLO predict on the full dataset (all.txt). Only YOLO-format txt labels are saved under the training folder (no annotated images).</source>
-        <translation type="unfinished" />
+        <translation>对完整数据集（all.txt）运行 YOLO 推理。只在训练目录下保存 YOLO 格式 txt 标签（不保存带框图）。</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="261" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="263" />
         <source>Weights:</source>
-        <translation type="unfinished" />
+        <translation>权重：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="268" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="270" />
         <source>Source (all.txt):</source>
-        <translation type="unfinished" />
+        <translation>数据源（all.txt）：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="275" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="277" />
         <source>Labels output:</source>
-        <translation type="unfinished" />
+        <translation>标签输出：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="278" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="280" />
         <source>Image size:</source>
-        <translation type="unfinished" />
+        <translation>图像尺寸：</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="288" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="290" />
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="291" />
+        <location filename="..\..\views\training\widgets\mytrain_widgets\custom_dialogs.py" line="293" />
         <source>Start Infer</source>
-        <translation type="unfinished" />
+        <translation>开始推理</translation>
     </message>
 </context><context>
     <name>RemoteServer</name>
@@ -16175,7 +16443,7 @@ Changes will not be saved until you click Save.</source>
     <message>
         <location filename="..\..\views\training\widgets\mytrain_widgets\custom_widgets.py" line="373" />
         <source>Start</source>
-        <translation type="unfinished" />
+        <translation>开始</translation>
     </message>
 </context><context>
     <name>UltralyticsDialog</name>
@@ -16421,7 +16689,7 @@ No - Continue to retrain (will overwrite)</source>
         <source>Project directory already exists! Do you want to overwrite it?
 If not, please manually modify the `Name` field value.</source>
         <translation>项目目录已存在！是否要覆盖？
-如果不想覆盖，请手动修改"Name"字段的值。</translation>
+如果不想覆盖，请手动修改「名称」字段的值。</translation>
     </message>
     <message>
         <location filename="..\..\views\training\ultralytics_dialog.py" line="1685" />
@@ -18127,7 +18395,10 @@ Label files updated: {files}</source>
 
 • Delete pred-side marks (漏标/误报): %d
 • Clear GT-side flags (误标/漏报): %d</source>
-        <translation type="unfinished" />
+        <translation>清除这张图上的全部可疑标记？
+
+• 删除预测侧标记（漏标/误报）：%d
+• 清除真值侧标记（误标/漏报）：%d</translation>
     </message>
     <message>
         <location filename="..\..\views\labeling\advanced\compare\i18n.py" line="94" />
@@ -18214,7 +18485,9 @@ Label files updated: {files}</source>
         <source>Choose an action before switching images:
 • Keep markers — save and switch to the next image now
 • Accept results — apply to this image and stay here; switch manually after you verify</source>
-        <translation type="unfinished" />
+        <translation>切换图片前请选择操作：
+• 保留标记 — 保存并立即切到下一张
+• 接受结果 — 应用到当前图片并留在此处；确认后再手动切换</translation>
     </message>
 </context><context>
     <name>_DatasetRenameWorker</name>

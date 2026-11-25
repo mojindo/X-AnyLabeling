@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import os
+import re
 from typing import List, Optional
 
 from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtGui import QColor, QPainter, QPen, QPixmap
 from PyQt6.QtWidgets import (
     QButtonGroup,
     QDialog,
@@ -17,9 +19,11 @@ from PyQt6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QMessageBox,
+    QProgressBar,
     QRadioButton,
     QSizePolicy,
     QSpinBox,
+    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
@@ -27,8 +31,11 @@ from PyQt6.QtWidgets import (
 from anylabeling.services.auto_training.mytrain.free_infer import (
     VIDEO_EXTS,
     WeightEntry,
+    describe_infer_project,
 )
 from anylabeling.services.auto_training.mytrain.style import (
+    get_log_display_style,
+    get_progress_bar_style,
     get_ultralytics_dialog_style,
 )
 from anylabeling.views.labeling.utils.theme import get_theme
@@ -53,13 +60,14 @@ class FreeInferPanel(QWidget):
     request_start = pyqtSignal()
     request_download = pyqtSignal()
     request_cleanup = pyqtSignal()
+    request_open_project = pyqtSignal()
     mode_changed = pyqtSignal(str)  # local | interpreter | remote
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setSizePolicy(
             QSizePolicy.Policy.Expanding,
-            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Minimum,
         )
         self.setStyleSheet(get_ultralytics_dialog_style())
         self._weight_entries: List[WeightEntry] = []
@@ -210,9 +218,12 @@ class FreeInferPanel(QWidget):
         self.download_btn.setEnabled(False)
         self.cleanup_btn = SecondaryButton(self.tr("Cleanup Projects…"))
         self.cleanup_btn.clicked.connect(self.request_cleanup.emit)
+        self.open_project_btn = SecondaryButton(self.tr("Open Project…"))
+        self.open_project_btn.clicked.connect(self.request_open_project.emit)
         action_row.addWidget(self.start_btn)
         action_row.addWidget(self.download_btn)
         action_row.addWidget(self.cleanup_btn)
+        action_row.addWidget(self.open_project_btn)
         action_row.addStretch()
         root.addLayout(action_row)
 
@@ -220,7 +231,21 @@ class FreeInferPanel(QWidget):
         self.status_label.setWordWrap(True)
         self.status_label.setStyleSheet(f"color: {t['text_secondary']};")
         root.addWidget(self.status_label)
-        root.addStretch(1)
+
+        log_group = QGroupBox(self.tr("Inference log"))
+        log_layout = QVBoxLayout(log_group)
+        self.infer_progress = QProgressBar()
+        self.infer_progress.setRange(0, 100)
+        self.infer_progress.setValue(0)
+        self.infer_progress.setFormat(self.tr("Idle"))
+        self.infer_progress.setStyleSheet(get_progress_bar_style())
+        log_layout.addWidget(self.infer_progress)
+        self.infer_log = QTextEdit()
+        self.infer_log.setReadOnly(True)
+        self.infer_log.setMinimumHeight(140)
+        self.infer_log.setStyleSheet(get_log_display_style())
+        log_layout.addWidget(self.infer_log, 1)
+        root.addWidget(log_group, 1)
 
     def _on_env_changed(self, _index: int = 0) -> None:
         mode = self.env_combo.currentData() or "local"
@@ -243,6 +268,55 @@ class FreeInferPanel(QWidget):
 
     def set_status(self, text: str) -> None:
         self.status_label.setText(text or "")
+
+    def clear_infer_log(self) -> None:
+        self.infer_log.clear()
+        self.infer_progress.setRange(0, 100)
+        self.infer_progress.setValue(0)
+        self.infer_progress.setFormat(self.tr("Idle"))
+
+    def append_infer_log(self, text: str) -> None:
+        text = (text or "").strip()
+        if not text:
+            return
+        for line in text.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            self.infer_log.append(line)
+            self._note_infer_progress(line)
+        bar = self.infer_log.verticalScrollBar()
+        bar.setValue(bar.maximum())
+
+    def mark_infer_finished(self, ok: bool) -> None:
+        if ok and self.infer_progress.maximum() > 0:
+            self.infer_progress.setValue(self.infer_progress.maximum())
+        self.infer_progress.setFormat(
+            self.tr("Done") if ok else self.tr("Failed")
+        )
+
+    def _note_infer_progress(self, line: str) -> None:
+        total_match = re.match(r"PREDICT_TOTAL\s+(\d+)", line)
+        if total_match:
+            total = int(total_match.group(1))
+            if total > 0:
+                self.infer_progress.setRange(0, total)
+                self.infer_progress.setValue(0)
+                self.infer_progress.setFormat(f"0/{total}")
+            return
+        step = re.match(
+            r"(?:PREDICT|Uploading)\s+(\d+)\s*/\s*(\d+)",
+            line,
+        )
+        if not step:
+            return
+        current = int(step.group(1))
+        total = int(step.group(2))
+        if total <= 0:
+            return
+        self.infer_progress.setRange(0, total)
+        self.infer_progress.setValue(min(current, total))
+        self.infer_progress.setFormat(f"{current}/{total}")
 
     def set_weight_entries(self, entries: List[WeightEntry]) -> None:
         self._weight_entries = list(entries or [])
@@ -310,6 +384,7 @@ class FreeInferPanel(QWidget):
         self.scan_btn.setEnabled(not busy)
         self.upload_weight_btn.setEnabled(not busy)
         self.cleanup_btn.setEnabled(not busy)
+        self.open_project_btn.setEnabled(not busy)
         if not busy and self._last_source_dir and self._last_labels_dir:
             self.download_btn.setEnabled(True)
         elif busy:
@@ -335,7 +410,9 @@ class FreeInferPanel(QWidget):
             remote=False,
         )
         self.set_weight_entries(self._weight_entries)
-        self.set_status(self.tr(f"Uploaded weight selected: {path}"))
+        self.set_status(
+            self.tr("Uploaded weight selected: {path}").format(path=path)
+        )
 
     def _browse_material(self) -> None:
         kind = self.material_kind_hint()
@@ -355,7 +432,9 @@ class FreeInferPanel(QWidget):
                 self,
                 self.tr("Select video"),
                 "",
-                self.tr(f"Videos ({filters});;All files (*)"),
+                self.tr("Videos ({filters});;All files (*)").format(
+                    filters=filters
+                ),
             )
         else:
             path = QFileDialog.getExistingDirectory(
@@ -458,3 +537,211 @@ class CleanupProjectsDialog(QDialog):
 
     def selected_projects(self) -> List[tuple]:
         return list(self._selected)
+
+
+class OpenInferProjectDialog(QDialog):
+    """Pick one free-inference project to view."""
+
+    def __init__(
+        self,
+        parent=None,
+        *,
+        infer_projects: Optional[List[tuple]] = None,
+    ):
+        super().__init__(parent)
+        self.setWindowTitle(self.tr("Open Inference Project"))
+        self.setMinimumSize(560, 420)
+        self.setModal(True)
+        self.setStyleSheet(get_ultralytics_dialog_style())
+        self._selected: Optional[tuple] = None
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(
+            QLabel(
+                self.tr(
+                    "Select a free-inference project to view its images and "
+                    "detection results."
+                )
+            )
+        )
+        self.list_widget = QListWidget()
+        self.list_widget.setSelectionMode(
+            QListWidget.SelectionMode.SingleSelection
+        )
+        self.list_widget.itemDoubleClicked.connect(self._on_accept)
+        for project_id, path in infer_projects or []:
+            item = QListWidgetItem(f"{project_id}\n{path}")
+            item.setData(Qt.ItemDataRole.UserRole, (project_id, path))
+            self.list_widget.addItem(item)
+        layout.addWidget(self.list_widget, 1)
+
+        btns = QHBoxLayout()
+        btns.addStretch()
+        cancel = SecondaryButton(self.tr("Cancel"))
+        cancel.clicked.connect(self.reject)
+        ok = PrimaryButton(self.tr("Open"))
+        ok.clicked.connect(self._on_accept)
+        btns.addWidget(cancel)
+        btns.addWidget(ok)
+        layout.addLayout(btns)
+
+    def _on_accept(self) -> None:
+        items = self.list_widget.selectedItems()
+        if not items:
+            QMessageBox.warning(
+                self,
+                self.tr("Open Project"),
+                self.tr("Please select a project."),
+            )
+            return
+        self._selected = items[0].data(Qt.ItemDataRole.UserRole)
+        self.accept()
+
+    def selected_project(self) -> Optional[tuple]:
+        return self._selected
+
+
+def _read_yolo_boxes(label_path: str) -> List[tuple]:
+    boxes = []
+    if not label_path or not os.path.isfile(label_path):
+        return boxes
+    try:
+        text = open(label_path, "r", encoding="utf-8").read()
+    except OSError:
+        return boxes
+    for line in text.splitlines():
+        parts = line.split()
+        if len(parts) < 5:
+            continue
+        try:
+            cid = int(float(parts[0]))
+            cx, cy, w, h = (float(parts[i]) for i in range(1, 5))
+        except ValueError:
+            continue
+        boxes.append((cid, cx, cy, w, h))
+    return boxes
+
+
+class InferResultViewer(QDialog):
+    """Browse one inference project's images, with YOLO boxes when needed."""
+
+    def __init__(
+        self,
+        parent=None,
+        *,
+        project_id: str,
+        project_path: str,
+    ):
+        super().__init__(parent)
+        self.setWindowTitle(self.tr("Inference results — {name}").format(name=project_id))
+        self.setMinimumSize(960, 640)
+        self.setStyleSheet(get_ultralytics_dialog_style())
+        info = describe_infer_project(project_path)
+        self._images: List[str] = list(info.get("images") or [])
+        self._labels_dir = str(info.get("labels_dir") or "")
+        self._annotated = bool(info.get("annotated"))
+        self._index = 0
+
+        layout = QVBoxLayout(self)
+        self.summary = QLabel("")
+        layout.addWidget(self.summary)
+        body = QHBoxLayout()
+        self.list_widget = QListWidget()
+        self.list_widget.setMinimumWidth(220)
+        for path in self._images:
+            item = QListWidgetItem(os.path.basename(path))
+            item.setData(Qt.ItemDataRole.UserRole, path)
+            self.list_widget.addItem(item)
+        self.list_widget.currentRowChanged.connect(self._show_index)
+        body.addWidget(self.list_widget)
+        self.image_label = QLabel()
+        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.image_label.setMinimumSize(640, 480)
+        body.addWidget(self.image_label, 1)
+        layout.addLayout(body, 1)
+
+        nav = QHBoxLayout()
+        prev_btn = SecondaryButton(self.tr("Previous"))
+        next_btn = SecondaryButton(self.tr("Next"))
+        prev_btn.clicked.connect(lambda: self._step(-1))
+        next_btn.clicked.connect(lambda: self._step(1))
+        close_btn = PrimaryButton(self.tr("Close"))
+        close_btn.clicked.connect(self.accept)
+        nav.addWidget(prev_btn)
+        nav.addWidget(next_btn)
+        nav.addStretch()
+        nav.addWidget(close_btn)
+        layout.addLayout(nav)
+        if self._images:
+            self.list_widget.setCurrentRow(0)
+        else:
+            self._refresh_summary()
+
+    def _step(self, delta: int) -> None:
+        if not self._images:
+            return
+        self._show_index((self._index + delta) % len(self._images))
+        self.list_widget.setCurrentRow(self._index)
+
+    def _show_index(self, index: int) -> None:
+        if index < 0 or index >= len(self._images):
+            return
+        self._index = index
+        self._refresh_summary()
+        path = self._images[index]
+        pix = QPixmap(path)
+        if pix.isNull():
+            self.image_label.setText(self.tr("Cannot display this image."))
+            return
+        if not self._annotated:
+            pix = self._draw_boxes(pix, path)
+        target = self.image_label.size()
+        if target.width() > 40 and target.height() > 40:
+            pix = pix.scaled(
+                target,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        self.image_label.setPixmap(pix)
+
+    def _refresh_summary(self) -> None:
+        total = len(self._images)
+        current = self._index + 1 if total else 0
+        name = os.path.basename(self._images[self._index]) if total else "—"
+        mode = (
+            self.tr("annotated images")
+            if self._annotated
+            else self.tr("source images with label boxes")
+        )
+        self.summary.setText(
+            self.tr("{current}/{total} · {name} · {mode}").format(
+                current=current,
+                total=total,
+                name=name,
+                mode=mode,
+            )
+        )
+
+    def _draw_boxes(self, pix: QPixmap, image_path: str) -> QPixmap:
+        stem = os.path.splitext(os.path.basename(image_path))[0]
+        boxes = _read_yolo_boxes(os.path.join(self._labels_dir, stem + ".txt"))
+        if not boxes:
+            return pix
+        canvas = QPixmap(pix)
+        painter = QPainter(canvas)
+        pen = QPen(QColor(0, 220, 80))
+        pen.setWidth(max(2, canvas.width() // 400))
+        painter.setPen(pen)
+        w, h = canvas.width(), canvas.height()
+        for cid, cx, cy, bw, bh in boxes:
+            x1 = (cx - bw / 2.0) * w
+            y1 = (cy - bh / 2.0) * h
+            painter.drawRect(int(x1), int(y1), int(bw * w), int(bh * h))
+            painter.drawText(int(x1), max(12, int(y1) - 4), str(cid))
+        painter.end()
+        return canvas
+
+    def resizeEvent(self, event) -> None:
+        super().resizeEvent(event)
+        if self._images:
+            self._show_index(self._index)

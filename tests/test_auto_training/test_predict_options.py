@@ -28,10 +28,12 @@ def test_labels_only_preset():
 
 
 def test_custom_cli_merge():
-    opts = PredictOptions(custom_cli="conf=0.9 max_det=50")
+    opts = PredictOptions(custom_cli="conf=0.9 max_det=50 rect=True")
     merged = opts.with_cli_overrides()
     assert merged.conf == 0.9
     assert merged.max_det == 50
+    assert merged.rect is True
+    assert merged.predict_kwargs()["rect"] is True
 
 
 def test_batch_predict_script_snippet_syntax():
@@ -49,6 +51,21 @@ def test_batch_predict_script_snippet_syntax():
         "model = YOLO('w.pt')\n"
         f"{predict_call}\n"
     )
+    compile(script, "<test>", "exec")
+
+
+def test_predict_stream_loop_syntax():
+    opts = PredictOptions(rect=True, verbose=False)
+    loop = opts.render_predict_stream_loop(
+        source_expr="image_folder",
+        project_expr=repr(r"C:\runs\job1"),
+        name_expr="'batch_infer'",
+        indent="",
+    )
+    assert "stream=True" in loop
+    assert "PREDICT %d/%d" in loop
+    assert "rect=True" in loop
+    script = "import os\nimage_folder = '.'\nmodel = None\n" + loop + "\n"
     compile(script, "<test>", "exec")
 
 

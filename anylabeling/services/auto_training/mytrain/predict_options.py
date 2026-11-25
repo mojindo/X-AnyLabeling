@@ -155,3 +155,52 @@ class PredictOptions:
             lines.append(f"{indent}    {key}={repr(val)},")
         lines.append(f"{indent})")
         return "\n".join(lines)
+
+    def render_predict_stream_loop(
+        self,
+        *,
+        source_expr: str,
+        project_expr: str = "run_dir",
+        name_expr: str = "'predict'",
+        indent: str = "    ",
+    ) -> str:
+        """Python loop that predicts with ``stream=True`` and prints progress.
+
+        Each image prints ``PREDICT {done}/{total} {filename}`` on its own line.
+        The surrounding script must already import ``os`` and define ``model``.
+        """
+        kw = self.predict_kwargs()
+        pad = indent
+        lines = [
+            f"{pad}_image_exts = {{'.jpg', '.jpeg', '.png', '.bmp', '.webp', '.tif', '.tiff'}}",
+            f"{pad}_predict_total = 0",
+            f"{pad}for _root, _dirs, _files in os.walk({source_expr}):",
+            f"{pad}    for _name in _files:",
+            f"{pad}        if os.path.splitext(_name)[1].lower() in _image_exts:",
+            f"{pad}            _predict_total += 1",
+            f'{pad}print("PREDICT_TOTAL %d" % _predict_total, flush=True)',
+            f"{pad}_done = 0",
+            f"{pad}for _result in model.predict(",
+            f"{pad}    source={source_expr},",
+            f"{pad}    project={project_expr},",
+            f"{pad}    name={name_expr},",
+        ]
+        for key, val in kw.items():
+            if key in ("source", "project", "name", "stream"):
+                continue
+            lines.append(f"{pad}    {key}={repr(val)},")
+        lines.extend(
+            [
+                f"{pad}    stream=True,",
+                f"{pad}):",
+                f"{pad}    _done += 1",
+                f"{pad}    _p = getattr(_result, 'path', '') or ''",
+                (
+                    f"{pad}    print("
+                    f'"PREDICT %d/%d %s" % ('
+                    f"_done, _predict_total or _done, "
+                    f"os.path.basename(str(_p))), flush=True)"
+                ),
+            ]
+        )
+        return "\n".join(lines)

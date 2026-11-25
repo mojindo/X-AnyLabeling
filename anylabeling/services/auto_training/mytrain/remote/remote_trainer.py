@@ -1885,7 +1885,7 @@ def build_remote_batch_predict_script(
 ) -> str:
     """Predict a folder → YOLO txt under ``{run_dir}/batch_infer/labels``."""
     predict_opts = opts or PredictOptions.for_labels_only(imgsz=int(imgsz))
-    predict_call = predict_opts.render_predict_call(
+    predict_call = predict_opts.render_predict_stream_loop(
         source_expr="source",
         name_expr="'batch_infer'",
     )
@@ -1999,8 +1999,16 @@ def remote_batch_predict_yolo(
         )
         if progress:
             progress(f"Uploading {n_img} image(s)…")
+        uploaded = {"n": 0}
+
+        def _upload_progress(remote_path: str) -> None:
+            uploaded["n"] += 1
+            if progress:
+                base = os.path.basename(str(remote_path).replace("\\", "/"))
+                progress(f"Uploading {uploaded['n']}/{n_img} {base}")
+
         client.upload_directory(
-            local_image_folder, remote_images, progress=progress
+            local_image_folder, remote_images, progress=_upload_progress
         )
 
         script = build_remote_batch_predict_script(
@@ -2029,11 +2037,19 @@ def remote_batch_predict_yolo(
 
         if progress:
             progress("Running remote batch predict…")
-        code, out, err = client.exec(
+        streamed: list = []
+
+        def _on_remote_line(line: str) -> None:
+            streamed.append(line)
+            if progress:
+                progress(line)
+
+        code = client.exec_streaming(
             format_exec_python(remote_python, remote_script),
-            timeout=7200,
+            _on_remote_line,
+            get_pty=True,
         )
-        text = ((out or "") + "\n" + (err or "")).strip()
+        text = "\n".join(streamed).strip()
         if code != 0 or "BATCH_PREDICT_OK:" not in text:
             return False, text or f"Remote batch predict failed (code={code})"
         path = remote_labels

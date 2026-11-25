@@ -6,6 +6,7 @@ import os
 import select
 import socket
 import threading
+import time
 from pathlib import Path
 from typing import Callable, List, Optional, Tuple
 
@@ -309,8 +310,10 @@ class SSHClient:
                     for line in chunk.splitlines():
                         if line.strip():
                             on_line(line.rstrip())
-                if channel.exit_status_ready() and not channel.recv_ready():
+                    continue
+                if channel.exit_status_ready():
                     break
+                time.sleep(0.05)
             while channel.recv_ready():
                 chunk = channel.recv(4096).decode("utf-8", errors="replace")
                 for line in chunk.splitlines():
